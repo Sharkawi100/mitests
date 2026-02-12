@@ -1,10 +1,298 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Mitests - مجموعاتي</title><meta name="description" content="صفحة مستقلة لمجموعات الطالب.">
-  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"><link rel="stylesheet" href="styles.css">
-  <style>.student-navbar{border-bottom:1px solid var(--color-gray-200)} body.rtl .main-content .student-navbar{right:var(--sidebar-width);left:0} body.ltr .main-content .student-navbar{left:var(--sidebar-width);right:0} body.rtl .main-content.main-content--expanded .student-navbar{right:var(--sidebar-collapsed-width)} body.ltr .main-content.main-content--expanded .student-navbar{left:var(--sidebar-collapsed-width)} .student-navbar .navbar__brand-icon{background:linear-gradient(135deg,var(--color-student),#24c6c6)} .sidebar__item:hover,.sidebar__item--active{background:rgba(14,165,165,.22);color:var(--color-white)} .sidebar__item--active{border-inline-start:3px solid var(--color-student)} .main{padding:calc(var(--navbar-height) + var(--space-6)) var(--space-6) var(--space-8);display:grid;gap:var(--space-4)} .card-block{background:var(--color-white);border:1px solid var(--color-gray-200);border-top:4px solid var(--color-student);border-radius:var(--border-radius-md);box-shadow:var(--shadow-sm);padding:var(--space-4)} .grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--space-3)} .group-link{text-decoration:none;color:inherit;display:block} .group-link:hover .group{transform:translateY(-3px);box-shadow:var(--shadow-md)} .group-link:hover .glink{opacity:1} .group{border:1px solid var(--color-gray-200);border-top:4px solid var(--color-student);border-radius:var(--border-radius-md);padding:var(--space-4);display:grid;gap:var(--space-2);transition:transform .2s,box-shadow .2s;cursor:pointer} .glink{display:block;margin-top:var(--space-1);font-size:var(--font-size-xs);color:var(--color-student);font-weight:600;opacity:.6;transition:opacity .2s} @media(max-width:1023px){ body.rtl .main-content .student-navbar{right:var(--sidebar-collapsed-width)} body.ltr .main-content .student-navbar{left:var(--sidebar-collapsed-width)} body.rtl .main-content{margin-right:var(--sidebar-collapsed-width)} body.ltr .main-content{margin-left:var(--sidebar-collapsed-width)} .sidebar{width:var(--sidebar-collapsed-width)} .sidebar .sidebar__brand-text,.sidebar .sidebar__item span,.sidebar .sidebar__toggle span{display:none} .grid{grid-template-columns:1fr 1fr} } @media(max-width:767px){ .sidebar{display:none} body.rtl .main-content,body.ltr .main-content{margin:0} body.rtl .main-content .student-navbar,body.ltr .main-content .student-navbar{right:0;left:0} .main{padding-inline:var(--space-4)} .grid{grid-template-columns:1fr} }</style>
-</head>
-<body class="rtl"><aside class="sidebar" id="sidebar" aria-label="Sidebar navigation"><div class="sidebar__header"><div class="sidebar__logo">M</div><span class="sidebar__brand-text">سراج - الطالب</span></div><nav class="sidebar__nav"><a class="sidebar__item" href="student-dashboard.html"><i class="fas fa-gauge"></i><span>نظرة عامة</span></a><a class="sidebar__item" href="student-coming-tests.html"><i class="fas fa-calendar-days"></i><span>اختبارات قادمة</span></a><a class="sidebar__item sidebar__item--active" href="student-groups.html"><i class="fas fa-users"></i><span>مجموعاتي</span></a><a class="sidebar__item" href="student-learning.html"><i class="fas fa-chart-line"></i><span>مسار التعلم</span></a><a class="sidebar__item" href="student-reports.html"><i class="fas fa-file-circle-check"></i><span>تقارير حديثة</span></a><a class="sidebar__item" href="student-settings.html"><i class="fas fa-gear"></i><span>الإعدادات</span></a></nav><button class="sidebar__toggle" id="sidebar-toggle" aria-label="Toggle sidebar"><i class="fas fa-angles-right"></i><span>تصغير</span></button></aside><div class="main-content" id="main-content"><nav class="navbar student-navbar" role="navigation" aria-label="Student top navigation"><a href="student-groups.html" class="navbar__brand"><div class="navbar__brand-icon"><i class="fas fa-users"></i></div><span class="navbar__brand-text">مجموعاتي</span></a><div class="navbar__actions"><div class="lang-switcher" role="group" aria-label="Language selector"><button class="lang-switcher__btn active" data-lang="ar" aria-label="Arabic">&#1593;</button><button class="lang-switcher__btn" data-lang="he" aria-label="Hebrew">&#1506;&#1489;</button><button class="lang-switcher__btn" data-lang="en" aria-label="English">En</button></div><a href="index.html" class="btn btn--student btn--sm"><i class="fas fa-right-from-bracket"></i><span>تسجيل الخروج</span></a></div></nav><main class="main"><section class="card-block"><h1>مجموعاتي</h1><div class="grid"><a href="student-group-detail.html" class="group-link"><article class="group"><h3>الصف تاسع 1 - إنجليزي</h3><p>المعلم: أشرف شرقاوي<span class="glink">← عرض التفاصيل</span></p></article></a><a href="student-group-detail.html" class="group-link"><article class="group"><h3>الصف تاسع 1 - رياضيات</h3><p>المعلم: محمد عبد الرحمن<span class="glink">← عرض التفاصيل</span></p></article></a><a href="student-group-detail.html" class="group-link"><article class="group"><h3>الصف تاسع 1 - علوم</h3><p>المعلمة: سمية حسن<span class="glink">← عرض التفاصيل</span></p></article></a></div></section></main></div><script src="shared-layout.js"></script></body>
-</html>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mitests - مجموعاتي</title>
+  <meta name="description" content="انضمام الطالب إلى المجموعات عبر كود الدعوة ومتابعة حالة الطلبات.">
 
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="styles.css">
+
+  <style>
+    .student-navbar { border-bottom: 1px solid var(--color-gray-200); }
+    body.rtl .main-content .student-navbar { right: var(--sidebar-width); left: 0; }
+    body.ltr .main-content .student-navbar { left: var(--sidebar-width); right: 0; }
+    body.rtl .main-content.main-content--expanded .student-navbar { right: var(--sidebar-collapsed-width); }
+    body.ltr .main-content.main-content--expanded .student-navbar { left: var(--sidebar-collapsed-width); }
+
+    .student-navbar .navbar__brand-icon { background: linear-gradient(135deg, var(--color-student), #24c6c6); }
+    .sidebar__item:hover, .sidebar__item--active { background: rgba(14,165,165,.22); color: var(--color-white); }
+    .sidebar__item--active { border-inline-start: 3px solid var(--color-student); }
+
+    .btn--student { background: var(--color-student); border-color: var(--color-student); color: var(--color-white); }
+    .btn--student:hover { background: #0891b2; border-color: #0891b2; color: var(--color-white); }
+
+    .main {
+      padding: calc(var(--navbar-height) + var(--space-6)) var(--space-6) var(--space-8);
+      display: grid;
+      gap: var(--space-4);
+    }
+
+    .card-block {
+      background: var(--color-white);
+      border: 1px solid var(--color-gray-200);
+      border-top: 4px solid var(--color-student);
+      border-radius: var(--border-radius-md);
+      box-shadow: var(--shadow-sm);
+      padding: var(--space-4);
+      display: grid;
+      gap: var(--space-3);
+    }
+
+    .page-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: var(--space-3);
+      flex-wrap: wrap;
+    }
+
+    .tenant-badge {
+      padding: var(--space-1) var(--space-2);
+      border-radius: var(--border-radius-full);
+      background: rgba(14,165,165,.12);
+      color: var(--color-student);
+      font-size: var(--font-size-xs);
+      font-weight: 700;
+    }
+
+    .top-grid {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr;
+      gap: var(--space-3);
+    }
+
+    .field-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--space-2);
+    }
+
+    .field { display: grid; gap: var(--space-1); }
+    .field label { font-size: var(--font-size-xs); color: var(--color-gray-600); font-weight: 700; }
+    .field input {
+      border: 1px solid var(--color-gray-300);
+      border-radius: var(--border-radius-sm);
+      padding: var(--space-2) var(--space-3);
+      font-family: inherit;
+      color: var(--color-gray-800);
+    }
+    .field input:focus {
+      outline: none;
+      border-color: var(--color-student);
+      box-shadow: 0 0 0 3px rgba(14,165,165,.15);
+    }
+
+    .join-form {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: var(--space-2);
+      align-items: end;
+    }
+
+    .feedback {
+      padding: var(--space-2) var(--space-3);
+      border-radius: var(--border-radius-sm);
+      font-size: var(--font-size-sm);
+      display: none;
+    }
+    .feedback.show { display: block; }
+    .feedback.success { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
+    .feedback.error { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+
+    .table-wrap { overflow-x: auto; }
+    .data-table { width: 100%; border-collapse: collapse; min-width: 640px; }
+    .data-table th, .data-table td {
+      padding: var(--space-3);
+      border-bottom: 1px solid var(--color-gray-200);
+      text-align: start;
+      font-size: var(--font-size-sm);
+    }
+    .data-table th { color: var(--color-gray-500); background: var(--color-gray-50); font-weight: 600; }
+
+    .groups-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: var(--space-3);
+    }
+
+    .group-link { text-decoration: none; color: inherit; display: block; }
+    .group-card {
+      border: 1px solid var(--color-gray-200);
+      border-top: 4px solid var(--color-student);
+      border-radius: var(--border-radius-md);
+      padding: var(--space-4);
+      display: grid;
+      gap: var(--space-2);
+      transition: transform .2s, box-shadow .2s;
+    }
+    .group-link:hover .group-card {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .hint {
+      color: var(--color-gray-500);
+      font-size: var(--font-size-xs);
+      line-height: 1.5;
+    }
+
+    .empty-state {
+      border: 1px dashed var(--color-student);
+      border-radius: var(--border-radius-sm);
+      padding: var(--space-4);
+      text-align: center;
+      color: var(--color-gray-600);
+      background: rgba(14,165,165,.08);
+      font-size: var(--font-size-sm);
+    }
+
+    @media (max-width:1023px) {
+      body.rtl .main-content .student-navbar { right: var(--sidebar-collapsed-width); }
+      body.ltr .main-content .student-navbar { left: var(--sidebar-collapsed-width); }
+      body.rtl .main-content { margin-right: var(--sidebar-collapsed-width); }
+      body.ltr .main-content { margin-left: var(--sidebar-collapsed-width); }
+      .sidebar { width: var(--sidebar-collapsed-width); }
+      .sidebar .sidebar__brand-text, .sidebar .sidebar__item span, .sidebar .sidebar__toggle span { display:none; }
+      .top-grid { grid-template-columns: 1fr; }
+      .groups-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
+    }
+
+    @media (max-width:767px) {
+      .sidebar { display:none; }
+      body.rtl .main-content, body.ltr .main-content { margin:0; }
+      body.rtl .main-content .student-navbar, body.ltr .main-content .student-navbar { right:0; left:0; }
+      .main { padding-inline: var(--space-4); }
+      .join-form, .field-grid { grid-template-columns: 1fr; }
+      .groups-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body class="rtl">
+  <aside class="sidebar" id="sidebar" aria-label="Sidebar navigation">
+    <div class="sidebar__header"><div class="sidebar__logo">M</div><span class="sidebar__brand-text">سراج - الطالب</span></div>
+    <nav class="sidebar__nav">
+      <a class="sidebar__item" href="student-dashboard.html"><i class="fas fa-gauge"></i><span>نظرة عامة</span></a>
+      <a class="sidebar__item" href="student-coming-tests.html"><i class="fas fa-calendar-days"></i><span>اختبارات قادمة</span></a>
+      <a class="sidebar__item sidebar__item--active" href="student-groups.html"><i class="fas fa-users"></i><span>مجموعاتي</span></a>
+      <a class="sidebar__item" href="student-learning.html"><i class="fas fa-chart-line"></i><span>مسار التعلم</span></a>
+      <a class="sidebar__item" href="student-reports.html"><i class="fas fa-file-circle-check"></i><span>تقارير حديثة</span></a>
+      <a class="sidebar__item" href="student-settings.html"><i class="fas fa-gear"></i><span>الإعدادات</span></a>
+    </nav>
+    <button class="sidebar__toggle" id="sidebar-toggle" aria-label="Toggle sidebar"><i class="fas fa-angles-right"></i><span>تصغير</span></button>
+  </aside>
+
+  <div class="main-content" id="main-content">
+    <nav class="navbar student-navbar" role="navigation" aria-label="Student top navigation">
+      <a href="student-groups.html" class="navbar__brand">
+        <div class="navbar__brand-icon"><i class="fas fa-users"></i></div>
+        <span class="navbar__brand-text">مجموعاتي</span>
+      </a>
+      <div class="navbar__actions">
+        <div class="lang-switcher" role="group" aria-label="Language selector">
+          <button class="lang-switcher__btn active" data-lang="ar" aria-label="Arabic">&#1593;</button>
+          <button class="lang-switcher__btn" data-lang="he" aria-label="Hebrew">&#1506;&#1489;</button>
+          <button class="lang-switcher__btn" data-lang="en" aria-label="English">En</button>
+        </div>
+        <a href="index.html" class="btn btn--student btn--sm"><i class="fas fa-right-from-bracket"></i><span>تسجيل الخروج</span></a>
+      </div>
+    </nav>
+
+    <main class="main">
+      <section class="card-block">
+        <div class="page-head">
+          <div>
+            <h1>مجموعاتي</h1>
+            <p class="hint">انضم لمجموعة عبر كود الدعوة، وتابع حالة طلبك حتى موافقة المعلم.</p>
+          </div>
+          <span class="tenant-badge" id="tenant-badge">وضع المدرسة</span>
+        </div>
+      </section>
+
+      <section class="top-grid">
+        <article class="card-block">
+          <h2>الانضمام بكود</h2>
+          <div class="join-form">
+            <div class="field">
+              <label for="join-code-input">كود المجموعة</label>
+              <input id="join-code-input" type="text" placeholder="مثال: ENG9-1001">
+            </div>
+            <button type="button" class="btn btn--student" id="join-group-btn"><i class="fas fa-user-plus"></i><span>إرسال طلب</span></button>
+          </div>
+          <div id="join-feedback" class="feedback"></div>
+          <p class="hint">بعد الإرسال، سيصل الطلب إلى المعلم ضمن صفحة إدارة المجموعات للموافقة أو الرفض.</p>
+        </article>
+
+        <article class="card-block">
+          <h2>بيانات الطالب</h2>
+          <div class="field-grid">
+            <div class="field">
+              <label for="student-name">الاسم</label>
+              <input id="student-name" type="text" placeholder="مثال: يوسف لؤي">
+            </div>
+            <div class="field">
+              <label for="student-id">الرقم التعريفي</label>
+              <input id="student-id" type="text" placeholder="STD-202401">
+            </div>
+            <div class="field">
+              <label for="student-grade">الصف</label>
+              <input id="student-grade" type="text" placeholder="التاسع">
+            </div>
+            <div class="field">
+              <label for="student-section">الشعبة</label>
+              <input id="student-section" type="text" placeholder="1 (أ)">
+            </div>
+          </div>
+          <button type="button" class="btn btn--outline" id="save-student-profile-btn">حفظ البيانات</button>
+        </article>
+      </section>
+
+      <section class="card-block">
+        <h2>طلبات الانضمام</h2>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>المجموعة</th>
+                <th>الكود</th>
+                <th>تاريخ الطلب</th>
+                <th>الحالة</th>
+              </tr>
+            </thead>
+            <tbody id="pending-requests-body"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="card-block">
+        <h2>سجل الطلبات</h2>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>المجموعة</th>
+                <th>الحالة</th>
+                <th>تاريخ القرار</th>
+                <th>ملاحظة</th>
+              </tr>
+            </thead>
+            <tbody id="request-history-body"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="card-block">
+        <h2>المجموعات المنضم إليها</h2>
+        <div id="student-groups-grid" class="groups-grid"></div>
+      </section>
+    </main>
+  </div>
+
+  <script src="shared-layout.js"></script>
+  <script src="student-groups.js"></script>
+</body>
+</html>

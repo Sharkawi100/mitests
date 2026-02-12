@@ -161,34 +161,7 @@
                   <th>الإجراءات</th>
                 </tr>
               </thead>
-              <tbody>
-                <tr>
-                  <td><div style="display:flex;align-items:center;gap:8px;"><div style="width:32px;height:32px;background:#dcfce7;color:#166534;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;">ي</div><div><div style="font-weight:600">يوسف لؤي</div><div style="font-size:11px;color:#6b7280">STD-202401</div></div></div></td>
-                  <td>التاسع</td>
-                  <td>1 (أ)</td>
-                  <td>0599123456</td>
-                  <td>اليوم، 10:30 ص</td>
-                  <td><span class="status-badge status-active">نشط</span></td>
-                  <td>
-                    <button class="btn-icon edit" title="تعديل" onclick="openEditModal('يوسف لؤي', 'التاسع', '1 (أ)', '0599123456')"><i class="fas fa-pen"></i></button>
-                    <button class="btn-icon" title="تقرير الطالب"><i class="fas fa-file-lines"></i></button>
-                    <button class="btn-icon delete" title="حذف"><i class="fas fa-trash"></i></button>
-                  </td>
-                </tr>
-                <tr>
-                  <td><div style="display:flex;align-items:center;gap:8px;"><div style="width:32px;height:32px;background:#dcfce7;color:#166534;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;">ل</div><div><div style="font-weight:600">ليان حسن</div><div style="font-size:11px;color:#6b7280">STD-202442</div></div></div></td>
-                  <td>الثامن</td>
-                  <td>3 (ج)</td>
-                  <td>0568987654</td>
-                  <td>منذ 3 أيام</td>
-                  <td><span class="status-badge status-inactive">بانتظار التفعيل</span></td>
-                  <td>
-                    <button class="btn-icon edit" title="تعديل" onclick="openEditModal('ليان حسن', 'الثامن', '3 (ج)', '0568987654')"><i class="fas fa-pen"></i></button>
-                    <button class="btn-icon" title="تقرير الطالب"><i class="fas fa-file-lines"></i></button>
-                    <button class="btn-icon delete" title="حذف"><i class="fas fa-trash"></i></button>
-                  </td>
-                </tr>
-              </tbody>
+              <tbody id="students-table-body"></tbody>
             </table>
           </div>
         </div>
@@ -234,7 +207,6 @@
         <button class="btn btn--school" id="modal-save">حفظ</button>
       </div>
     </div>
-    </div>
   </div>
 
   <!-- Edit Student Modal -->
@@ -271,54 +243,12 @@
       </div>
       <div class="modal__footer">
         <button class="btn btn--outline" data-modal-close>إلغاء</button>
-        <button class="btn btn--school" onclick="saveEditStudent()">حفظ التغييرات</button>
+        <button class="btn btn--school" id="edit-student-save-btn">حفظ التغييرات</button>
       </div>
     </div>
   </div>
 
   <script src="shared-layout.js"></script>
-  <script>
-    (function(){
-      // Shared layout handles opening/closing via data attributes
-      var modal = document.getElementById('student-modal');
-      var saveBtn = document.getElementById('modal-save');
-      var closeBtn = document.getElementById('modal-close'); // For manual close if needed
-
-      // We still need to handle the specific Save logic
-      saveBtn.addEventListener('click', function() {
-        var name = document.getElementById('student-name').value;
-        var grade = document.getElementById('student-grade').value;
-        if(name && grade) {
-          alert('تم إضافة الطالب: ' + name);
-          // Manually close using shared layout class/attr logic or click the close button mock
-          closeBtn.click();
-        } else {
-          alert('يرجى ملء كافة الحقول المطلوبة');
-        }
-      });
-    })();
-
-    // Functions for Edit Student Modal
-    function openEditModal(name, grade, section, guardian) {
-      document.getElementById('edit-student-name').value = name;
-      document.getElementById('edit-student-grade').value = grade;
-      document.getElementById('edit-student-section').value = section;
-      document.getElementById('edit-student-guardian').value = guardian;
-      
-      var modal = document.getElementById('edit-student-modal');
-      modal.classList.add('modal-overlay--active');
-      modal.setAttribute('aria-hidden', 'false');
-    }
-
-    function saveEditStudent() {
-      alert('تم حفظ بيانات الطالب بنجاح');
-      var modal = document.getElementById('edit-student-modal');
-      modal.classList.remove('modal-overlay--active');
-      modal.setAttribute('aria-hidden', 'true');
-    }
-    (function(){
-       // Re-init modals for dynamically added ones if needed
-    })();
-  </script>
+  <script src="school-users-students.js"></script>
 </body>
 </html>
