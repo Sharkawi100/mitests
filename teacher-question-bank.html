@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mitests - بنك أسئلة المعلم</title>
+  <meta name="description" content="صفحة مستقلة لإدارة بنك أسئلة المعلم مع تصنيفات بلوم.">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="styles.css">
+
+  <style>
+    .teacher-navbar { border-bottom: 1px solid var(--color-gray-200); }
+    body.rtl .main-content .teacher-navbar { right: var(--sidebar-width); left: 0; }
+    body.ltr .main-content .teacher-navbar { left: var(--sidebar-width); right: 0; }
+    body.rtl .main-content.main-content--expanded .teacher-navbar { right: var(--sidebar-collapsed-width); }
+    body.ltr .main-content.main-content--expanded .teacher-navbar { left: var(--sidebar-collapsed-width); }
+
+    .teacher-navbar .navbar__brand-icon { background: linear-gradient(135deg, var(--color-teacher), var(--color-primary-400)); }
+    .sidebar__item:hover, .sidebar__item--active { background: rgba(53, 86, 178, 0.25); color: var(--color-white); }
+    .sidebar__item--active { border-inline-start: 3px solid var(--color-teacher); }
+
+    .btn--teacher { background: var(--color-teacher); border-color: var(--color-teacher); color: var(--color-white); }
+    .btn--teacher:hover { background: var(--color-primary-600); border-color: var(--color-primary-600); color: var(--color-white); }
+
+    .bank-main {
+      padding: calc(var(--navbar-height) + var(--space-6)) var(--space-6) var(--space-8);
+      display: grid;
+      gap: var(--space-5);
+    }
+
+    .header-card {
+      background: var(--color-white);
+      border-radius: var(--border-radius-lg);
+      box-shadow: var(--shadow-md);
+      border-top: 4px solid var(--color-teacher);
+      padding: var(--space-6);
+      display: grid;
+      gap: var(--space-3);
+    }
+
+    .header-card h1 { color: var(--color-gray-900); font-size: var(--font-size-3xl); line-height: 1.25; }
+    .header-card p { color: var(--color-gray-600); }
+
+    .filters {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr auto;
+      gap: var(--space-3);
+      align-items: end;
+      background: var(--color-white);
+      border: 1px solid var(--color-gray-200);
+      border-radius: var(--border-radius-md);
+      box-shadow: var(--shadow-sm);
+      padding: var(--space-4);
+    }
+
+    .field { display: grid; gap: var(--space-1); }
+    .field label { font-size: var(--font-size-sm); font-weight: 600; color: var(--color-gray-700); }
+    .field input, .field select {
+      border: 1px solid var(--color-gray-300);
+      border-radius: var(--border-radius-sm);
+      padding: var(--space-2) var(--space-3);
+      font-family: inherit;
+      color: var(--color-gray-800);
+    }
+    .field input:focus, .field select:focus {
+      outline: none;
+      border-color: var(--color-teacher);
+      box-shadow: 0 0 0 3px rgba(53, 86, 178, 0.15);
+    }
+
+    .questions-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--space-4);
+    }
+
+    .question-card {
+      background: var(--color-white);
+      border: 1px solid var(--color-gray-200);
+      border-top: 4px solid var(--color-teacher);
+      border-radius: var(--border-radius-md);
+      box-shadow: var(--shadow-sm);
+      padding: var(--space-4);
+      display: grid;
+      gap: var(--space-3);
+    }
+
+    .question-card h3 { color: var(--color-gray-900); font-size: var(--font-size-lg); line-height: 1.5; }
+    .question-card p { color: var(--color-gray-700); font-size: var(--font-size-sm); line-height: 1.7; }
+
+    .chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-2);
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-1);
+      border-radius: var(--border-radius-full);
+      padding: var(--space-1) var(--space-3);
+      font-size: var(--font-size-xs);
+      font-weight: 700;
+    }
+
+    .chip--subject { background: var(--color-primary-100); color: var(--color-teacher); }
+    .chip--bloom { background: var(--color-secondary-100); color: var(--color-secondary-700); }
+    .chip--difficulty { background: var(--color-amber-100); color: #9a3412; }
+
+    .actions {
+      display: flex;
+      justify-content: space-between;
+      gap: var(--space-2);
+      flex-wrap: wrap;
+      border-top: 1px solid var(--color-gray-200);
+      padding-top: var(--space-3);
+    }
+
+    .edit-form {
+      padding: var(--space-4) var(--space-6) var(--space-6);
+      display: grid;
+      gap: var(--space-3);
+    }
+
+    .edit-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-3);
+    }
+
+    .edit-form textarea,
+    .edit-form select {
+      width: 100%;
+      border: 1px solid var(--color-gray-300);
+      border-radius: var(--border-radius-sm);
+      padding: var(--space-2) var(--space-3);
+      font-family: inherit;
+      color: var(--color-gray-800);
+      background: var(--color-white);
+    }
+
+    .edit-form textarea {
+      min-height: 90px;
+      resize: vertical;
+    }
+
+    .edit-form textarea:focus,
+    .edit-form select:focus {
+      outline: none;
+      border-color: var(--color-teacher);
+      box-shadow: 0 0 0 3px rgba(53, 86, 178, 0.15);
+    }
+
+    .edit-actions {
+      display: flex;
+      justify-content: space-between;
+      gap: var(--space-2);
+      flex-wrap: wrap;
+      padding-top: var(--space-2);
+      border-top: 1px solid var(--color-gray-200);
+    }
+
+    @media (max-width: 1023px) {
+      body.rtl .main-content .teacher-navbar { right: var(--sidebar-collapsed-width); }
+      body.ltr .main-content .teacher-navbar { left: var(--sidebar-collapsed-width); }
+      body.rtl .main-content { margin-right: var(--sidebar-collapsed-width); }
+      body.ltr .main-content { margin-left: var(--sidebar-collapsed-width); }
+      .sidebar { width: var(--sidebar-collapsed-width); }
+      .sidebar .sidebar__brand-text, .sidebar .sidebar__item span, .sidebar .sidebar__toggle span { display: none; }
+      .filters { grid-template-columns: 1fr; }
+      .questions-grid { grid-template-columns: 1fr; }
+      .edit-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 767px) {
+      .sidebar { display: none; }
+      body.rtl .main-content, body.ltr .main-content { margin: 0; }
+      body.rtl .main-content .teacher-navbar, body.ltr .main-content .teacher-navbar { right: 0; left: 0; }
+      .bank-main { padding-inline: var(--space-4); }
+      .header-card h1 { font-size: var(--font-size-2xl); }
+      .actions .btn { width: 100%; }
+    }
+  </style>
+</head>
+
+<body class="rtl">
+  <aside class="sidebar" id="sidebar" aria-label="Sidebar navigation">
+    <div class="sidebar__header">
+      <div class="sidebar__logo">M</div>
+      <span class="sidebar__brand-text">سراج - المعلم</span>
+    </div>
+    <nav class="sidebar__nav">
+      <a class="sidebar__item" href="teacher-dashboard.html"><i class="fas fa-gauge"></i><span data-i18n="navDashboard">لوحة المعلم</span></a>
+      <a class="sidebar__item" href="exam-wizard.html"><i class="fas fa-wand-magic-sparkles"></i><span data-i18n="navWizard">إنشاء اختبار</span></a>
+      <a class="sidebar__item sidebar__item--active" href="teacher-question-bank.html"><i class="fas fa-database"></i><span data-i18n="navBank">بنك الأسئلة</span></a>
+      <a class="sidebar__item" href="teacher-settings.html"><i class="fas fa-gear"></i><span data-i18n="navSettings">الإعدادات</span></a>
+    </nav>
+    <button class="sidebar__toggle" id="sidebar-toggle" aria-label="Toggle sidebar"><i class="fas fa-angles-right"></i><span>تصغير</span></button>
+  </aside>
+
+  <div class="main-content" id="main-content">
+    <nav class="navbar teacher-navbar" role="navigation" aria-label="Teacher top navigation">
+      <a href="teacher-question-bank.html" class="navbar__brand">
+        <div class="navbar__brand-icon"><i class="fas fa-database"></i></div>
+        <span class="navbar__brand-text" data-i18n="brand">بنك الأسئلة</span>
+      </a>
+      <div class="navbar__actions">
+        <div class="lang-switcher" role="group" aria-label="Language selector">
+          <button class="lang-switcher__btn active" data-lang="ar" aria-label="Arabic">&#1593;</button>
+          <button class="lang-switcher__btn" data-lang="he" aria-label="Hebrew">&#1506;&#1489;</button>
+          <button class="lang-switcher__btn" data-lang="en" aria-label="English">En</button>
+        </div>
+        <div class="avatar-dropdown">
+          <button class="avatar-btn" type="button" data-avatar-toggle="teacher-avatar-menu" aria-label="قائمة حساب المعلم">
+            <i class="fas fa-user"></i>
+          </button>
+          <div class="avatar-menu" id="teacher-avatar-menu" data-avatar-menu>
+            <span class="avatar-menu__label">حساب المعلم</span>
+            <a class="avatar-menu__link" href="teacher-profile.html"><i class="fas fa-id-card"></i><span data-i18n="profileMenu">الملف الشخصي</span></a>
+            <a class="avatar-menu__link" href="teacher-settings.html"><i class="fas fa-gear"></i><span data-i18n="navSettings">الإعدادات</span></a>
+          </div>
+        </div>
+        <a href="index.html" class="btn btn--teacher btn--sm"><i class="fas fa-right-from-bracket"></i><span data-i18n="logout">تسجيل الخروج</span></a>
+      </div>
+    </nav>
+
+    <main class="bank-main">
+      <header class="header-card">
+        <h1 data-i18n="headerTitle">إدارة بنك أسئلة المعلم</h1>
+        <p data-i18n="headerText">أنشئ، صنّف، وأعد استخدام الأسئلة بسرعة أثناء بناء الاختبارات.</p>
+      </header>
+
+      <section class="filters">
+        <div class="field">
+          <label for="search" data-i18n="searchLabel">بحث</label>
+          <input id="search" type="text" data-i18n-placeholder="searchPlaceholder" placeholder="ابحث عن سؤال أو كلمة مفتاحية">
+        </div>
+        <div class="field">
+          <label for="subject" data-i18n="subjectLabel">المادة</label>
+          <select id="subject">
+            <option value="" data-i18n="subjectAll">كل المواد</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="bloom" data-i18n="bloomLabel">مستوى بلوم</label>
+          <select id="bloom">
+            <option data-i18n="bloomAll">كل المستويات</option>
+            <option>L1</option>
+            <option>L2</option>
+            <option>L3</option>
+            <option>L4</option>
+          </select>
+        </div>
+        <button class="btn btn--teacher" data-i18n="searchBtn">تطبيق</button>
+      </section>
+
+      <section class="questions-grid">
+        <article class="question-card" data-question-id="q1">
+          <h3 data-i18n="q1Title" data-question-title>اشرح الفرق بين الفرضية والنظرية العلمية.</h3>
+          <p data-i18n="q1Text" data-question-body>سؤال مفتوح مناسب لتقييم مهارة التحليل وربط المفاهيم في وحدة المنهج العلمي.</p>
+          <div class="chip-row">
+            <span class="chip chip--subject" data-i18n="subjectScience" data-question-subject>علوم</span>
+            <span class="chip chip--bloom" data-question-bloom>بلوم L4</span>
+            <span class="chip chip--difficulty" data-i18n="difficultyMedium" data-question-difficulty>متوسط</span>
+          </div>
+          <div class="actions">
+            <button class="btn btn--outline btn--sm" data-i18n="editBtn" data-edit-question data-modal-open="edit-question-modal">تعديل</button>
+            <button class="btn btn--teacher btn--sm" data-i18n="useBtn" data-use-question>استخدام في اختبار</button>
+          </div>
+        </article>
+
+        <article class="question-card" data-question-id="q2">
+          <h3 data-i18n="q2Title" data-question-title>إذا كانت \\(x^2 - 9 = 0\\)، أوجد قيمة \\(x\\).</h3>
+          <p data-i18n="q2Text" data-question-body>سؤال قصير يقيس التطبيق المباشر لقوانين التحليل في الجبر.</p>
+          <div class="chip-row">
+            <span class="chip chip--subject" data-i18n="subjectMath" data-question-subject>رياضيات</span>
+            <span class="chip chip--bloom" data-question-bloom>بلوم L2</span>
+            <span class="chip chip--difficulty" data-i18n="difficultyEasy" data-question-difficulty>سهل</span>
+          </div>
+          <div class="actions">
+            <button class="btn btn--outline btn--sm" data-i18n="editBtn" data-edit-question data-modal-open="edit-question-modal">تعديل</button>
+            <button class="btn btn--teacher btn--sm" data-i18n="useBtn" data-use-question>استخدام في اختبار</button>
+          </div>
+        </article>
+
+        <article class="question-card" data-question-id="q3">
+          <h3 data-i18n="q3Title" data-question-title>اقرأ الفقرة ثم استنتج الفكرة الرئيسة بدليلين من النص.</h3>
+          <p data-i18n="q3Text" data-question-body>سؤال فهم مقروء يركز على الاستدلال اللغوي والقدرة على التفسير.</p>
+          <div class="chip-row">
+            <span class="chip chip--subject" data-i18n="subjectEnglish" data-question-subject>إنجليزي</span>
+            <span class="chip chip--bloom" data-question-bloom>بلوم L3</span>
+            <span class="chip chip--difficulty" data-i18n="difficultyMedium" data-question-difficulty>متوسط</span>
+          </div>
+          <div class="actions">
+            <button class="btn btn--outline btn--sm" data-i18n="editBtn" data-edit-question data-modal-open="edit-question-modal">تعديل</button>
+            <button class="btn btn--teacher btn--sm" data-i18n="useBtn" data-use-question>استخدام في اختبار</button>
+          </div>
+        </article>
+
+        <article class="question-card" data-question-id="q4">
+          <h3 data-i18n="q4Title" data-question-title>اختر الإجابة الصحيحة التي تمثل زمن الماضي المستمر.</h3>
+          <p data-i18n="q4Text" data-question-body>سؤال اختيار من متعدد لقياس إتقان القواعد الأساسية.</p>
+          <div class="chip-row">
+            <span class="chip chip--subject" data-i18n="subjectEnglish" data-question-subject>إنجليزي</span>
+            <span class="chip chip--bloom" data-question-bloom>بلوم L1</span>
+            <span class="chip chip--difficulty" data-i18n="difficultyEasy" data-question-difficulty>سهل</span>
+          </div>
+          <div class="actions">
+            <button class="btn btn--outline btn--sm" data-i18n="editBtn" data-edit-question data-modal-open="edit-question-modal">تعديل</button>
+            <button class="btn btn--teacher btn--sm" data-i18n="useBtn" data-use-question>استخدام في اختبار</button>
+          </div>
+        </article>
+      </section>
+    </main>
+  </div>
+
+  <div class="modal-overlay" id="edit-question-modal" aria-hidden="true">
+    <div class="modal" role="dialog" aria-labelledby="edit-question-title" aria-modal="true">
+      <div class="modal__header">
+        <h2 id="edit-question-title">تعديل السؤال</h2>
+        <button class="modal__close" data-modal-close aria-label="Close">
+          <i class="fas fa-xmark"></i>
+        </button>
+      </div>
+      <div class="edit-form">
+        <div class="field">
+          <label for="eq-title">نص السؤال</label>
+          <textarea id="eq-title"></textarea>
+        </div>
+        <div class="field">
+          <label for="eq-body">وصف السؤال</label>
+          <textarea id="eq-body"></textarea>
+        </div>
+        <div class="edit-grid">
+          <div class="field">
+            <label for="eq-subject">المادة</label>
+            <select id="eq-subject"></select>
+          </div>
+          <div class="field">
+            <label for="eq-bloom">بلوم</label>
+            <select id="eq-bloom">
+              <option value="L1">L1</option>
+              <option value="L2">L2</option>
+              <option value="L3">L3</option>
+              <option value="L4">L4</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="eq-difficulty">الصعوبة</label>
+            <select id="eq-difficulty">
+              <option value="سهل">سهل</option>
+              <option value="متوسط">متوسط</option>
+              <option value="متقدم">متقدم</option>
+            </select>
+          </div>
+        </div>
+        <div class="edit-actions">
+          <button type="button" class="btn btn--outline" data-modal-close>إلغاء</button>
+          <button type="button" class="btn btn--teacher" id="save-question-edit">حفظ التعديل</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="shared-layout.js"></script>
+  <script src="tenant-mode.js"></script>
+  <script>
+    (function () {
+      'use strict';
+      var I18N = {
+        ar: {
+          pageTitle: 'Mitests - بنك أسئلة المعلم',
+          pageDescription: 'صفحة مستقلة لإدارة بنك أسئلة المعلم مع تصنيفات بلوم.',
+          brand: 'بنك الأسئلة',
+          logout: 'تسجيل الخروج',
+          navDashboard: 'لوحة المعلم',
+          navWizard: 'إنشاء اختبار',
+          navBank: 'بنك الأسئلة',
+          navSettings: 'الإعدادات',
+          profileMenu: 'الملف الشخصي',
+          headerTitle: 'إدارة بنك أسئلة المعلم',
+          headerText: 'أنشئ، صنّف، وأعد استخدام الأسئلة بسرعة أثناء بناء الاختبارات.',
+          searchLabel: 'بحث',
+          searchPlaceholder: 'ابحث عن سؤال أو كلمة مفتاحية',
+          subjectLabel: 'المادة',
+          subjectAll: 'كل المواد',
+          subjectMath: 'رياضيات',
+          subjectScience: 'علوم',
+          subjectEnglish: 'إنجليزي',
+          bloomLabel: 'مستوى بلوم',
+          bloomAll: 'كل المستويات',
+          searchBtn: 'تطبيق',
+          q1Title: 'اشرح الفرق بين الفرضية والنظرية العلمية.',
+          q1Text: 'سؤال مفتوح مناسب لتقييم مهارة التحليل وربط المفاهيم في وحدة المنهج العلمي.',
+          q2Title: 'إذا كانت \\(x^2 - 9 = 0\\)، أوجد قيمة \\(x\\).',
+          q2Text: 'سؤال قصير يقيس التطبيق المباشر لقوانين التحليل في الجبر.',
+          q3Title: 'اقرأ الفقرة ثم استنتج الفكرة الرئيسة بدليلين من النص.',
+          q3Text: 'سؤال فهم مقروء يركز على الاستدلال اللغوي والقدرة على التفسير.',
+          q4Title: 'اختر الإجابة الصحيحة التي تمثل زمن الماضي المستمر.',
+          q4Text: 'سؤال اختيار من متعدد لقياس إتقان القواعد الأساسية.',
+          difficultyEasy: 'سهل',
+          difficultyMedium: 'متوسط',
+          editBtn: 'تعديل',
+          useBtn: 'استخدام في اختبار',
+          questionSaved: 'تم حفظ التعديل على السؤال.',
+          useAdded: 'تم إرسال السؤال إلى معالج الاختبار.'
+        },
+        he: {
+          pageTitle: 'Mitests - בנק שאלות מורה',
+          pageDescription: 'עמוד נפרד לניהול בנק השאלות של המורה.',
+          brand: 'בנק שאלות',
+          logout: 'יציאה',
+          navDashboard: 'לוח מורה',
+          navWizard: 'יצירת מבחן',
+          navBank: 'בנק שאלות',
+          navSettings: 'הגדרות',
+          profileMenu: 'פרופיל',
+          headerTitle: 'ניהול בנק השאלות',
+          headerText: 'יצירה, סיווג ושימוש חוזר בשאלות במהירות.',
+          searchLabel: 'חיפוש',
+          searchPlaceholder: 'חפש שאלה או מילת מפתח',
+          subjectLabel: 'מקצוע',
+          subjectAll: 'כל המקצועות',
+          subjectMath: 'מתמטיקה',
+          subjectScience: 'מדעים',
+          subjectEnglish: 'אנגלית',
+          bloomLabel: 'רמת בלום',
+          bloomAll: 'כל הרמות',
+          searchBtn: 'החל',
+          difficultyEasy: 'קל',
+          difficultyMedium: 'בינוני',
+          editBtn: 'עריכה',
+          useBtn: 'הוספה למבחן',
+          questionSaved: 'השאלה נשמרה בהצלחה.',
+          useAdded: 'השאלה נשלחה ליצירת מבחן.'
+        },
+        en: {
+          pageTitle: 'Mitests - Teacher Question Bank',
+          pageDescription: 'Dedicated page for managing the teacher question bank.',
+          brand: 'Question Bank',
+          logout: 'Logout',
+          navDashboard: 'Teacher Dashboard',
+          navWizard: 'Exam Wizard',
+          navBank: 'Question Bank',
+          navSettings: 'Settings',
+          profileMenu: 'Profile',
+          headerTitle: 'Manage Teacher Question Bank',
+          headerText: 'Create, classify, and reuse questions quickly while building exams.',
+          searchLabel: 'Search',
+          searchPlaceholder: 'Search by question or keyword',
+          subjectLabel: 'Subject',
+          subjectAll: 'All Subjects',
+          subjectMath: 'Math',
+          subjectScience: 'Science',
+          subjectEnglish: 'English',
+          bloomLabel: 'Bloom Level',
+          bloomAll: 'All Levels',
+          searchBtn: 'Apply',
+          difficultyEasy: 'Easy',
+          difficultyMedium: 'Medium',
+          editBtn: 'Edit',
+          useBtn: 'Use in Exam',
+          questionSaved: 'Question updated successfully.',
+          useAdded: 'Question added to the exam wizard.'
+        }
+      };
+
+      var subjectsKey = 'mitests-admin-subjects';
+      var defaultSubjects = ['اللغة العربية', 'اللغة الإنجليزية', 'الرياضيات', 'العلوم'];
+
+      function loadSubjectsCatalog() {
+        try {
+          var raw = localStorage.getItem(subjectsKey);
+          if (!raw) return defaultSubjects.slice();
+          var parsed = JSON.parse(raw);
+          if (Array.isArray(parsed) && parsed.length) return parsed;
+        } catch (e) {}
+        return defaultSubjects.slice();
+      }
+
+      function renderSubjectFilter(lang) {
+        var t = I18N[lang] || I18N.ar;
+        var select = document.getElementById('subject');
+        if (!select) return;
+
+        var previous = select.value;
+        var subjects = loadSubjectsCatalog();
+
+        select.innerHTML = '';
+
+        var allOpt = document.createElement('option');
+        allOpt.value = '';
+        allOpt.textContent = t.subjectAll || 'كل المواد';
+        select.appendChild(allOpt);
+
+        for (var i = 0; i < subjects.length; i++) {
+          var opt = document.createElement('option');
+          opt.value = subjects[i];
+          opt.textContent = subjects[i];
+          select.appendChild(opt);
+        }
+
+        if (previous) select.value = previous;
+      }
+
+      var activeEditCard = null;
+      var editTitleEl = document.getElementById('eq-title');
+      var editBodyEl = document.getElementById('eq-body');
+      var editSubjectEl = document.getElementById('eq-subject');
+      var editBloomEl = document.getElementById('eq-bloom');
+      var editDifficultyEl = document.getElementById('eq-difficulty');
+      var saveEditBtn = document.getElementById('save-question-edit');
+
+      function currentLang() {
+        return document.documentElement.getAttribute('lang') || 'ar';
+      }
+
+      function renderEditorSubjects() {
+        if (!editSubjectEl) return;
+        var subjects = loadSubjectsCatalog();
+        var currentValue = editSubjectEl.value;
+        editSubjectEl.innerHTML = '';
+        for (var i = 0; i < subjects.length; i++) {
+          var opt = document.createElement('option');
+          opt.value = subjects[i];
+          opt.textContent = subjects[i];
+          editSubjectEl.appendChild(opt);
+        }
+        if (currentValue) editSubjectEl.value = currentValue;
+      }
+
+      function openEditModal(card) {
+        if (!card) return;
+        activeEditCard = card;
+        renderEditorSubjects();
+
+        var title = card.querySelector('[data-question-title]');
+        var body = card.querySelector('[data-question-body]');
+        var subject = card.querySelector('[data-question-subject]');
+        var bloom = card.querySelector('[data-question-bloom]');
+        var difficulty = card.querySelector('[data-question-difficulty]');
+
+        if (editTitleEl) editTitleEl.value = title ? title.textContent.trim() : '';
+        if (editBodyEl) editBodyEl.value = body ? body.textContent.trim() : '';
+        if (editSubjectEl && subject) editSubjectEl.value = subject.textContent.trim();
+
+        var bloomText = bloom ? bloom.textContent.replace(/[^\d]/g, '') : '1';
+        if (editBloomEl) editBloomEl.value = 'L' + (bloomText || '1');
+        if (editDifficultyEl && difficulty) editDifficultyEl.value = difficulty.textContent.trim();
+      }
+
+      function saveQuestionEdit() {
+        if (!activeEditCard) return;
+
+        var title = activeEditCard.querySelector('[data-question-title]');
+        var body = activeEditCard.querySelector('[data-question-body]');
+        var subject = activeEditCard.querySelector('[data-question-subject]');
+        var bloom = activeEditCard.querySelector('[data-question-bloom]');
+        var difficulty = activeEditCard.querySelector('[data-question-difficulty]');
+
+        if (title && editTitleEl) {
+          title.textContent = editTitleEl.value.trim() || title.textContent;
+          title.removeAttribute('data-i18n');
+        }
+        if (body && editBodyEl) {
+          body.textContent = editBodyEl.value.trim() || body.textContent;
+          body.removeAttribute('data-i18n');
+        }
+        if (subject && editSubjectEl) {
+          subject.textContent = editSubjectEl.value || subject.textContent;
+          subject.removeAttribute('data-i18n');
+        }
+        if (bloom && editBloomEl) bloom.textContent = 'بلوم ' + editBloomEl.value;
+        if (difficulty && editDifficultyEl) {
+          difficulty.textContent = editDifficultyEl.value || difficulty.textContent;
+          difficulty.removeAttribute('data-i18n');
+        }
+
+        var modal = document.getElementById('edit-question-modal');
+        if (modal) {
+          modal.classList.remove('modal-overlay--active');
+          modal.setAttribute('aria-hidden', 'true');
+          document.body.style.overflow = '';
+        }
+
+        var t = I18N[currentLang()] || I18N.ar;
+        alert(t.questionSaved || 'تم حفظ التعديل على السؤال.');
+      }
+
+      function useQuestionInExam(card) {
+        if (!card) return;
+        var title = card.querySelector('[data-question-title]');
+        var body = card.querySelector('[data-question-body]');
+        var subject = card.querySelector('[data-question-subject]');
+        var bloom = card.querySelector('[data-question-bloom]');
+        var difficulty = card.querySelector('[data-question-difficulty]');
+
+        var item = {
+          id: card.getAttribute('data-question-id') || ('q-' + Date.now()),
+          title: title ? title.textContent.trim() : '',
+          body: body ? body.textContent.trim() : '',
+          subject: subject ? subject.textContent.trim() : '',
+          bloom: bloom ? bloom.textContent.trim() : '',
+          difficulty: difficulty ? difficulty.textContent.trim() : '',
+          selectedAt: new Date().toISOString()
+        };
+
+        var list = [];
+        try {
+          var raw = localStorage.getItem('mitests-selected-questions');
+          if (raw) {
+            var parsed = JSON.parse(raw);
+            if (Array.isArray(parsed)) list = parsed;
+          }
+        } catch (e) {}
+
+        list.push(item);
+        if (list.length > 20) list = list.slice(list.length - 20);
+
+        try {
+          localStorage.setItem('mitests-selected-questions', JSON.stringify(list));
+        } catch (e2) {}
+
+        window.location.href = 'exam-wizard.html?from=question-bank';
+      }
+
+      function applyLanguage(lang) {
+        var t = I18N[lang] || I18N.ar;
+        var nodes = document.querySelectorAll('[data-i18n]');
+        var placeholders = document.querySelectorAll('[data-i18n-placeholder]');
+        var metaDesc = document.querySelector('meta[name="description"]');
+
+        document.title = t.pageTitle;
+        if (metaDesc) metaDesc.setAttribute('content', t.pageDescription);
+
+        for (var i = 0; i < nodes.length; i++) {
+          var key = nodes[i].getAttribute('data-i18n');
+          if (t[key]) nodes[i].textContent = t[key];
+        }
+
+        for (var j = 0; j < placeholders.length; j++) {
+          var phKey = placeholders[j].getAttribute('data-i18n-placeholder');
+          if (t[phKey]) placeholders[j].setAttribute('placeholder', t[phKey]);
+        }
+
+        renderSubjectFilter(lang);
+        renderEditorSubjects();
+      }
+
+      document.addEventListener('mitests:languagechange', function (e) {
+        var lang = (e.detail && e.detail.lang) || document.documentElement.getAttribute('lang') || 'ar';
+        applyLanguage(lang);
+      });
+
+      document.addEventListener('DOMContentLoaded', function () {
+        var lang = document.documentElement.getAttribute('lang') || 'ar';
+        applyLanguage(lang);
+
+        var editBtns = document.querySelectorAll('[data-edit-question]');
+        for (var i = 0; i < editBtns.length; i++) {
+          editBtns[i].addEventListener('click', function () {
+            var card = this.closest('.question-card');
+            openEditModal(card);
+          });
+        }
+
+        var useBtns = document.querySelectorAll('[data-use-question]');
+        for (var j = 0; j < useBtns.length; j++) {
+          useBtns[j].addEventListener('click', function () {
+            var card = this.closest('.question-card');
+            useQuestionInExam(card);
+          });
+        }
+
+        if (saveEditBtn) saveEditBtn.addEventListener('click', saveQuestionEdit);
+      });
+    })();
+  </script>
+</body>
+</html>
+
+

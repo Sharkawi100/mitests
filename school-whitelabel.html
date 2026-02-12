@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mitests - هوية المدرسة</title>
+  <meta name="description" content="إدارة الهوية المؤسسية للمدرسة (White Label) من لوحة المدرسة.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .school-navbar { border-bottom: 1px solid var(--color-gray-200); }
+    body.rtl .main-content .school-navbar { right: var(--sidebar-width); left: 0; }
+    body.ltr .main-content .school-navbar { left: var(--sidebar-width); right: 0; }
+    body.rtl .main-content.main-content--expanded .school-navbar { right: var(--sidebar-collapsed-width); }
+    body.ltr .main-content.main-content--expanded .school-navbar { left: var(--sidebar-collapsed-width); }
+    .school-navbar .navbar__brand-icon { background: linear-gradient(135deg, var(--color-school), #fbbf24); }
+    .sidebar__item:hover, .sidebar__item--active { background: rgba(245, 158, 11, 0.24); color: var(--color-white); }
+    .sidebar__item--active { border-inline-start: 3px solid var(--color-school); }
+    .btn--school { background: var(--color-school); border-color: var(--color-school); color: var(--color-white); }
+    .btn--school:hover { background: #d97706; border-color: #d97706; color: var(--color-white); }
+
+    .main { padding: calc(var(--navbar-height) + var(--space-6)) var(--space-6) var(--space-8); display: grid; gap: var(--space-4); }
+    .head { background: var(--color-white); border-top: 4px solid var(--color-school); border-radius: var(--border-radius-lg); box-shadow: var(--shadow-md); padding: var(--space-5); }
+    .head h1 { font-size: var(--font-size-3xl); color: var(--color-gray-900); margin-bottom: var(--space-1); }
+    .head p { color: var(--color-gray-600); }
+
+    .grid { display: grid; grid-template-columns: 1.1fr 1fr; gap: var(--space-4); }
+    .card-block { background: var(--color-white); border: 1px solid var(--color-gray-200); border-top: 4px solid var(--color-school); border-radius: var(--border-radius-md); box-shadow: var(--shadow-sm); padding: var(--space-4); display: grid; gap: var(--space-3); }
+    .field { display: grid; gap: var(--space-1); }
+    .field label { color: var(--color-gray-700); font-size: var(--font-size-sm); font-weight: 600; }
+    .field input, .field select {
+      border: 1px solid var(--color-gray-300);
+      border-radius: var(--border-radius-sm);
+      padding: var(--space-2) var(--space-3);
+      font-family: inherit;
+      color: var(--color-gray-800);
+      background: var(--color-white);
+    }
+    .field input:focus, .field select:focus { outline: none; border-color: var(--color-school); box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.16); }
+
+    .brand-form { display: grid; gap: var(--space-3); }
+    .color-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3); }
+
+    .logo-picker { display: flex; align-items: center; gap: var(--space-3); flex-wrap: wrap; }
+    .logo-preview {
+      width: 74px;
+      height: 74px;
+      border-radius: 12px;
+      border: 1px dashed var(--color-gray-300);
+      background: var(--color-gray-50);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--color-gray-500);
+      overflow: hidden;
+    }
+    .logo-preview img { width: 100%; height: 100%; object-fit: cover; }
+
+    .preview-card {
+      border: 1px solid var(--color-gray-200);
+      border-radius: var(--border-radius-lg);
+      background: #fff;
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+    }
+    .preview-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-3);
+      padding: var(--space-4);
+      color: #fff;
+      background: linear-gradient(135deg, var(--color-school), #d97706);
+    }
+    .preview-brand {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      font-weight: 700;
+    }
+    .preview-brand-logo {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.2);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    .preview-brand-logo img { width: 100%; height: 100%; object-fit: cover; }
+    .preview-body { padding: var(--space-4); display: grid; gap: var(--space-3); }
+    .preview-badge {
+      width: fit-content;
+      border-radius: var(--border-radius-full);
+      padding: var(--space-1) var(--space-3);
+      font-size: var(--font-size-xs);
+      font-weight: 700;
+      color: #fff;
+      background: var(--color-school);
+    }
+
+    .actions { display: flex; justify-content: space-between; gap: var(--space-2); flex-wrap: wrap; }
+    .helper { color: var(--color-gray-500); font-size: var(--font-size-xs); }
+
+    @media (max-width: 1023px) {
+      body.rtl .main-content .school-navbar { right: var(--sidebar-collapsed-width); }
+      body.ltr .main-content .school-navbar { left: var(--sidebar-collapsed-width); }
+      body.rtl .main-content { margin-right: var(--sidebar-collapsed-width); }
+      body.ltr .main-content { margin-left: var(--sidebar-collapsed-width); }
+      .sidebar { width: var(--sidebar-collapsed-width); }
+      .sidebar .sidebar__brand-text, .sidebar .sidebar__item span, .sidebar .sidebar__toggle span { display: none; }
+      .grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 767px) {
+      .sidebar { display: none; }
+      body.rtl .main-content, body.ltr .main-content { margin: 0; }
+      body.rtl .main-content .school-navbar, body.ltr .main-content .school-navbar { right: 0; left: 0; }
+      .main { padding-inline: var(--space-4); }
+      .actions .btn { width: 100%; }
+      .color-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body class="rtl">
+  <aside class="sidebar" id="sidebar" aria-label="Sidebar navigation">
+    <div class="sidebar__header"><div class="sidebar__logo">M</div><span class="sidebar__brand-text">سراج - المدرسة</span></div>
+    <nav class="sidebar__nav">
+      <a class="sidebar__item" href="school.html"><i class="fas fa-gauge"></i><span>لوحة المدرسة</span></a>
+      <a class="sidebar__item" href="school-profile.html"><i class="fas fa-id-card"></i><span>ملف المؤسسة</span></a>
+      <a class="sidebar__item sidebar__item--active" href="school-whitelabel.html"><i class="fas fa-palette"></i><span>الهوية المؤسسية</span></a>
+      <a class="sidebar__item" href="school-communications.html"><i class="fas fa-comments"></i><span>التواصل والإشعارات</span></a>
+    </nav>
+    <button class="sidebar__toggle" id="sidebar-toggle" aria-label="Toggle sidebar"><i class="fas fa-angles-right"></i><span>تصغير</span></button>
+  </aside>
+
+  <div class="main-content" id="main-content">
+    <nav class="navbar school-navbar" role="navigation" aria-label="School top navigation">
+      <a href="school-whitelabel.html" class="navbar__brand"><div class="navbar__brand-icon"><i class="fas fa-palette"></i></div><span class="navbar__brand-text">إدارة الهوية المؤسسية</span></a>
+      <div class="navbar__actions">
+        <div class="lang-switcher" role="group" aria-label="Language selector">
+          <button class="lang-switcher__btn active" data-lang="ar" aria-label="Arabic">&#1593;</button>
+          <button class="lang-switcher__btn" data-lang="he" aria-label="Hebrew">&#1506;&#1489;</button>
+          <button class="lang-switcher__btn" data-lang="en" aria-label="English">En</button>
+        </div>
+        <div class="avatar-dropdown">
+          <button class="avatar-btn" type="button" data-avatar-toggle="school-avatar-menu" aria-label="قائمة حساب المدرسة"><i class="fas fa-building-columns"></i></button>
+          <div class="avatar-menu" id="school-avatar-menu" data-avatar-menu>
+            <span class="avatar-menu__label">حساب المدرسة</span>
+            <a class="avatar-menu__link" href="school-profile.html"><i class="fas fa-id-card"></i><span>ملف المؤسسة</span></a>
+            <a class="avatar-menu__link" href="school-whitelabel.html"><i class="fas fa-palette"></i><span>الهوية المؤسسية</span></a>
+            <a class="avatar-menu__link" href="school-communications.html"><i class="fas fa-comments"></i><span>التواصل والإشعارات</span></a>
+          </div>
+        </div>
+        <a href="index.html" class="btn btn--school btn--sm"><i class="fas fa-right-from-bracket"></i><span>تسجيل الخروج</span></a>
+      </div>
+    </nav>
+
+    <main class="main">
+      <header class="head">
+        <h1>الهوية المؤسسية (White Label)</h1>
+        <p>هذه الإعدادات مملوكة للمدرسة وتتحكم في مظهر الاختبارات، التقارير، وبوابة المدرسة.</p>
+      </header>
+
+      <section class="grid">
+        <article class="card-block">
+          <h2>تخصيص الهوية</h2>
+          <form class="brand-form" id="branding-form">
+            <div class="field">
+              <label>شعار المؤسسة (اختياري)</label>
+              <div class="logo-picker">
+                <div class="logo-preview" id="logo-preview"><i class="fas fa-image"></i></div>
+                <input id="logo-input" type="file" accept="image/*">
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="brand-name">الاسم الظاهر</label>
+              <input id="brand-name" type="text" placeholder="مثال: مدارس سراج الدولية">
+            </div>
+
+            <div class="color-grid">
+              <div class="field">
+                <label for="primary-color">اللون الأساسي</label>
+                <input id="primary-color" type="color" value="#f59e0b">
+              </div>
+              <div class="field">
+                <label for="secondary-color">اللون الثانوي</label>
+                <input id="secondary-color" type="color" value="#3556b2">
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="button-style">نمط الأزرار</label>
+              <select id="button-style">
+                <option value="soft">حواف ناعمة</option>
+                <option value="sharp">حواف حادة</option>
+                <option value="pill">كبسولة كاملة</option>
+              </select>
+            </div>
+
+            <div class="actions">
+              <button class="btn btn--outline" type="button" id="reset-brand">إعادة الافتراضي</button>
+              <button class="btn btn--school" type="submit">حفظ الهوية</button>
+            </div>
+            <p class="helper">يتم حفظ إعدادات الهوية محليًا في هذه النسخة التجريبية.</p>
+          </form>
+        </article>
+
+        <article class="card-block">
+          <h2>معاينة مباشرة</h2>
+          <div class="preview-card">
+            <div class="preview-head" id="preview-head">
+              <div class="preview-brand">
+                <span class="preview-brand-logo" id="preview-logo"><i class="fas fa-school"></i></span>
+                <span id="preview-name">مدرسة سراج الدولية</span>
+              </div>
+              <small>Exam Sheet</small>
+            </div>
+            <div class="preview-body">
+              <span class="preview-badge" id="preview-badge">هوية المدرسة</span>
+              <p>اختبار في مادة العلوم - الصف التاسع</p>
+              <button class="btn btn--school" id="preview-button" type="button">بدء الاختبار</button>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+  </div>
+
+  <script src="shared-layout.js"></script>
+  <script>
+    (function () {
+      'use strict';
+
+      var storageKey = 'mitests-school-branding';
+      var state = {
+        brandName: 'مدرسة سراج الدولية',
+        primaryColor: '#f59e0b',
+        secondaryColor: '#3556b2',
+        buttonStyle: 'soft',
+        logo: ''
+      };
+
+      var formEl = document.getElementById('branding-form');
+      var logoInputEl = document.getElementById('logo-input');
+      var logoPreviewEl = document.getElementById('logo-preview');
+
+      var brandNameEl = document.getElementById('brand-name');
+      var primaryColorEl = document.getElementById('primary-color');
+      var secondaryColorEl = document.getElementById('secondary-color');
+      var buttonStyleEl = document.getElementById('button-style');
+
+      var previewHeadEl = document.getElementById('preview-head');
+      var previewNameEl = document.getElementById('preview-name');
+      var previewLogoEl = document.getElementById('preview-logo');
+      var previewBadgeEl = document.getElementById('preview-badge');
+      var previewButtonEl = document.getElementById('preview-button');
+
+      function loadState() {
+        try {
+          var raw = localStorage.getItem(storageKey);
+          if (!raw) return;
+          var parsed = JSON.parse(raw);
+          if (parsed && typeof parsed === 'object') {
+            state.brandName = String(parsed.brandName || state.brandName);
+            state.primaryColor = String(parsed.primaryColor || state.primaryColor);
+            state.secondaryColor = String(parsed.secondaryColor || state.secondaryColor);
+            state.buttonStyle = String(parsed.buttonStyle || state.buttonStyle);
+            state.logo = String(parsed.logo || '');
+          }
+        } catch (e) {}
+      }
+
+      function saveState() {
+        try {
+          localStorage.setItem(storageKey, JSON.stringify(state));
+        } catch (e) {}
+      }
+
+      function setPreviewLogo(src) {
+        if (!src) {
+          previewLogoEl.innerHTML = '<i class="fas fa-school"></i>';
+          logoPreviewEl.innerHTML = '<i class="fas fa-image"></i>';
+          return;
+        }
+
+        previewLogoEl.innerHTML = '<img src="' + src + '" alt="logo">';
+        logoPreviewEl.innerHTML = '<img src="' + src + '" alt="logo">';
+      }
+
+      function applyPreview() {
+        previewNameEl.textContent = state.brandName || 'مدرسة سراج الدولية';
+        previewHeadEl.style.background = 'linear-gradient(135deg, ' + state.primaryColor + ', ' + state.secondaryColor + ')';
+        previewBadgeEl.style.background = state.primaryColor;
+        previewButtonEl.style.background = state.primaryColor;
+        previewButtonEl.style.borderColor = state.primaryColor;
+
+        if (state.buttonStyle === 'sharp') {
+          previewButtonEl.style.borderRadius = '2px';
+        } else if (state.buttonStyle === 'pill') {
+          previewButtonEl.style.borderRadius = '999px';
+        } else {
+          previewButtonEl.style.borderRadius = '6px';
+        }
+
+        setPreviewLogo(state.logo);
+      }
+
+      function syncFields() {
+        brandNameEl.value = state.brandName;
+        primaryColorEl.value = state.primaryColor;
+        secondaryColorEl.value = state.secondaryColor;
+        buttonStyleEl.value = state.buttonStyle;
+      }
+
+      logoInputEl.addEventListener('change', function (e) {
+        var file = e.target.files && e.target.files[0];
+        if (!file) return;
+
+        var reader = new FileReader();
+        reader.onload = function (ev) {
+          state.logo = String(ev.target.result || '');
+          applyPreview();
+        };
+        reader.readAsDataURL(file);
+      });
+
+      formEl.addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        state.brandName = String(brandNameEl.value || '').trim() || 'مدرسة سراج الدولية';
+        state.primaryColor = String(primaryColorEl.value || '#f59e0b');
+        state.secondaryColor = String(secondaryColorEl.value || '#3556b2');
+        state.buttonStyle = String(buttonStyleEl.value || 'soft');
+
+        applyPreview();
+        saveState();
+        alert('تم حفظ الهوية المؤسسية للمدرسة.');
+      });
+
+      document.getElementById('reset-brand').addEventListener('click', function () {
+        state = {
+          brandName: 'مدرسة سراج الدولية',
+          primaryColor: '#f59e0b',
+          secondaryColor: '#3556b2',
+          buttonStyle: 'soft',
+          logo: ''
+        };
+        syncFields();
+        applyPreview();
+        saveState();
+      });
+
+      document.addEventListener('DOMContentLoaded', function () {
+        loadState();
+        syncFields();
+        applyPreview();
+      });
+    })();
+  </script>
+</body>
+</html>
+

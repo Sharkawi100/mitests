@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mitests - لوحة الإدارة</title>
+  <meta name="description" content="لوحة الإدارة العامة لإدارة النظام ومراقبة الأداء.">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="styles.css">
+
+  <style>
+    .admin-navbar { border-bottom: 1px solid var(--color-gray-200); }
+    body.rtl .main-content .admin-navbar { right: var(--sidebar-width); left: 0; }
+    body.ltr .main-content .admin-navbar { left: var(--sidebar-width); right: 0; }
+    body.rtl .main-content.main-content--expanded .admin-navbar { right: var(--sidebar-collapsed-width); }
+    body.ltr .main-content.main-content--expanded .admin-navbar { left: var(--sidebar-collapsed-width); }
+
+    .admin-navbar .navbar__brand-icon { background: linear-gradient(135deg, var(--color-admin), #f38a8d); }
+    .sidebar__item:hover, .sidebar__item--active { background: rgba(239, 93, 96, 0.2); color: var(--color-white); }
+    .sidebar__item--active { border-inline-start: 3px solid var(--color-admin); }
+
+    .btn--admin { background: var(--color-admin); border-color: var(--color-admin); color: var(--color-white); }
+    .btn--admin:hover { background: #db4f53; border-color: #db4f53; color: var(--color-white); }
+
+    .admin-main {
+      padding: calc(var(--navbar-height) + var(--space-6)) var(--space-6) var(--space-8);
+      display: grid;
+      gap: var(--space-5);
+    }
+
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: var(--space-4);
+      flex-wrap: wrap;
+      background: var(--color-white);
+      border-radius: var(--border-radius-lg);
+      border-top: 4px solid var(--color-admin);
+      box-shadow: var(--shadow-md);
+      padding: var(--space-5);
+    }
+
+    .page-header h1 { font-size: var(--font-size-3xl); color: var(--color-gray-900); margin-bottom: var(--space-1); }
+    .page-header p { color: var(--color-gray-600); }
+
+    .header-meta {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      flex-wrap: wrap;
+    }
+
+    .profile-chip {
+      background: var(--color-coral-100);
+      border: 1px solid var(--color-coral-500);
+      border-radius: var(--border-radius-md);
+      padding: var(--space-2) var(--space-4);
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      font-weight: 700;
+      color: var(--color-admin);
+    }
+
+    .status-indicator {
+      background: var(--color-green-100);
+      color: #15803d;
+      border-radius: var(--border-radius-full);
+      padding: var(--space-2) var(--space-4);
+      font-size: var(--font-size-sm);
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+
+    .status-indicator__dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--color-green-500);
+      box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.16);
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: var(--space-3);
+    }
+
+    .stat-card {
+      border-top: 4px solid var(--color-admin);
+      box-shadow: var(--shadow-sm);
+      padding: var(--space-4);
+    }
+
+    .stat-card__label { color: var(--color-gray-500); font-size: var(--font-size-sm); margin-bottom: var(--space-1); }
+    .stat-card__value { color: var(--color-gray-900); font-size: var(--font-size-3xl); font-weight: 700; line-height: 1.1; }
+    .stat-card__note { color: var(--color-gray-500); font-size: var(--font-size-xs); }
+
+    .chart-placeholder {
+      min-height: 220px;
+      border: 1px dashed var(--color-coral-500);
+      border-radius: var(--border-radius-md);
+      background: linear-gradient(180deg, rgba(239, 93, 96, 0.08), rgba(239, 93, 96, 0.02));
+      color: var(--color-admin);
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: var(--space-4);
+    }
+
+    .pages-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--space-3);
+    }
+
+    .actions-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: var(--space-3);
+    }
+
+    .action-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-2);
+      text-align: center;
+      min-height: 48px;
+    }
+
+    .catalog-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-4);
+    }
+
+    .school-card {
+      border: 1px solid var(--color-gray-200);
+      border-top: 4px solid var(--color-admin);
+      border-radius: var(--border-radius-md);
+      background: var(--color-white);
+      box-shadow: var(--shadow-sm);
+      padding: var(--space-4);
+      display: grid;
+      gap: var(--space-3);
+    }
+
+    .school-card h3 {
+      color: var(--color-gray-900);
+      font-size: var(--font-size-lg);
+    }
+
+    .field {
+      display: grid;
+      gap: var(--space-1);
+    }
+
+    .field label {
+      color: var(--color-gray-700);
+      font-size: var(--font-size-sm);
+      font-weight: 600;
+    }
+
+    .field input,
+    .field select,
+    .field textarea {
+      border: 1px solid var(--color-gray-300);
+      border-radius: var(--border-radius-sm);
+      padding: var(--space-2) var(--space-3);
+      font-family: inherit;
+      color: var(--color-gray-800);
+      background: var(--color-white);
+    }
+
+    .field input:focus,
+    .field select:focus,
+    .field textarea:focus {
+      outline: none;
+      border-color: var(--color-admin);
+      box-shadow: 0 0 0 3px rgba(239, 93, 96, 0.16);
+    }
+
+    .field textarea {
+      min-height: 92px;
+      resize: vertical;
+    }
+
+    .helper-text {
+      color: var(--color-gray-500);
+      font-size: var(--font-size-xs);
+      line-height: 1.6;
+    }
+
+    .page-card {
+      border: 1px solid var(--color-gray-200);
+      border-top: 4px solid var(--color-admin);
+      border-radius: var(--border-radius-md);
+      background: var(--color-white);
+      box-shadow: var(--shadow-sm);
+      padding: var(--space-4);
+      display: grid;
+      gap: var(--space-2);
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .page-card h3 { color: var(--color-gray-900); font-size: var(--font-size-lg); }
+    .page-card p { color: var(--color-gray-600); font-size: var(--font-size-sm); }
+
+    @media (max-width: 1023px) {
+      body.rtl .main-content .admin-navbar { right: var(--sidebar-collapsed-width); }
+      body.ltr .main-content .admin-navbar { left: var(--sidebar-collapsed-width); }
+      body.rtl .main-content { margin-right: var(--sidebar-collapsed-width); }
+      body.ltr .main-content { margin-left: var(--sidebar-collapsed-width); }
+      .sidebar { width: var(--sidebar-collapsed-width); }
+      .sidebar .sidebar__brand-text, .sidebar .sidebar__item span, .sidebar .sidebar__toggle span { display: none; }
+      .stats-grid, .pages-grid, .actions-grid, .catalog-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 767px) {
+      .sidebar { display: none; }
+      body.rtl .main-content, body.ltr .main-content { margin: 0; }
+      body.rtl .main-content .admin-navbar, body.ltr .main-content .admin-navbar { right: 0; left: 0; }
+      .admin-main { padding-inline: var(--space-4); }
+    }
+  </style>
+</head>
+<body class="rtl">
+  <aside class="sidebar" id="sidebar" aria-label="Sidebar navigation">
+    <div class="sidebar__header">
+      <div class="sidebar__logo">M</div>
+      <span class="sidebar__brand-text">سراج - الإدارة</span>
+    </div>
+
+    <nav class="sidebar__nav">
+      <a class="sidebar__item sidebar__item--active" href="admin-dashboard.html"><i class="fas fa-gauge"></i><span>نظرة عامة</span></a>
+      <a class="sidebar__item" href="admin-ai-config.html"><i class="fas fa-robot"></i><span>إعدادات AI</span></a>
+      <a class="sidebar__item" href="admin-prompt-library.html"><i class="fas fa-book-open"></i><span>مكتبة البرومبت</span></a>
+      <a class="sidebar__item" href="admin-plans.html"><i class="fas fa-layer-group"></i><span>الخطط والاشتراكات</span></a>
+      <a class="sidebar__item" href="admin-schools.html"><i class="fas fa-school"></i><span>إدارة المدارس</span></a>
+      <a class="sidebar__item" href="admin-settings.html"><i class="fas fa-gear"></i><span>الإعدادات</span></a>
+      <a class="sidebar__item" href="admin-notifications.html"><i class="fas fa-bell"></i><span>الإشعارات</span></a>
+    </nav>
+
+    <button class="sidebar__toggle" id="sidebar-toggle" aria-label="Toggle sidebar">
+      <i class="fas fa-angles-right"></i>
+      <span>تصغير</span>
+    </button>
+  </aside>
+
+  <div class="main-content" id="main-content">
+    <nav class="navbar admin-navbar" role="navigation" aria-label="Admin top navigation">
+      <a href="admin-dashboard.html" class="navbar__brand">
+        <div class="navbar__brand-icon"><i class="fas fa-shield-halved"></i></div>
+        <span class="navbar__brand-text">لوحة الإدارة</span>
+      </a>
+
+      <div class="navbar__actions">
+        <div class="lang-switcher" role="group" aria-label="Language selector">
+          <button class="lang-switcher__btn active" data-lang="ar" aria-label="Arabic">&#1593;</button>
+          <button class="lang-switcher__btn" data-lang="he" aria-label="Hebrew">&#1506;&#1489;</button>
+          <button class="lang-switcher__btn" data-lang="en" aria-label="English">En</button>
+        </div>
+        <div class="notification-bell" id="admin-notif-bell">
+          <button class="notification-bell__btn" type="button" aria-label="الإشعارات"><i class="fas fa-bell"></i></button>
+          <span class="notification-bell__badge" id="admin-notif-badge">2</span>
+          <div class="notification-panel" id="admin-notif-panel">
+            <div class="notification-panel__header"><h3>الإشعارات</h3><button class="notification-panel__mark-read" id="admin-mark-read" type="button">تعيين الكل كمقروء</button></div>
+            <div class="notification-panel__body" id="admin-notif-body"></div>
+          </div>
+        </div>
+        <div class="avatar-dropdown">
+          <button class="avatar-btn" type="button" data-avatar-toggle="admin-avatar-menu" aria-label="قائمة الحساب">
+            <i class="fas fa-user-shield"></i>
+          </button>
+          <div class="avatar-menu" id="admin-avatar-menu" data-avatar-menu>
+            <span class="avatar-menu__label">حساب المدير</span>
+            <a class="avatar-menu__link" href="admin-profile.html"><i class="fas fa-id-card"></i><span>ملفي الشخصي</span></a>
+            <a class="avatar-menu__link" href="admin-dashboard.html"><i class="fas fa-gauge"></i><span>لوحة الإدارة</span></a>
+          </div>
+        </div>
+        <a href="index.html" class="btn btn--admin btn--sm"><i class="fas fa-right-from-bracket"></i><span>تسجيل الخروج</span></a>
+      </div>
+    </nav>
+
+    <main class="admin-main">
+      <header class="page-header">
+        <div>
+          <h1>نظرة عامة على المنصة</h1>
+          <p>إدارة مركزية لفرق المدارس، الاستهلاك، وضبط إعدادات التوليد.</p>
+        </div>
+        <div class="header-meta">
+          <div class="profile-chip"><i class="fas fa-user-shield"></i><span>المدير: ليلى الخطيب</span></div>
+          <div class="status-indicator"><span class="status-indicator__dot" aria-hidden="true"></span><span>حالة النظام: أخضر</span></div>
+        </div>
+      </header>
+
+      <section class="card">
+        <h2>مؤشرات المنصة</h2>
+        <div class="stats-grid">
+          <article class="card stat-card">
+            <p class="stat-card__label">إجمالي المدارس</p>
+            <p class="stat-card__value">124</p>
+            <p class="stat-card__note">+9 منذ الشهر الماضي</p>
+          </article>
+          <article class="card stat-card">
+            <p class="stat-card__label">المعلمون النشطون</p>
+            <p class="stat-card__value">3,482</p>
+            <p class="stat-card__note">معدل احتفاظ أسبوعي 91%</p>
+          </article>
+          <article class="card stat-card">
+            <p class="stat-card__label">استهلاك التوكنز الشهري</p>
+            <p class="stat-card__value">12.7M</p>
+            <p class="stat-card__note">عبر جميع مزودي AI</p>
+          </article>
+          <article class="card stat-card">
+            <p class="stat-card__label">الإيراد</p>
+            <p class="stat-card__value">$88,450</p>
+            <p class="stat-card__note">دورة الفوترة الحالية</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>اتجاه استهلاك التوكنز</h2>
+        <div class="chart-placeholder">عنصر نائب للرسم البياني: اتجاه استخدام التوكنز</div>
+      </section>
+
+      <section class="card">
+        <h2>صفحات الإعدادات المتخصصة</h2>
+        <div class="pages-grid">
+          <a class="page-card" href="admin-ai-config.html">
+            <h3>إدارة إعدادات الذكاء الاصطناعي</h3>
+            <p>اختيار المزود الأساسي، سياسات الفشل، والبرومبت العالمي.</p>
+          </a>
+          <a class="page-card" href="admin-prompt-library.html">
+            <h3>مكتبة برومبت المواد</h3>
+            <p>تحرير البرومبتات حسب المادة وتتبع آخر تحديث.</p>
+          </a>
+          <a class="page-card" href="admin-plans.html">
+            <h3>الاشتراكات والخطط</h3>
+            <p>إدارة حدود التوكنز والأسعار لكل باقة.</p>
+          </a>
+          <a class="page-card" href="admin-schools.html">
+            <h3>إدارة المدارس</h3>
+            <p>عرض المدارس، إضافة مدرسة جديدة، وتوزيع التوكنز.</p>
+          </a>
+          <a class="page-card" href="admin-settings.html">
+            <h3>إعدادات الإدارة</h3>
+            <p>إدارة الكتالوج المركزي للمراحل والمواد من صفحة إعدادات مستقلة.</p>
+          </a>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>إجراءات الإدارة السريعة</h2>
+        <div class="actions-grid">
+          <a href="admin-prompt-library.html" class="btn btn--admin action-btn"><i class="fas fa-plus"></i><span>إضافة برومبت جديد</span></a>
+          <a href="admin-prompt-library.html" class="btn btn--outline action-btn"><i class="fas fa-pen"></i><span>تعديل البرومبت</span></a>
+          <a href="admin-plans.html" class="btn btn--admin action-btn"><i class="fas fa-sliders"></i><span>إدارة الخطة</span></a>
+          <a href="admin-plans.html" class="btn btn--outline action-btn"><i class="fas fa-layer-group"></i><span>إضافة باقة جديدة</span></a>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <script src="shared-layout.js"></script>
+  <script>
+  (function(){
+    var bell=document.querySelector('#admin-notif-bell .notification-bell__btn'),panel=document.getElementById('admin-notif-panel'),badge=document.getElementById('admin-notif-badge'),body=document.getElementById('admin-notif-body'),markBtn=document.getElementById('admin-mark-read');
+    var notifs=[
+      {icon:'system',text:'⚠️ فشل اتصال AI — OpenAI API — منذ 12 دقيقة',time:'منذ 12 دقيقة',unread:true},
+      {icon:'alert',text:'مدرسة الأمل تجاوزت حصة التوكنز الشهرية',time:'منذ ساعة',unread:true},
+      {icon:'grade',text:'تمت استعادة اتصال Gemini API',time:'منذ 3 ساعات',unread:false}
+    ];
+    function render(){
+      var unread=0;body.innerHTML='';
+      for(var i=0;i<notifs.length;i++){var n=notifs[i];if(n.unread)unread++;
+        body.innerHTML+='<div class="notification-item'+(n.unread?' notification-item--unread':'')+'">'+'<div class="notification-item__icon notification-item__icon--'+n.icon+'"><i class="fas fa-'+(n.icon==='system'?'triangle-exclamation':n.icon==='alert'?'bell':'circle-check')+'"></i></div><div class="notification-item__content"><p class="notification-item__text">'+n.text+'</p><span class="notification-item__time">'+n.time+'</span></div></div>';}
+      badge.textContent=unread;badge.style.display=unread?'flex':'none';
+    }
+    bell.addEventListener('click',function(e){e.stopPropagation();panel.classList.toggle('notification-panel--open');});
+    document.addEventListener('click',function(e){if(!panel.contains(e.target)&&e.target!==bell)panel.classList.remove('notification-panel--open');});
+    markBtn.addEventListener('click',function(){for(var i=0;i<notifs.length;i++)notifs[i].unread=false;render();});
+    render();
+  })();
+  </script>
+  <button class="chat-fab chat-fab--admin" id="chat-fab" type="button" aria-label="فتح الدردشة"><i class="fas fa-comments"></i><span class="chat-fab__badge">1</span></button>
+  <div class="chat-widget" id="chat-widget">
+    <div class="chat-widget__header chat-widget__header--admin"><span>دردشة الإدارة</span><button class="chat-widget__close" id="chat-close" type="button"><i class="fas fa-xmark"></i></button></div>
+    <div class="chat-widget__body">
+      <div class="chat-widget__threads" id="chat-threads"></div>
+      <div class="chat-widget__messages-area">
+        <div class="chat-widget__messages" id="chat-messages"></div>
+        <div class="chat-widget__compose"><textarea id="chat-input" placeholder="اكتب رسالة..." rows="1"></textarea><button class="chat-widget__send" id="chat-send" type="button"><i class="fas fa-paper-plane"></i></button></div>
+      </div>
+    </div>
+  </div>
+  <script>
+  (function(){
+    var fab=document.getElementById('chat-fab'),widget=document.getElementById('chat-widget'),closeBtn=document.getElementById('chat-close'),threadsEl=document.getElementById('chat-threads'),msgsEl=document.getElementById('chat-messages'),inputEl=document.getElementById('chat-input'),sendBtn=document.getElementById('chat-send');
+    var threads=[
+      {id:'amal',title:'مدرسة الأمل',msgs:[{me:false,text:'نحتاج زيادة حصة التوكنز الشهرية.',t:'08:30'},{me:true,text:'تم رفع الحصة إلى 50,000 توكن.',t:'08:45'}]},
+      {id:'noor',title:'مدرسة النور',msgs:[{me:false,text:'نحتاج مساعدة في إعداد المنصة.',t:'09:00'},{me:true,text:'سنرسل فريق الدعم اليوم.',t:'09:20'}]},
+      {id:'broadcast',title:'إعلان عام',msgs:[{me:true,text:'سيتم إجراء صيانة للنظام يوم الجمعة من 2-4 مساءً.',t:'10:00'}]}
+    ];
+    var cur='amal';
+    function find(){for(var i=0;i<threads.length;i++)if(threads[i].id===cur)return threads[i];return threads[0];}
+    function renderThreads(){threadsEl.innerHTML='';for(var i=0;i<threads.length;i++){var t=threads[i];threadsEl.innerHTML+='<button class="chat-thread-btn'+(t.id===cur?' chat-thread-btn--active':'')+'" data-tid="'+t.id+'">'+t.title+'</button>';}}
+    function renderMsgs(){var t=find();msgsEl.innerHTML='';for(var i=0;i<t.msgs.length;i++){var m=t.msgs[i];msgsEl.innerHTML+='<div class="chat-msg '+(m.me?'chat-msg--me':'chat-msg--them')+'">'+m.text+'<div class="chat-msg__time">'+m.t+'</div></div>';}msgsEl.scrollTop=msgsEl.scrollHeight;}
+    fab.addEventListener('click',function(){widget.classList.toggle('chat-widget--open');});
+    closeBtn.addEventListener('click',function(){widget.classList.remove('chat-widget--open');});
+    threadsEl.addEventListener('click',function(e){var b=e.target.closest('[data-tid]');if(b){cur=b.dataset.tid;renderThreads();renderMsgs();}});
+    sendBtn.addEventListener('click',function(){var txt=inputEl.value.trim();if(!txt)return;var t=find();var d=new Date();t.msgs.push({me:true,text:txt,t:String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')});inputEl.value='';renderMsgs();});
+    inputEl.addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendBtn.click();}});
+    renderThreads();renderMsgs();
+  })();
+  </script>
+</body>
+</html>
+
+
+

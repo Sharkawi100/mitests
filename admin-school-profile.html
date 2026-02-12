@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mitests - ملف المدرسة</title>
+  <meta name="description" content="إدارة ملف المدرسة من لوحة الأدمن.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .admin-navbar { border-bottom: 1px solid var(--color-gray-200); }
+    body.rtl .main-content .admin-navbar { right: var(--sidebar-width); left: 0; }
+    body.ltr .main-content .admin-navbar { left: var(--sidebar-width); right: 0; }
+    body.rtl .main-content.main-content--expanded .admin-navbar { right: var(--sidebar-collapsed-width); }
+    body.ltr .main-content.main-content--expanded .admin-navbar { left: var(--sidebar-collapsed-width); }
+    .admin-navbar .navbar__brand-icon { background: linear-gradient(135deg, var(--color-admin), #f38a8d); }
+    .sidebar__item:hover, .sidebar__item--active { background: rgba(239, 93, 96, 0.2); color: var(--color-white); }
+    .sidebar__item--active { border-inline-start: 3px solid var(--color-admin); }
+    .btn--admin { background: var(--color-admin); border-color: var(--color-admin); color: var(--color-white); }
+    .btn--admin:hover { background: #db4f53; border-color: #db4f53; color: var(--color-white); }
+    .main { padding: calc(var(--navbar-height) + var(--space-6)) var(--space-6) var(--space-8); display: grid; gap: var(--space-4); }
+    .card-block { background: var(--color-white); border: 1px solid var(--color-gray-200); border-top: 4px solid var(--color-admin); border-radius: var(--border-radius-md); box-shadow: var(--shadow-sm); padding: var(--space-4); display: grid; gap: var(--space-3); }
+    .field { display: grid; gap: var(--space-1); }
+    .field label { color: var(--color-gray-700); font-size: var(--font-size-sm); font-weight: 600; }
+    .field input, .field textarea, .field select { border: 1px solid var(--color-gray-300); border-radius: var(--border-radius-sm); padding: var(--space-2) var(--space-3); font-family: inherit; }
+    .field textarea { min-height: 84px; resize: vertical; }
+    .field input:focus, .field textarea:focus, .field select:focus { outline: none; border-color: var(--color-admin); box-shadow: 0 0 0 3px rgba(239, 93, 96, 0.16); }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3); }
+    @media (max-width: 1023px) {
+      body.rtl .main-content .admin-navbar { right: var(--sidebar-collapsed-width); }
+      body.ltr .main-content .admin-navbar { left: var(--sidebar-collapsed-width); }
+      body.rtl .main-content { margin-right: var(--sidebar-collapsed-width); }
+      body.ltr .main-content { margin-left: var(--sidebar-collapsed-width); }
+      .sidebar { width: var(--sidebar-collapsed-width); }
+      .sidebar .sidebar__brand-text, .sidebar .sidebar__item span, .sidebar .sidebar__toggle span { display: none; }
+      .grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 767px) {
+      .sidebar { display: none; }
+      body.rtl .main-content, body.ltr .main-content { margin: 0; }
+      body.rtl .main-content .admin-navbar, body.ltr .main-content .admin-navbar { right: 0; left: 0; }
+      .main { padding-inline: var(--space-4); }
+    }
+  </style>
+</head>
+<body class="rtl">
+  <aside class="sidebar" id="sidebar" aria-label="Sidebar navigation">
+    <div class="sidebar__header"><div class="sidebar__logo">M</div><span class="sidebar__brand-text">سراج - الإدارة</span></div>
+    <nav class="sidebar__nav">
+      <a class="sidebar__item" href="admin-dashboard.html"><i class="fas fa-gauge"></i><span>نظرة عامة</span></a>
+      <a class="sidebar__item" href="admin-schools.html"><i class="fas fa-school"></i><span>إدارة المدارس</span></a>
+      <a class="sidebar__item" href="admin-settings.html"><i class="fas fa-gear"></i><span>الإعدادات</span></a>
+      <a class="sidebar__item sidebar__item--active" href="admin-school-profile.html"><i class="fas fa-id-card"></i><span>ملف المدرسة</span></a>
+    </nav>
+    <button class="sidebar__toggle" id="sidebar-toggle" aria-label="Toggle sidebar"><i class="fas fa-angles-right"></i><span>تصغير</span></button>
+  </aside>
+
+  <div class="main-content" id="main-content">
+    <nav class="navbar admin-navbar" role="navigation" aria-label="Admin top navigation">
+      <a href="admin-school-profile.html" class="navbar__brand"><div class="navbar__brand-icon"><i class="fas fa-school"></i></div><span class="navbar__brand-text">ملف المدرسة</span></a>
+      <div class="navbar__actions">
+        <div class="lang-switcher" role="group" aria-label="Language selector">
+          <button class="lang-switcher__btn active" data-lang="ar" aria-label="Arabic">&#1593;</button>
+          <button class="lang-switcher__btn" data-lang="he" aria-label="Hebrew">&#1506;&#1489;</button>
+          <button class="lang-switcher__btn" data-lang="en" aria-label="English">En</button>
+        </div>
+        <div class="avatar-dropdown">
+          <button class="avatar-btn" type="button" data-avatar-toggle="admin-avatar-menu" aria-label="قائمة الحساب"><i class="fas fa-user-shield"></i></button>
+          <div class="avatar-menu" id="admin-avatar-menu" data-avatar-menu>
+            <span class="avatar-menu__label">حساب المدير</span>
+            <a class="avatar-menu__link" href="admin-profile.html"><i class="fas fa-id-card"></i><span>ملفي الشخصي</span></a>
+            <a class="avatar-menu__link" href="admin-dashboard.html"><i class="fas fa-gauge"></i><span>لوحة الإدارة</span></a>
+          </div>
+        </div>
+        <a href="index.html" class="btn btn--admin btn--sm"><i class="fas fa-right-from-bracket"></i><span>تسجيل الخروج</span></a>
+      </div>
+    </nav>
+
+    <main class="main">
+      <section class="card-block">
+        <h1>إدارة ملف المدرسة</h1>
+        <div class="grid">
+          <div class="field"><label>اسم المؤسسة</label><input value="مدرسة سراج الدولية"></div>
+          <div class="field"><label>رمز المؤسسة</label><input value="SRJ-RYD-01"></div>
+          <div class="field"><label>ايميل المؤسسة</label><input value="admin@seraj.edu"></div>
+          <div class="field"><label>رقم الهاتف</label><input value="+966 11 555 7788"></div>
+          <div class="field"><label>الدولة</label><input value="السعودية"></div>
+          <div class="field"><label>العنوان</label><input value="الرياض - حي النخيل"></div>
+          <div class="field"><label>اللغة الافتراضية</label><select><option>العربية</option><option>עברית</option><option>English</option></select></div>
+          <div class="field"><label>المراحل التعليمية</label><input value="الصف السابع، الصف الثامن، الصف التاسع"></div>
+          <div class="field" style="grid-column:1/-1;"><label>روابط التواصل</label><textarea>https://x.com/serajschool
+https://instagram.com/serajschool</textarea></div>
+        </div>
+        <div><button class="btn btn--admin">حفظ ملف المدرسة</button></div>
+      </section>
+    </main>
+  </div>
+
+  <script src="shared-layout.js"></script>
+</body>
+</html>
+
+
+
+
+

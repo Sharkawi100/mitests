@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mitests.com - وراء كل اختبار، إنسان</title>
+  <meta name="description" content="Mitests - منصة تقييم تعليمية مدعومة بالذكاء الاصطناعي.">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="styles.css">
+
+  <style>
+    .navbar__quick-links { display: inline-flex; align-items: center; gap: var(--space-2); margin-inline-end: var(--space-2); }
+    .navbar__quick-link { display: inline-flex; align-items: center; gap: var(--space-1); padding: var(--space-1) var(--space-3); border-radius: var(--border-radius-full); border: 1px solid var(--color-gray-200); color: var(--color-gray-600); background: var(--color-white); font-size: var(--font-size-xs); font-weight: 700; }
+    .navbar__quick-link:hover { border-color: var(--color-primary-400); color: var(--color-primary-600); background: var(--color-primary-100); }
+
+    .hero__stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-3); margin-bottom: var(--space-8); max-width: 640px; }
+    .hero__stat { background: rgba(255,255,255,.72); border: 1px solid var(--color-gray-200); border-radius: var(--border-radius-md); padding: var(--space-3); box-shadow: var(--shadow-sm); }
+    .hero__stat-value { color: var(--color-primary-900); font-size: var(--font-size-xl); font-weight: 700; line-height: 1.2; display: block; }
+    .hero__stat-label { color: var(--color-gray-500); font-size: var(--font-size-xs); line-height: 1.5; }
+
+    .dashboard-link-card { display: block; color: inherit; text-decoration: none; }
+    .dashboard-link-card:hover { color: inherit; }
+    .card__cta { display: inline-flex; align-items: center; gap: var(--space-2); font-size: var(--font-size-sm); font-weight: 700; }
+    .card--admin .card__cta { color: var(--color-admin); }
+    .card--school .card__cta { color: var(--color-school); }
+    .card--teacher .card__cta { color: var(--color-teacher); }
+    .card--teacher-personal { border-top-color: var(--color-teacher); }
+    .card--teacher-personal .card__icon { background: var(--color-primary-100); color: var(--color-teacher); }
+    .card--teacher-personal .card__cta { color: var(--color-teacher); }
+    .card--student .card__cta { color: var(--color-student); }
+    .dashboard-selector__item--teacher-personal:hover { background: rgba(53, 86, 178, 0.08); border-color: rgba(53, 86, 178, 0.2); }
+  
+
+    .demo-flow { padding-block: var(--space-16); background: linear-gradient(180deg, var(--color-white), var(--color-primary-100)); }
+    .demo-flow__grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-5); }
+    .demo-card { border: 1px solid var(--color-gray-200); border-top: 4px solid var(--color-primary-500); border-radius: var(--border-radius-md); background: var(--color-white); padding: var(--space-5); box-shadow: var(--shadow-sm); display: grid; gap: var(--space-3); color: inherit; text-decoration: none; transition: transform var(--transition-base), box-shadow var(--transition-base); }
+    .demo-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); color: inherit; }
+    .demo-card--admin { border-top-color: var(--color-admin); }
+    .demo-card--teacher { border-top-color: var(--color-teacher); }
+    .demo-card--student { border-top-color: var(--color-student); }
+    .demo-card__icon { width: 48px; height: 48px; border-radius: var(--border-radius-sm); display: inline-flex; align-items: center; justify-content: center; font-size: var(--font-size-xl); }
+    .demo-card--admin .demo-card__icon { background: var(--color-coral-100); color: var(--color-admin); }
+    .demo-card--teacher .demo-card__icon { background: var(--color-primary-100); color: var(--color-teacher); }
+    .demo-card--student .demo-card__icon { background: var(--color-teal-100); color: var(--color-student); }
+    .demo-card__title { color: var(--color-gray-900); font-size: var(--font-size-lg); font-weight: 700; }
+    .demo-card__text { color: var(--color-gray-600); font-size: var(--font-size-sm); line-height: 1.7; min-height: 66px; }
+    .demo-card__cta { color: var(--color-primary-600); font-weight: 700; font-size: var(--font-size-sm); display: inline-flex; align-items: center; gap: var(--space-2); }
+
+    .modal__header { align-items: flex-start; gap: var(--space-3); }
+    .modal__hint { color: var(--color-gray-500); font-size: var(--font-size-sm); margin-top: var(--space-2); line-height: 1.6; }
+    .dashboard-selector__name { font-weight: 700; color: var(--color-gray-900); font-size: var(--font-size-base); }
+    .dashboard-selector__meta { color: var(--color-gray-500); font-size: var(--font-size-xs); line-height: 1.45; text-align: center; }
+
+    @media (max-width: 1100px) { .navbar__quick-links { display: none; } }
+    @media (max-width: 1023px) { .demo-flow__grid { grid-template-columns: 1fr; } .hero__stats { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 767px) { .hero__stats { grid-template-columns: 1fr; } .hero__stat { text-align: start; } }
+  </style>
+</head>
+<body class="rtl">
+
+  <nav class="navbar" role="navigation" aria-label="Main navigation">
+    <a href="index.html" class="navbar__brand">
+      <div class="navbar__brand-icon"><i class="fas fa-pen-ruler"></i></div>
+      <span class="navbar__brand-text">Mitests</span>
+    </a>
+
+    <div class="navbar__actions">
+      <div class="navbar__quick-links" aria-label="روابط سريعة">
+        <a class="navbar__quick-link" href="admin-dashboard.html"><i class="fas fa-shield-halved"></i><span>الإدارة</span></a>
+        <a class="navbar__quick-link" href="school.html"><i class="fas fa-building-columns"></i><span>المدرسة</span></a>
+        <a class="navbar__quick-link" href="teacher-dashboard.html" data-tenant-type="school_teacher"><i class="fas fa-chalkboard-user"></i><span>المعلم</span></a>
+        <a class="navbar__quick-link" href="teacher-personal-dashboard.html" data-tenant-type="personal_teacher"><i class="fas fa-user-tie"></i><span>معلم مستقل</span></a>
+        <a class="navbar__quick-link" href="student-dashboard.html"><i class="fas fa-graduation-cap"></i><span>الطالب</span></a>
+      </div>
+
+      <div class="lang-switcher" role="group" aria-label="Language selector">
+        <button class="lang-switcher__btn active" data-lang="ar" aria-label="Arabic">&#1593;</button>
+        <button class="lang-switcher__btn" data-lang="he" aria-label="Hebrew">&#1506;&#1489;</button>
+        <button class="lang-switcher__btn" data-lang="en" aria-label="English">En</button>
+      </div>
+
+      <button class="btn btn--primary btn--sm" id="login-btn" data-modal-open="login-modal">
+        <i class="fas fa-right-to-bracket"></i><span>تسجيل الدخول</span>
+      </button>
+    </div>
+  </nav>
+
+  <section class="hero" id="hero">
+    <div class="hero__decoration hero__decoration--1"></div>
+    <div class="hero__decoration hero__decoration--2"></div>
+    <div class="hero__decoration hero__decoration--3"></div>
+
+    <div class="container">
+      <div class="hero__content">
+        <div class="hero__badge"><i class="fas fa-sparkles"></i>مدعوم بالذكاء الاصطناعي</div>
+        <h1 class="hero__title">وراء كل اختبار،<br><span>إنسان</span></h1>
+        <p class="hero__subtitle">منصة ذكية لإنشاء وإدارة وتقييم الاختبارات باستخدام الذكاء الاصطناعي.</p>
+
+        <ul class="hero__stats" aria-label="مؤشرات المنصة">
+          <li class="hero__stat"><span class="hero__stat-value">+300</span><span class="hero__stat-label">مؤسسة تعليمية</span></li>
+          <li class="hero__stat"><span class="hero__stat-value">+18K</span><span class="hero__stat-label">اختبار مولد بالذكاء الاصطناعي</span></li>
+          <li class="hero__stat"><span class="hero__stat-value">12.7M</span><span class="hero__stat-label">توكن شهريًا</span></li>
+        </ul>
+
+        <div class="hero__cta">
+          <button class="btn btn--primary btn--lg hero__start-btn" data-modal-open="login-modal"><i class="fas fa-play"></i><span>ابدأ الآن</span></button>
+          <button class="btn btn--outline btn--lg hero__explore-btn" data-modal-open="login-modal"><i class="fas fa-compass"></i><span>استكشف الواجهات</span></button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="features" id="features">
+    <div class="container">
+      <h2 class="section-title text-center">ميزات المنصة</h2>
+      <p class="section-subtitle text-center">أدوات متقدمة للمعلمين والطلاب والمؤسسات التعليمية</p>
+      <div class="features__grid">
+        <div class="feature-card"><div class="feature-card__icon"><i class="fas fa-robot"></i></div><h3 class="feature-card__title">إنشاء اختبارات بالذكاء الاصطناعي</h3><p class="feature-card__text">معالج من 5 خطوات لإخراج اختبار احترافي.</p></div>
+        <div class="feature-card"><div class="feature-card__icon" style="background: var(--color-secondary-100); color: var(--color-secondary-500);"><i class="fas fa-layer-group"></i></div><h3 class="feature-card__title">تصنيف بلوم</h3><p class="feature-card__text">تقييم ذكي حسب مستويات التفكير.</p></div>
+        <div class="feature-card"><div class="feature-card__icon" style="background: var(--color-teal-100); color: var(--color-teal-500);"><i class="fas fa-chart-line"></i></div><h3 class="feature-card__title">مراقبة فورية</h3><p class="feature-card__text">تتبع حالة الطلاب والتنبيهات الأمنية.</p></div>
+        <div class="feature-card"><div class="feature-card__icon" style="background: var(--color-amber-100); color: var(--color-amber-500);"><i class="fas fa-language"></i></div><h3 class="feature-card__title">دعم متعدد اللغات</h3><p class="feature-card__text">العربية والعبرية والإنجليزية مع RTL/LTR.</p></div>
+      </div>
+    </div>
+  </section>
+  <section class="dashboards" id="dashboards">
+    <div class="container">
+      <h2 class="section-title text-center">خمس لوحات تحكم، منصة واحدة</h2>
+      <p class="section-subtitle text-center">كل دور يحصل على تجربة مخصصة</p>
+
+      <div class="dashboards__grid">
+        <a href="admin-dashboard.html" class="card card--dashboard card--admin dashboard-link-card" aria-label="لوحة مدير النظام">
+          <div class="card__icon"><i class="fas fa-shield-halved"></i></div>
+          <h3 class="card__title">مدير النظام</h3>
+          <p class="card__body">إدارة نماذج الذكاء الاصطناعي والاشتراكات والتقارير العامة.</p>
+          <div class="card__footer"><span class="card__cta"><i class="fas fa-arrow-left"></i>فتح اللوحة</span></div>
+        </a>
+
+        <a href="school.html" class="card card--dashboard card--school dashboard-link-card" aria-label="لوحة المؤسسة التعليمية">
+          <div class="card__icon"><i class="fas fa-building-columns"></i></div>
+          <h3 class="card__title">المؤسسة التعليمية</h3>
+          <p class="card__body">إدارة التوكنز والمستخدمين والهوية المؤسسية واعتماد المحتوى.</p>
+          <div class="card__footer"><span class="card__cta"><i class="fas fa-arrow-left"></i>فتح اللوحة</span></div>
+        </a>
+
+        <a href="teacher-dashboard.html" class="card card--dashboard card--teacher dashboard-link-card" aria-label="لوحة المعلم" data-tenant-type="school_teacher">
+          <div class="card__icon"><i class="fas fa-chalkboard-user"></i></div>
+          <h3 class="card__title">المعلم</h3>
+          <p class="card__body">إنشاء الاختبارات، إدارة المجموعات، بنك الأسئلة، والتقييم الذكي.</p>
+          <div class="card__footer"><span class="card__cta"><i class="fas fa-arrow-left"></i>فتح اللوحة</span></div>
+        </a>
+
+        <a href="teacher-personal-dashboard.html" class="card card--dashboard card--teacher-personal dashboard-link-card" aria-label="لوحة المعلم المستقل" data-tenant-type="personal_teacher">
+          <div class="card__icon"><i class="fas fa-user-tie"></i></div>
+          <h3 class="card__title">المعلم المستقل</h3>
+          <p class="card__body">مساحة شخصية لإدارة الطلاب، الاختبارات، والتوكنز بدون لوحة مدرسة.</p>
+          <div class="card__footer"><span class="card__cta"><i class="fas fa-arrow-left"></i>فتح اللوحة</span></div>
+        </a>
+
+        <a href="student-dashboard.html" class="card card--dashboard card--student dashboard-link-card" aria-label="لوحة الطالب">
+          <div class="card__icon"><i class="fas fa-graduation-cap"></i></div>
+          <h3 class="card__title">الطالب</h3>
+          <p class="card__body">الاختبارات القادمة، التقدم الشخصي، واجهة امتحان مركزة، وتقارير.</p>
+          <div class="card__footer"><span class="card__cta"><i class="fas fa-arrow-left"></i>فتح اللوحة</span></div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="demo-flow" id="demo-flow">
+    <div class="container">
+      <h2 class="section-title text-center">مسار تجربة سريع</h2>
+      <p class="section-subtitle text-center">مسارات جاهزة لاختبار تدفق النظام.</p>
+
+      <div class="demo-flow__grid">
+        <a href="admin-settings.html" class="demo-card demo-card--admin">
+          <div class="demo-card__icon"><i class="fas fa-sliders"></i></div>
+          <h3 class="demo-card__title">إعدادات الإدارة</h3>
+          <p class="demo-card__text">تحديث كتالوج المراحل والمواد في مركز الإعدادات.</p>
+          <span class="demo-card__cta"><i class="fas fa-arrow-left"></i>فتح الإعدادات</span>
+        </a>
+
+        <a href="exam-wizard.html" class="demo-card demo-card--teacher">
+          <div class="demo-card__icon"><i class="fas fa-wand-magic-sparkles"></i></div>
+          <h3 class="demo-card__title">إنشاء اختبار</h3>
+          <p class="demo-card__text">بدء إنشاء اختبار عبر المعالج متعدد الخطوات.</p>
+          <span class="demo-card__cta"><i class="fas fa-arrow-left"></i>فتح المعالج</span>
+        </a>
+
+        <a href="student-exam.html" class="demo-card demo-card--student">
+          <div class="demo-card__icon"><i class="fas fa-stopwatch"></i></div>
+          <h3 class="demo-card__title">تجربة الطالب</h3>
+          <p class="demo-card__text">اختبار واجهة الامتحان مع المؤقت والحفظ التلقائي.</p>
+          <span class="demo-card__cta"><i class="fas fa-arrow-left"></i>فتح الاختبار</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="how-it-works" id="how-it-works">
+    <div class="container">
+      <h2 class="section-title text-center">كيف يعمل؟</h2>
+      <p class="section-subtitle text-center">ثلاث خطوات بسيطة للتقييم الذكي</p>
+
+      <div class="steps">
+        <div class="step"><div class="step__number">1</div><div class="step__icon"><i class="fas fa-wand-magic-sparkles"></i></div><h3 class="step__title">ننشئ</h3><p class="step__text">يحدد المعلم المعايير ويولّد النظام اختبارًا مناسبًا.</p></div>
+        <div class="step__arrow"><i class="fas fa-arrow-left"></i></div>
+        <div class="step"><div class="step__number">2</div><div class="step__icon"><i class="fas fa-clipboard-check"></i></div><h3 class="step__title">نقيّم</h3><p class="step__text">يؤدي الطلاب الاختبار في بيئة آمنة مع دعم الذكاء الاصطناعي.</p></div>
+        <div class="step__arrow"><i class="fas fa-arrow-left"></i></div>
+        <div class="step"><div class="step__number">3</div><div class="step__icon"><i class="fas fa-arrow-trend-up"></i></div><h3 class="step__title">نتطور</h3><p class="step__text">تُحوَّل النتائج إلى ملاحظات عملية لتحسين الأداء.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__content">
+        <div>
+          <div class="footer__brand">Mitests.com</div>
+          <p class="footer__tagline">وراء كل اختبار، إنسان</p>
+        </div>
+        <p class="footer__copyright">&copy; 2026 Mitests.com. جميع الحقوق محفوظة.</p>
+      </div>
+    </div>
+  </footer>
+
+  <div class="modal-overlay" id="login-modal" aria-hidden="true" role="dialog" aria-labelledby="modal-title">
+    <div class="modal">
+      <div class="modal__header">
+        <div>
+          <h2 id="modal-title">اختر لوحة التحكم</h2>
+          <p class="modal__hint">اختر دورك للانتقال مباشرة إلى الواجهة المناسبة.</p>
+        </div>
+        <button class="modal__close" data-modal-close aria-label="Close modal"><i class="fas fa-xmark"></i></button>
+      </div>
+
+      <div class="modal__body">
+        <div class="dashboard-selector">
+          <a href="admin-dashboard.html" class="dashboard-selector__item dashboard-selector__item--admin"><i class="fas fa-shield-halved"></i><span class="dashboard-selector__name">مدير النظام</span><small class="dashboard-selector__meta">إعدادات المنصة والخطط والتقارير</small></a>
+          <a href="school.html" class="dashboard-selector__item dashboard-selector__item--school"><i class="fas fa-building-columns"></i><span class="dashboard-selector__name">إدارة المدرسة</span><small class="dashboard-selector__meta">المستخدمون والتوكنز والهوية المؤسسية</small></a>
+          <a href="teacher-dashboard.html" class="dashboard-selector__item dashboard-selector__item--teacher" data-tenant-type="school_teacher"><i class="fas fa-chalkboard-user"></i><span class="dashboard-selector__name">المعلم</span><small class="dashboard-selector__meta">الاختبارات والمجموعات وبنك الأسئلة</small></a>
+          <a href="teacher-personal-dashboard.html" class="dashboard-selector__item dashboard-selector__item--teacher-personal" data-tenant-type="personal_teacher"><i class="fas fa-user-tie"></i><span class="dashboard-selector__name">المعلم المستقل</span><small class="dashboard-selector__meta">إدارة شخصية للطلاب والاختبارات ضمن مساحة خاصة</small></a>
+          <a href="student-dashboard.html" class="dashboard-selector__item dashboard-selector__item--student"><i class="fas fa-graduation-cap"></i><span class="dashboard-selector__name">الطالب</span><small class="dashboard-selector__meta">الاختبارات والتقارير والتقدم الشخصي</small></a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="shared-layout.js"></script>
+  <script>
+    (function () {
+      'use strict';
+
+      var I18N = {
+        ar: {
+          pageTitle: 'Mitests.com - وراء كل اختبار، إنسان',
+          pageDescription: 'Mitests - منصة تقييم تعليمية مدعومة بالذكاء الاصطناعي.',
+          quick: ['الإدارة', 'المدرسة', 'المعلم', 'معلم مستقل', 'الطالب'],
+          login: 'تسجيل الدخول',
+          heroBadge: 'مدعوم بالذكاء الاصطناعي',
+          heroTitle: 'وراء كل اختبار،<br><span>إنسان</span>',
+          heroSubtitle: 'منصة ذكية لإنشاء وإدارة وتقييم الاختبارات باستخدام الذكاء الاصطناعي.',
+          heroStart: 'ابدأ الآن',
+          heroExplore: 'استكشف الواجهات',
+          statValues: ['+300', '+18K', '12.7M'],
+          statLabels: ['مؤسسة تعليمية', 'اختبار مولد بالذكاء الاصطناعي', 'توكن شهريًا'],
+          featuresTitle: 'ميزات المنصة',
+          featuresSubtitle: 'أدوات متقدمة للمعلمين والطلاب والمؤسسات التعليمية',
+          featureTitles: ['إنشاء اختبارات بالذكاء الاصطناعي', 'تصنيف بلوم', 'مراقبة فورية', 'دعم متعدد اللغات'],
+          featureBodies: ['معالج من 5 خطوات لإخراج اختبار احترافي.', 'تقييم ذكي حسب مستويات التفكير.', 'تتبع حالة الطلاب والتنبيهات الأمنية.', 'العربية والعبرية والإنجليزية مع RTL/LTR.'],
+          dashTitle: 'خمس لوحات تحكم، منصة واحدة',
+          dashSubtitle: 'كل دور يحصل على تجربة مخصصة',
+          dashCards: ['مدير النظام', 'المؤسسة التعليمية', 'المعلم', 'المعلم المستقل', 'الطالب'],
+          dashBodies: ['إدارة نماذج الذكاء الاصطناعي والاشتراكات والتقارير العامة.', 'إدارة التوكنز والمستخدمين والهوية المؤسسية واعتماد المحتوى.', 'إنشاء الاختبارات، إدارة المجموعات، بنك الأسئلة، والتقييم الذكي.', 'مساحة شخصية لإدارة الطلاب والاختبارات والتوكنز بدون لوحة مدرسة.', 'الاختبارات القادمة، التقدم الشخصي، واجهة امتحان مركزة، وتقارير.'],
+          dashCta: 'فتح اللوحة',
+          demoTitle: 'مسار تجربة سريع',
+          demoSubtitle: 'مسارات جاهزة لاختبار تدفق النظام.',
+          demoCards: ['إعدادات الإدارة', 'إنشاء اختبار', 'تجربة الطالب'],
+          demoBodies: ['تحديث كتالوج المراحل والمواد في مركز الإعدادات.', 'بدء إنشاء اختبار عبر المعالج متعدد الخطوات.', 'اختبار واجهة الامتحان مع المؤقت والحفظ التلقائي.'],
+          demoCtas: ['فتح الإعدادات', 'فتح المعالج', 'فتح الاختبار'],
+          howTitle: 'كيف يعمل؟',
+          howSubtitle: 'ثلاث خطوات بسيطة للتقييم الذكي',
+          howSteps: ['ننشئ', 'نقيّم', 'نتطور'],
+          howBodies: ['يحدد المعلم المعايير ويولّد النظام اختبارًا مناسبًا.', 'يؤدي الطلاب الاختبار في بيئة آمنة مع دعم الذكاء الاصطناعي.', 'تُحوَّل النتائج إلى ملاحظات عملية لتحسين الأداء.'],
+          footerTag: 'وراء كل اختبار، إنسان',
+          footerCopy: '© 2026 Mitests.com. جميع الحقوق محفوظة.',
+          modalTitle: 'اختر لوحة التحكم',
+          modalHint: 'اختر دورك للانتقال مباشرة إلى الواجهة المناسبة.',
+          modalNames: ['مدير النظام', 'إدارة المدرسة', 'المعلم', 'المعلم المستقل', 'الطالب'],
+          modalMeta: ['إعدادات المنصة والخطط والتقارير', 'المستخدمون والتوكنز والهوية المؤسسية', 'الاختبارات والمجموعات وبنك الأسئلة', 'إدارة شخصية للطلاب والاختبارات ضمن مساحة خاصة', 'الاختبارات والتقارير والتقدم الشخصي']
+        },
+        he: {
+          pageTitle: 'Mitests.com - מאחורי כל מבחן, בן אדם',
+          pageDescription: 'Mitests - פלטפורמת הערכה חינוכית מבוססת AI.',
+          quick: ['ניהול', 'בית ספר', 'מורה', 'מורה עצמאי', 'תלמיד'],
+          login: 'כניסה',
+          heroBadge: 'מונע על ידי AI',
+          heroTitle: 'מאחורי כל מבחן,<br><span>בן אדם</span>',
+          heroSubtitle: 'פלטפורמה חכמה ליצירה, ניהול והערכת מבחנים בעזרת בינה מלאכותית.',
+          heroStart: 'התחילו עכשיו',
+          heroExplore: 'גלו את הממשקים',
+          statValues: ['+300', '+18K', '12.7M'],
+          statLabels: ['מוסדות פעילים', 'מבחנים שנוצרו ב-AI', 'טוקנים חודשיים'],
+          featuresTitle: 'יכולות הפלטפורמה',
+          featuresSubtitle: 'כלים מתקדמים למורים, תלמידים ומוסדות חינוך',
+          featureTitles: ['יצירת מבחנים ב-AI', 'טקסונומיית בלום', 'ניטור בזמן אמת', 'רב-לשוני'],
+          featureBodies: ['אשף ב-5 שלבים ליצירת מבחן.', 'הערכה חכמה לפי רמות חשיבה.', 'מעקב אחר סטטוס תלמידים והתראות.', 'ערבית, עברית ואנגלית עם RTL/LTR.'],
+          dashTitle: 'חמישה לוחות בקרה, פלטפורמה אחת',
+          dashSubtitle: 'כל תפקיד מקבל חוויה מותאמת',
+          dashCards: ['מנהל מערכת', 'מוסד חינוכי', 'מורה', 'מורה עצמאי', 'תלמיד'],
+          dashBodies: ['ניהול מודלי AI ותוכניות.', 'ניהול טוקנים, משתמשים וזהות.', 'מבחנים, קבוצות ובנק שאלות.', 'מרחב אישי לניהול תלמידים ומבחנים ללא לוח בית ספר.', 'מבחנים, התקדמות ודוחות.'],
+          dashCta: 'פתיחת לוח',
+          demoTitle: 'מסלול דמו מהיר',
+          demoSubtitle: 'מסלולים מוכנים לבדיקת הזרימה.',
+          demoCards: ['הגדרות ניהול', 'יצירת מבחן', 'חוויית תלמיד'],
+          demoBodies: ['עדכון קטלוג שכבות ומקצועות.', 'יצירת מבחן דרך האשף.', 'בדיקת ממשק הבחינה עם טיימר.'],
+          demoCtas: ['פתח הגדרות', 'פתח אשף', 'פתח מבחן'],
+          howTitle: 'איך זה עובד?',
+          howSubtitle: 'שלושה שלבים פשוטים להערכה חכמה',
+          howSteps: ['יוצרים', 'מעריכים', 'משתפרים'],
+          howBodies: ['המורה מגדיר פרמטרים והמבחן נוצר.', 'התלמידים נבחנים בסביבה מאובטחת.', 'המערכת מפיקה תובנות לשיפור מתמשך.'],
+          footerTag: 'מאחורי כל מבחן, בן אדם',
+          footerCopy: '© 2026 Mitests.com. כל הזכויות שמורות.',
+          modalTitle: 'בחרו לוח בקרה',
+          modalHint: 'בחרו תפקיד למעבר מהיר לממשק המתאים.',
+          modalNames: ['מנהל מערכת', 'ניהול בית ספר', 'מורה', 'מורה עצמאי', 'תלמיד'],
+          modalMeta: ['הגדרות ותוכניות', 'משתמשים, טוקנים וזהות', 'מבחנים, קבוצות ושאלות', 'ניהול אישי של תלמידים ומבחנים במרחב פרטי', 'מבחנים, דוחות והתקדמות']
+        },
+        en: {
+          pageTitle: 'Mitests.com - Behind every test, a human being',
+          pageDescription: 'Mitests - AI-powered educational assessment platform.',
+          quick: ['Admin', 'School', 'Teacher', 'Independent Teacher', 'Student'],
+          login: 'Login',
+          heroBadge: 'Powered by AI',
+          heroTitle: 'Behind every test,<br><span>a human being</span>',
+          heroSubtitle: 'A smart platform for creating, managing, and assessing exams with AI.',
+          heroStart: 'Get Started',
+          heroExplore: 'Explore Interfaces',
+          statValues: ['+300', '+18K', '12.7M'],
+          statLabels: ['Active institutions', 'AI-generated exams', 'Monthly tokens'],
+          featuresTitle: 'Platform Features',
+          featuresSubtitle: 'Advanced tools for teachers, students, and institutions',
+          featureTitles: ['AI Test Creation', 'Bloom\'s Taxonomy', 'Real-time Monitoring', 'Multilingual'],
+          featureBodies: ['A 5-step wizard to build exams.', 'Smart evaluation by cognitive levels.', 'Track student status and security alerts.', 'Arabic, Hebrew, and English with RTL/LTR.'],
+          dashTitle: 'Five Dashboards, One Platform',
+          dashSubtitle: 'Each role gets a tailored experience',
+          dashCards: ['System Admin', 'Educational Institution', 'Teacher', 'Independent Teacher', 'Student'],
+          dashBodies: ['Manage AI models and plans.', 'Manage tokens, users, and branding.', 'Exams, groups, and question bank.', 'Personal workspace to manage students and exams without school admin.', 'Exams, progress, and reports.'],
+          dashCta: 'Open Dashboard',
+          demoTitle: 'Quick Demo Path',
+          demoSubtitle: 'Ready paths to test the full flow.',
+          demoCards: ['Admin Settings', 'Create Exam', 'Student Experience'],
+          demoBodies: ['Update grades and subjects catalog.', 'Create an exam through the wizard.', 'Try exam UI with timer and autosave.'],
+          demoCtas: ['Open Settings', 'Open Wizard', 'Open Exam'],
+          howTitle: 'How It Works?',
+          howSubtitle: 'Three simple steps for smart assessment',
+          howSteps: ['Create', 'Assess', 'Improve'],
+          howBodies: ['Teacher sets parameters and generates an exam.', 'Students take secure exams with AI support.', 'Insights are transformed into action points.'],
+          footerTag: 'Behind every test, a human being',
+          footerCopy: '© 2026 Mitests.com. All rights reserved.',
+          modalTitle: 'Choose Your Dashboard',
+          modalHint: 'Pick your role to jump directly to the right interface.',
+          modalNames: ['System Admin', 'School Management', 'Teacher', 'Independent Teacher', 'Student'],
+          modalMeta: ['Platform setup and plans', 'Users, tokens, and branding', 'Exams, groups, and questions', 'Personal workspace for managing students and exams', 'Exams, reports, and progress']
+        }
+      };
+      function setText(selector, value) {
+        var el = document.querySelector(selector);
+        if (el) el.textContent = value;
+      }
+
+      function setHTML(selector, value) {
+        var el = document.querySelector(selector);
+        if (el) el.innerHTML = value;
+      }
+
+      function setListText(selector, values) {
+        var nodes = document.querySelectorAll(selector);
+        for (var i = 0; i < nodes.length && i < values.length; i++) {
+          nodes[i].textContent = values[i];
+        }
+      }
+
+      function setRepeatedText(selector, value) {
+        var nodes = document.querySelectorAll(selector);
+        for (var i = 0; i < nodes.length; i++) {
+          nodes[i].textContent = value;
+        }
+      }
+
+      function applyLanguage(lang) {
+        var t = I18N[lang] || I18N.ar;
+        var metaDesc = document.querySelector('meta[name="description"]');
+
+        document.title = t.pageTitle;
+        if (metaDesc) metaDesc.setAttribute('content', t.pageDescription);
+
+        setListText('.navbar__quick-link span', t.quick);
+        setHTML('#login-btn', '<i class="fas fa-right-to-bracket"></i><span>' + t.login + '</span>');
+
+        setHTML('.hero__badge', '<i class="fas fa-sparkles"></i>' + t.heroBadge);
+        setHTML('.hero__title', t.heroTitle);
+        setText('.hero__subtitle', t.heroSubtitle);
+        setHTML('.hero__start-btn', '<i class="fas fa-play"></i><span>' + t.heroStart + '</span>');
+        setHTML('.hero__explore-btn', '<i class="fas fa-compass"></i><span>' + t.heroExplore + '</span>');
+        setListText('.hero__stat-value', t.statValues);
+        setListText('.hero__stat-label', t.statLabels);
+
+        setText('.features .section-title', t.featuresTitle);
+        setText('.features .section-subtitle', t.featuresSubtitle);
+        setListText('.features .feature-card__title', t.featureTitles);
+        setListText('.features .feature-card__text', t.featureBodies);
+
+        setText('.dashboards .section-title', t.dashTitle);
+        setText('.dashboards .section-subtitle', t.dashSubtitle);
+        setListText('.dashboards .card__title', t.dashCards);
+        setListText('.dashboards .card__body', t.dashBodies);
+        setRepeatedText('.dashboards .card__cta', t.dashCta);
+
+        setText('.demo-flow .section-title', t.demoTitle);
+        setText('.demo-flow .section-subtitle', t.demoSubtitle);
+        setListText('.demo-card__title', t.demoCards);
+        setListText('.demo-card__text', t.demoBodies);
+        setListText('.demo-card__cta', t.demoCtas);
+
+        setText('.how-it-works .section-title', t.howTitle);
+        setText('.how-it-works .section-subtitle', t.howSubtitle);
+        setListText('.how-it-works .step__title', t.howSteps);
+        setListText('.how-it-works .step__text', t.howBodies);
+
+        setText('.footer__tagline', t.footerTag);
+        setText('.footer__copyright', t.footerCopy);
+
+        setText('#modal-title', t.modalTitle);
+        setText('.modal__hint', t.modalHint);
+        setListText('.dashboard-selector__name', t.modalNames);
+        setListText('.dashboard-selector__meta', t.modalMeta);
+      }
+
+      function ensurePersonalWorkspace() {
+        try {
+          if (!localStorage.getItem('mitests-personal-workspace')) {
+            localStorage.setItem('mitests-personal-workspace', JSON.stringify({
+              workspaceId: 'PERS-TCH-001',
+              name: 'مساحة المعلم الشخصية',
+              plan: 'Personal Pro',
+              tokenLimit: 10000,
+              tokenUsed: 2300,
+              groups: 3,
+              students: 48,
+              examsMonth: 7,
+              createdAt: '2026-02-12'
+            }));
+          }
+          if (!localStorage.getItem('mitests-personal-teacher-profile')) {
+            localStorage.setItem('mitests-personal-teacher-profile', JSON.stringify({
+              name: 'معلّم مستقل',
+              email: 'teacher.personal@mitests.demo',
+              subject: 'اللغة الإنجليزية'
+            }));
+          }
+        } catch (e) {}
+      }
+
+      function bindTenantLinks() {
+        var links = document.querySelectorAll('[data-tenant-type]');
+        for (var i = 0; i < links.length; i++) {
+          links[i].addEventListener('click', function () {
+            var tenantType = this.getAttribute('data-tenant-type');
+            if (!tenantType) return;
+            try {
+              localStorage.setItem('mitests-tenant-type', tenantType);
+            } catch (e) {}
+            if (tenantType === 'personal_teacher') {
+              ensurePersonalWorkspace();
+            }
+          });
+        }
+      }
+
+      document.addEventListener('mitests:languagechange', function (e) {
+        var lang = (e.detail && e.detail.lang) || document.documentElement.getAttribute('lang') || 'ar';
+        applyLanguage(lang);
+      });
+
+      document.addEventListener('DOMContentLoaded', function () {
+        var lang = document.documentElement.getAttribute('lang') || 'ar';
+        applyLanguage(lang);
+        bindTenantLinks();
+      });
+    })();
+  </script>
+</body>
+</html>
+
+

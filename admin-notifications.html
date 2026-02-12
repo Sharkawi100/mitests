@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>الإشعارات - لوحة الإدارة | سراج</title>
+  <meta name="description" content="إدارة الإشعارات والتنبيهات - نظام سراج للاختبارات">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .page-header { margin-bottom: var(--space-6); }
+    .page-header h1 { font-size: var(--font-size-3xl); color: var(--color-gray-900); margin-bottom: var(--space-2); }
+    .page-header p { color: var(--color-gray-500); }
+
+    .notif-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-6); margin-bottom: var(--space-6); }
+
+    /* Broadcast Composer */
+    .composer { border-top: 4px solid var(--color-admin); }
+    .composer h2 { font-size: var(--font-size-xl); margin-bottom: var(--space-4); display: flex; align-items: center; gap: var(--space-2); color: var(--color-gray-900); }
+    .composer h2 i { color: var(--color-admin); }
+    .composer__form { display: grid; gap: var(--space-4); }
+    .form-group label { display: block; font-weight: 600; color: var(--color-gray-700); margin-bottom: var(--space-2); font-size: var(--font-size-sm); }
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+      width: 100%; padding: var(--space-3); border: 1px solid var(--color-gray-300);
+      border-radius: var(--border-radius-sm); font-family: inherit; font-size: var(--font-size-sm);
+      transition: border-color var(--transition-fast);
+    }
+    .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+      outline: none; border-color: var(--color-admin);
+    }
+    .form-group textarea { resize: vertical; min-height: 100px; }
+    .composer__actions { display: flex; gap: var(--space-3); }
+    .btn--admin { background: var(--color-admin); border-color: var(--color-admin); color: var(--color-white); }
+    .btn--admin:hover { background: #d94548; border-color: #d94548; color: var(--color-white); }
+
+    /* System Alerts */
+    .alerts { border-top: 4px solid var(--color-school); }
+    .alerts h2 { font-size: var(--font-size-xl); margin-bottom: var(--space-4); display: flex; align-items: center; gap: var(--space-2); color: var(--color-gray-900); }
+    .alerts h2 i { color: var(--color-school); }
+    .alert-feed { display: grid; gap: var(--space-3); max-height: 380px; overflow-y: auto; }
+    .alert-item {
+      display: flex; align-items: flex-start; gap: var(--space-3); padding: var(--space-3);
+      border-radius: var(--border-radius-sm); border: 1px solid var(--color-gray-100);
+      transition: background var(--transition-fast);
+    }
+    .alert-item:hover { background: var(--color-gray-50); }
+    .alert-item__icon {
+      width: 36px; height: 36px; border-radius: var(--border-radius-full);
+      display: flex; align-items: center; justify-content: center; font-size: var(--font-size-sm); flex-shrink: 0;
+    }
+    .alert-item__icon--critical { background: #fde2e2; color: var(--color-admin); }
+    .alert-item__icon--warning { background: #fef3c7; color: var(--color-school); }
+    .alert-item__icon--info { background: var(--color-primary-100); color: var(--color-teacher); }
+    .alert-item__icon--success { background: var(--color-green-100); color: #15803d; }
+    .alert-item__content { flex: 1; }
+    .alert-item__text { font-size: var(--font-size-sm); color: var(--color-gray-800); font-weight: 600; margin: 0; }
+    .alert-item__meta { font-size: var(--font-size-xs); color: var(--color-gray-400); margin-top: 2px; }
+    .severity-dot {
+      display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-inline-end: var(--space-2);
+    }
+    .severity-dot--critical { background: var(--color-admin); }
+    .severity-dot--warning { background: var(--color-school); }
+    .severity-dot--info { background: var(--color-teacher); }
+
+    /* Notification Log */
+    .log-section { border-top: 4px solid var(--color-teacher); }
+    .log-section h2 { font-size: var(--font-size-xl); margin-bottom: var(--space-4); display: flex; align-items: center; gap: var(--space-2); color: var(--color-gray-900); }
+    .log-section h2 i { color: var(--color-teacher); }
+
+    .log-filters { display: flex; gap: var(--space-3); margin-bottom: var(--space-4); flex-wrap: wrap; }
+    .log-filters select, .log-filters input {
+      padding: var(--space-2) var(--space-3); border: 1px solid var(--color-gray-300);
+      border-radius: var(--border-radius-sm); font-family: inherit; font-size: var(--font-size-sm);
+    }
+
+    .log-table-wrap { overflow-x: auto; }
+    .log-table { width: 100%; border-collapse: collapse; min-width: 700px; }
+    .log-table th, .log-table td { padding: var(--space-3); border-bottom: 1px solid var(--color-gray-200); text-align: start; font-size: var(--font-size-sm); }
+    .log-table th { background: var(--color-gray-50); color: var(--color-gray-500); font-weight: 600; }
+    .log-table tr:hover td { background: rgba(53, 86, 178, 0.02); }
+
+    .type-badge {
+      display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px;
+      border-radius: var(--border-radius-full); font-size: var(--font-size-xs); font-weight: 600;
+    }
+    .type-badge--broadcast { background: #fde2e2; color: var(--color-admin); }
+    .type-badge--system { background: #fef3c7; color: #92400e; }
+    .type-badge--auto { background: var(--color-primary-100); color: var(--color-teacher); }
+
+    .sent-toast {
+      position: fixed; bottom: var(--space-6); left: 50%; transform: translateX(-50%);
+      background: var(--color-gray-900); color: var(--color-white); padding: var(--space-3) var(--space-6);
+      border-radius: var(--border-radius-md); font-size: var(--font-size-sm); font-weight: 600;
+      box-shadow: var(--shadow-lg); z-index: 999; display: none;
+    }
+    .sent-toast--show { display: block; animation: fadeInUp .3s ease; }
+    @keyframes fadeInUp { from { opacity: 0; transform: translateX(-50%) translateY(10px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+
+    @media (max-width: 1023px) {
+      body.rtl .main-content .admin-navbar { right: var(--sidebar-collapsed-width); }
+      body.ltr .main-content .admin-navbar { left: var(--sidebar-collapsed-width); }
+      body.rtl .main-content { margin-right: var(--sidebar-collapsed-width); }
+      body.ltr .main-content { margin-left: var(--sidebar-collapsed-width); }
+      .sidebar { width: var(--sidebar-collapsed-width); }
+      .sidebar .sidebar__brand-text, .sidebar .sidebar__item span, .sidebar .sidebar__toggle span { display: none; }
+      .notif-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 767px) {
+      .main-content { padding: var(--space-4); padding-top: calc(60px + var(--space-4)); }
+      body.rtl .main-content .admin-navbar { right: 0; }
+      body.ltr .main-content .admin-navbar { left: 0; }
+      body.rtl .main-content { margin-right: 0; }
+      body.ltr .main-content { margin-left: 0; }
+      .log-filters { flex-direction: column; }
+    }
+  </style>
+</head>
+
+<body class="rtl">
+  <aside class="sidebar" id="sidebar" aria-label="Sidebar navigation">
+    <div class="sidebar__header">
+      <div class="sidebar__logo">M</div>
+      <span class="sidebar__brand-text">سراج - الإدارة</span>
+    </div>
+    <nav class="sidebar__nav">
+      <a class="sidebar__item" href="admin-dashboard.html"><i class="fas fa-gauge"></i><span>نظرة عامة</span></a>
+      <a class="sidebar__item" href="admin-ai-config.html"><i class="fas fa-robot"></i><span>إعدادات AI</span></a>
+      <a class="sidebar__item" href="admin-prompt-library.html"><i class="fas fa-book-open"></i><span>مكتبة البرومبت</span></a>
+      <a class="sidebar__item" href="admin-plans.html"><i class="fas fa-layer-group"></i><span>الخطط والاشتراكات</span></a>
+      <a class="sidebar__item" href="admin-schools.html"><i class="fas fa-school"></i><span>إدارة المدارس</span></a>
+      <a class="sidebar__item" href="admin-settings.html"><i class="fas fa-gear"></i><span>الإعدادات</span></a>
+      <a class="sidebar__item sidebar__item--active" href="admin-notifications.html"><i class="fas fa-bell"></i><span>الإشعارات</span></a>
+    </nav>
+    <button class="sidebar__toggle" id="sidebar-toggle" aria-label="Toggle sidebar">
+      <i class="fas fa-angles-right"></i>
+      <span>تصغير</span>
+    </button>
+  </aside>
+
+  <div class="main-content" id="main-content">
+    <nav class="navbar admin-navbar" role="navigation" aria-label="Admin top navigation">
+      <a href="admin-dashboard.html" class="navbar__brand">
+        <div class="navbar__brand-icon"><i class="fas fa-shield-halved"></i></div>
+        <span class="navbar__brand-text">لوحة الإدارة</span>
+      </a>
+      <div class="navbar__actions">
+        <div class="lang-switcher" role="group" aria-label="Language selector">
+          <button class="lang-switcher__btn active" data-lang="ar" aria-label="Arabic">&#1593;</button>
+          <button class="lang-switcher__btn" data-lang="he" aria-label="Hebrew">&#1506;&#1489;</button>
+          <button class="lang-switcher__btn" data-lang="en" aria-label="English">En</button>
+        </div>
+        <div class="avatar-dropdown">
+          <button class="avatar-btn" type="button" data-avatar-toggle="admin-avatar-menu" aria-label="قائمة الحساب">
+            <i class="fas fa-user-shield"></i>
+          </button>
+          <div class="avatar-menu" id="admin-avatar-menu" data-avatar-menu>
+            <span class="avatar-menu__label">حساب المسؤول</span>
+            <a class="avatar-menu__link" href="admin-settings.html"><i class="fas fa-gear"></i><span>الإعدادات</span></a>
+          </div>
+        </div>
+        <a href="index.html" class="btn btn--admin btn--sm"><i class="fas fa-right-from-bracket"></i><span>خروج</span></a>
+      </div>
+    </nav>
+
+    <main>
+      <header class="page-header">
+        <h1><i class="fas fa-bell"></i> إدارة الإشعارات</h1>
+        <p>إرسال إعلانات للمدارس، مراقبة تنبيهات النظام، وتتبع سجل الإشعارات</p>
+      </header>
+
+      <div class="notif-grid">
+        <!-- Broadcast Composer -->
+        <section class="card composer">
+          <h2><i class="fas fa-bullhorn"></i> إرسال إشعار</h2>
+          <div class="composer__form">
+            <div class="form-group">
+              <label for="notif-title">عنوان الإشعار</label>
+              <input type="text" id="notif-title" placeholder="مثال: صيانة مجدولة للنظام">
+            </div>
+            <div class="form-group">
+              <label for="notif-body">نص الإشعار</label>
+              <textarea id="notif-body" placeholder="اكتب محتوى الإشعار هنا..."></textarea>
+            </div>
+            <div class="form-group">
+              <label for="notif-audience">الجمهور المستهدف</label>
+              <select id="notif-audience">
+                <option value="all">جميع المدارس</option>
+                <option value="school-amal">مدرسة الأمل</option>
+                <option value="school-noor">مدرسة النور</option>
+                <option value="school-alnajah">مدرسة النجاح</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="notif-priority">الأولوية</label>
+              <select id="notif-priority">
+                <option value="normal">عادية</option>
+                <option value="high">مرتفعة</option>
+                <option value="critical">حرجة</option>
+              </select>
+            </div>
+            <div class="composer__actions">
+              <button class="btn btn--admin" id="send-notif-btn"><i class="fas fa-paper-plane"></i> إرسال</button>
+              <button class="btn btn--outline" id="preview-notif-btn"><i class="fas fa-eye"></i> معاينة</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- System Alerts Feed -->
+        <section class="card alerts">
+          <h2><i class="fas fa-triangle-exclamation"></i> تنبيهات النظام</h2>
+          <div class="alert-feed" id="alert-feed">
+            <div class="alert-item">
+              <div class="alert-item__icon alert-item__icon--critical"><i class="fas fa-xmark"></i></div>
+              <div class="alert-item__content">
+                <p class="alert-item__text"><span class="severity-dot severity-dot--critical"></span>فشل اتصال OpenAI API</p>
+                <span class="alert-item__meta">حرج — منذ 12 دقيقة — محاولة إعادة اتصال تلقائية</span>
+              </div>
+            </div>
+            <div class="alert-item">
+              <div class="alert-item__icon alert-item__icon--warning"><i class="fas fa-exclamation"></i></div>
+              <div class="alert-item__content">
+                <p class="alert-item__text"><span class="severity-dot severity-dot--warning"></span>مدرسة الأمل تجاوزت 90% من حصة التوكنز</p>
+                <span class="alert-item__meta">تحذير — منذ ساعة — يُنصح بزيادة الحصة</span>
+              </div>
+            </div>
+            <div class="alert-item">
+              <div class="alert-item__icon alert-item__icon--success"><i class="fas fa-check"></i></div>
+              <div class="alert-item__content">
+                <p class="alert-item__text">تمت استعادة اتصال Gemini API بنجاح</p>
+                <span class="alert-item__meta">معلومات — منذ 3 ساعات</span>
+              </div>
+            </div>
+            <div class="alert-item">
+              <div class="alert-item__icon alert-item__icon--info"><i class="fas fa-circle-info"></i></div>
+              <div class="alert-item__content">
+                <p class="alert-item__text"><span class="severity-dot severity-dot--info"></span>تحديث نموذج GPT-4o متاح للتفعيل</p>
+                <span class="alert-item__meta">معلومات — منذ 6 ساعات</span>
+              </div>
+            </div>
+            <div class="alert-item">
+              <div class="alert-item__icon alert-item__icon--warning"><i class="fas fa-exclamation"></i></div>
+              <div class="alert-item__content">
+                <p class="alert-item__text"><span class="severity-dot severity-dot--warning"></span>مدرسة النور: 3 معلمين بدون نشاط منذ 30 يوم</p>
+                <span class="alert-item__meta">تحذير — أمس</span>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- Notification Log -->
+      <section class="card log-section">
+        <h2><i class="fas fa-clock-rotate-left"></i> سجل الإشعارات</h2>
+        <div class="log-filters">
+          <select id="log-filter-type">
+            <option value="all">جميع الأنواع</option>
+            <option value="broadcast">إعلان</option>
+            <option value="system">نظام</option>
+            <option value="auto">تلقائي</option>
+          </select>
+          <select id="log-filter-audience">
+            <option value="all">جميع المدارس</option>
+            <option value="school-amal">مدرسة الأمل</option>
+            <option value="school-noor">مدرسة النور</option>
+            <option value="school-alnajah">مدرسة النجاح</option>
+          </select>
+          <input type="text" id="log-search" placeholder="بحث في الإشعارات...">
+        </div>
+        <div class="log-table-wrap">
+          <table class="log-table">
+            <thead><tr><th>#</th><th>النوع</th><th>العنوان</th><th>الجمهور</th><th>التاريخ</th><th>الحالة</th></tr></thead>
+            <tbody id="log-table-body"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="sent-toast" id="sent-toast">✅ تم إرسال الإشعار بنجاح</div>
+
+  <script src="shared-layout.js"></script>
+  <script>
+  (function(){
+    /* Log data */
+    var logs = [
+      {id:1,type:'broadcast',title:'صيانة مجدولة للنظام يوم الجمعة 2-4 مساءً',audience:'جميع المدارس',date:'2025-06-10 10:00',status:'مُرسل'},
+      {id:2,type:'system',title:'فشل اتصال OpenAI API',audience:'النظام',date:'2025-06-10 09:48',status:'نشط'},
+      {id:3,type:'auto',title:'تذكير: تجديد اشتراك مدرسة النجاح خلال 7 أيام',audience:'مدرسة النجاح',date:'2025-06-09 08:00',status:'مُرسل'},
+      {id:4,type:'broadcast',title:'إطلاق ميزة بنك الأسئلة المحسّن',audience:'جميع المدارس',date:'2025-06-08 14:30',status:'مُرسل'},
+      {id:5,type:'system',title:'تحذير: مدرسة الأمل تجاوزت حصة التوكنز',audience:'مدرسة الأمل',date:'2025-06-10 09:00',status:'نشط'},
+      {id:6,type:'auto',title:'تقرير أسبوعي: ملخص استخدام المنصة',audience:'جميع المدارس',date:'2025-06-07 07:00',status:'مُرسل'},
+      {id:7,type:'broadcast',title:'تحديث سياسة الخصوصية',audience:'جميع المدارس',date:'2025-06-05 12:00',status:'مُرسل'}
+    ];
+
+    var tbody = document.getElementById('log-table-body');
+    var filterType = document.getElementById('log-filter-type');
+    var filterAudience = document.getElementById('log-filter-audience');
+    var searchInput = document.getElementById('log-search');
+
+    function renderLogs(){
+      var ft = filterType.value;
+      var fa = filterAudience.value;
+      var q = searchInput.value.trim().toLowerCase();
+      tbody.innerHTML = '';
+      for(var i=0; i<logs.length; i++){
+        var l = logs[i];
+        if(ft !== 'all' && l.type !== ft) continue;
+        if(fa !== 'all'){
+          var audienceMap = {'school-amal':'مدرسة الأمل','school-noor':'مدرسة النور','school-alnajah':'مدرسة النجاح'};
+          if(l.audience !== audienceMap[fa] && l.audience !== 'جميع المدارس' && l.audience !== 'النظام') continue;
+        }
+        if(q && l.title.toLowerCase().indexOf(q) === -1) continue;
+        var typeLabel = l.type==='broadcast'?'إعلان':l.type==='system'?'نظام':'تلقائي';
+        var typeCls = 'type-badge type-badge--'+l.type;
+        tbody.innerHTML += '<tr><td>'+l.id+'</td><td><span class="'+typeCls+'">'+typeLabel+'</span></td><td>'+l.title+'</td><td>'+l.audience+'</td><td>'+l.date+'</td><td>'+l.status+'</td></tr>';
+      }
+      if(!tbody.innerHTML) tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--color-gray-400);padding:var(--space-6);">لا توجد نتائج</td></tr>';
+    }
+
+    filterType.addEventListener('change', renderLogs);
+    filterAudience.addEventListener('change', renderLogs);
+    searchInput.addEventListener('input', renderLogs);
+    renderLogs();
+
+    /* Send notification */
+    var sendBtn = document.getElementById('send-notif-btn');
+    var toast = document.getElementById('sent-toast');
+    sendBtn.addEventListener('click', function(){
+      var title = document.getElementById('notif-title').value.trim();
+      var body = document.getElementById('notif-body').value.trim();
+      if(!title || !body){ alert('يرجى ملء العنوان والنص'); return; }
+      var audienceEl = document.getElementById('notif-audience');
+      var audienceText = audienceEl.options[audienceEl.selectedIndex].text;
+      logs.unshift({id:logs.length+1,type:'broadcast',title:title,audience:audienceText,date:new Date().toISOString().slice(0,16).replace('T',' '),status:'مُرسل'});
+      document.getElementById('notif-title').value='';
+      document.getElementById('notif-body').value='';
+      renderLogs();
+      toast.classList.add('sent-toast--show');
+      setTimeout(function(){ toast.classList.remove('sent-toast--show'); }, 3000);
+    });
+  })();
+  </script>
+</body>
+</html>

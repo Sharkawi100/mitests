@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mitests - إعدادات المعلم</title>
+  <meta name="description" content="صفحة مستقلة لإعدادات المعلم: الملف الشخصي، التقييم، الإشعارات والأمان.">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="styles.css">
+
+  <style>
+    .teacher-navbar { border-bottom: 1px solid var(--color-gray-200); }
+    body.rtl .main-content .teacher-navbar { right: var(--sidebar-width); left: 0; }
+    body.ltr .main-content .teacher-navbar { left: var(--sidebar-width); right: 0; }
+    body.rtl .main-content.main-content--expanded .teacher-navbar { right: var(--sidebar-collapsed-width); }
+    body.ltr .main-content.main-content--expanded .teacher-navbar { left: var(--sidebar-collapsed-width); }
+
+    .teacher-navbar .navbar__brand-icon { background: linear-gradient(135deg, var(--color-teacher), var(--color-primary-400)); }
+    .sidebar__item:hover, .sidebar__item--active { background: rgba(53, 86, 178, 0.25); color: var(--color-white); }
+    .sidebar__item--active { border-inline-start: 3px solid var(--color-teacher); }
+
+    .btn--teacher { background: var(--color-teacher); border-color: var(--color-teacher); color: var(--color-white); }
+    .btn--teacher:hover { background: var(--color-primary-600); border-color: var(--color-primary-600); color: var(--color-white); }
+
+    .settings-main {
+      padding: calc(var(--navbar-height) + var(--space-6)) var(--space-6) var(--space-8);
+      display: grid;
+      gap: var(--space-5);
+    }
+
+    .header-card {
+      background: var(--color-white);
+      border-radius: var(--border-radius-lg);
+      box-shadow: var(--shadow-md);
+      border-top: 4px solid var(--color-teacher);
+      padding: var(--space-6);
+      display: grid;
+      gap: var(--space-3);
+    }
+
+    .header-card h1 { color: var(--color-gray-900); font-size: var(--font-size-3xl); line-height: 1.25; }
+    .header-card p { color: var(--color-gray-600); }
+
+    .settings-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--space-4);
+    }
+
+    .setting-card {
+      background: var(--color-white);
+      border: 1px solid var(--color-gray-200);
+      border-top: 4px solid var(--color-teacher);
+      border-radius: var(--border-radius-md);
+      box-shadow: var(--shadow-sm);
+      padding: var(--space-4);
+      display: grid;
+      gap: var(--space-3);
+    }
+
+    .setting-card h2 { color: var(--color-gray-900); font-size: var(--font-size-xl); }
+    .setting-card p { color: var(--color-gray-600); font-size: var(--font-size-sm); line-height: 1.7; }
+
+    .field { display: grid; gap: var(--space-1); }
+    .field label { font-size: var(--font-size-sm); font-weight: 600; color: var(--color-gray-700); }
+    .field input, .field select {
+      border: 1px solid var(--color-gray-300);
+      border-radius: var(--border-radius-sm);
+      padding: var(--space-2) var(--space-3);
+      font-family: inherit;
+      color: var(--color-gray-800);
+    }
+    .field input:focus, .field select:focus {
+      outline: none;
+      border-color: var(--color-teacher);
+      box-shadow: 0 0 0 3px rgba(53, 86, 178, 0.15);
+    }
+
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-3);
+      background: var(--color-gray-50);
+      border: 1px solid var(--color-gray-200);
+      border-radius: var(--border-radius-sm);
+      padding: var(--space-3);
+    }
+
+    .toggle-row span {
+      color: var(--color-gray-700);
+      font-size: var(--font-size-sm);
+      font-weight: 600;
+    }
+
+    .toggle-row input { accent-color: var(--color-teacher); width: 18px; height: 18px; }
+
+    .actions {
+      display: flex;
+      justify-content: space-between;
+      gap: var(--space-3);
+      flex-wrap: wrap;
+    }
+
+    @media (max-width: 1023px) {
+      body.rtl .main-content .teacher-navbar { right: var(--sidebar-collapsed-width); }
+      body.ltr .main-content .teacher-navbar { left: var(--sidebar-collapsed-width); }
+      body.rtl .main-content { margin-right: var(--sidebar-collapsed-width); }
+      body.ltr .main-content { margin-left: var(--sidebar-collapsed-width); }
+      .sidebar { width: var(--sidebar-collapsed-width); }
+      .sidebar .sidebar__brand-text, .sidebar .sidebar__item span, .sidebar .sidebar__toggle span { display: none; }
+      .settings-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 767px) {
+      .sidebar { display: none; }
+      body.rtl .main-content, body.ltr .main-content { margin: 0; }
+      body.rtl .main-content .teacher-navbar, body.ltr .main-content .teacher-navbar { right: 0; left: 0; }
+      .settings-main { padding-inline: var(--space-4); }
+      .header-card h1 { font-size: var(--font-size-2xl); }
+      .actions .btn { width: 100%; }
+    }
+  </style>
+</head>
+
+<body class="rtl">
+  <aside class="sidebar" id="sidebar" aria-label="Sidebar navigation">
+    <div class="sidebar__header">
+      <div class="sidebar__logo">M</div>
+      <span class="sidebar__brand-text">سراج - المعلم</span>
+    </div>
+    <nav class="sidebar__nav">
+      <a class="sidebar__item" href="teacher-dashboard.html"><i class="fas fa-gauge"></i><span data-i18n="navDashboard">لوحة المعلم</span></a>
+      <a class="sidebar__item" href="exam-wizard.html"><i class="fas fa-wand-magic-sparkles"></i><span data-i18n="navWizard">إنشاء اختبار</span></a>
+      <a class="sidebar__item" href="teacher-question-bank.html"><i class="fas fa-database"></i><span data-i18n="navBank">بنك الأسئلة</span></a>
+      <a class="sidebar__item sidebar__item--active" href="teacher-settings.html"><i class="fas fa-gear"></i><span data-i18n="navSettings">الإعدادات</span></a>
+    </nav>
+    <button class="sidebar__toggle" id="sidebar-toggle" aria-label="Toggle sidebar"><i class="fas fa-angles-right"></i><span>تصغير</span></button>
+  </aside>
+
+  <div class="main-content" id="main-content">
+    <nav class="navbar teacher-navbar" role="navigation" aria-label="Teacher top navigation">
+      <a href="teacher-settings.html" class="navbar__brand">
+        <div class="navbar__brand-icon"><i class="fas fa-gear"></i></div>
+        <span class="navbar__brand-text" data-i18n="brand">إعدادات المعلم</span>
+      </a>
+      <div class="navbar__actions">
+        <div class="lang-switcher" role="group" aria-label="Language selector">
+          <button class="lang-switcher__btn active" data-lang="ar" aria-label="Arabic">&#1593;</button>
+          <button class="lang-switcher__btn" data-lang="he" aria-label="Hebrew">&#1506;&#1489;</button>
+          <button class="lang-switcher__btn" data-lang="en" aria-label="English">En</button>
+        </div>
+        <div class="avatar-dropdown">
+          <button class="avatar-btn" type="button" data-avatar-toggle="teacher-avatar-menu" aria-label="قائمة حساب المعلم">
+            <i class="fas fa-user"></i>
+          </button>
+          <div class="avatar-menu" id="teacher-avatar-menu" data-avatar-menu>
+            <span class="avatar-menu__label">حساب المعلم</span>
+            <a class="avatar-menu__link" href="teacher-profile.html"><i class="fas fa-id-card"></i><span data-i18n="profileMenu">الملف الشخصي</span></a>
+            <a class="avatar-menu__link" href="teacher-settings.html"><i class="fas fa-gear"></i><span data-i18n="navSettings">الإعدادات</span></a>
+          </div>
+        </div>
+        <a href="index.html" class="btn btn--teacher btn--sm"><i class="fas fa-right-from-bracket"></i><span data-i18n="logout">تسجيل الخروج</span></a>
+      </div>
+    </nav>
+
+    <main class="settings-main">
+      <header class="header-card">
+        <h1 data-i18n="headerTitle">إعدادات الحساب والتقييم</h1>
+        <p data-i18n="headerText">خصص طريقة التقييم، الإشعارات، وإعدادات الأمان لتجربة تدريس أفضل.</p>
+      </header>
+
+      <section class="settings-grid">
+        <article class="setting-card">
+          <h2 data-i18n="profileTitle">الملف الشخصي</h2>
+          <div class="field">
+            <label for="name" data-i18n="nameLabel">الاسم</label>
+            <input id="name" value="نورا العلي">
+          </div>
+          <div class="field">
+            <label for="email" data-i18n="emailLabel">البريد الإلكتروني</label>
+            <input id="email" value="nora@seraj.edu">
+          </div>
+          <div class="field">
+            <label for="subject" data-i18n="subjectLabel">التخصص</label>
+            <select id="subject">
+              <option value="" data-i18n="subjectPlaceholder">اختر التخصص</option>
+            </select>
+          </div>
+        </article>
+
+        <article class="setting-card">
+          <h2 data-i18n="gradingTitle">إعدادات التصحيح</h2>
+          <div class="toggle-row">
+            <span data-i18n="toggleAiGrading">تفعيل اقتراحات التصحيح بالذكاء الاصطناعي</span>
+            <input type="checkbox" checked>
+          </div>
+          <div class="toggle-row">
+            <span data-i18n="toggleBloom">تفعيل توزيع النقاط حسب بلوم</span>
+            <input type="checkbox" checked>
+          </div>
+          <div class="toggle-row">
+            <span data-i18n="toggleManual">السماح بالتعديل اليدوي قبل النشر</span>
+            <input type="checkbox" checked>
+          </div>
+        </article>
+
+        <article class="setting-card">
+          <h2 data-i18n="notifyTitle">الإشعارات</h2>
+          <div class="toggle-row">
+            <span data-i18n="notifyExam">تنبيهات بدء الاختبارات</span>
+            <input type="checkbox" checked>
+          </div>
+          <div class="toggle-row">
+            <span data-i18n="notifyReports">تنبيهات التقارير الأسبوعية</span>
+            <input type="checkbox" checked>
+          </div>
+          <div class="toggle-row">
+            <span data-i18n="notifyCommunity">إشعارات مجتمع المعلمين</span>
+            <input type="checkbox">
+          </div>
+        </article>
+
+        <article class="setting-card">
+          <h2 data-i18n="securityTitle">الأمان والجلسة</h2>
+          <p data-i18n="securityText">يمكنك تفعيل تحقق إضافي قبل نشر الاختبارات أو تغيير إعدادات المشاركة.</p>
+          <div class="toggle-row">
+            <span data-i18n="security2fa">تفعيل التحقق بخطوتين</span>
+            <input type="checkbox">
+          </div>
+          <div class="toggle-row">
+            <span data-i18n="securityLockdown">تفعيل وضع الامتحان المقيد افتراضيًا</span>
+            <input type="checkbox" checked>
+          </div>
+        </article>
+      </section>
+
+      <div class="actions">
+        <button class="btn btn--outline" data-i18n="cancelBtn">إلغاء</button>
+        <button class="btn btn--teacher" data-i18n="saveBtn">حفظ الإعدادات</button>
+      </div>
+    </main>
+  </div>
+
+  <script src="shared-layout.js"></script>
+  <script src="tenant-mode.js"></script>
+  <script>
+    (function () {
+      'use strict';
+      var I18N = {
+        ar: {
+          pageTitle: 'Mitests - إعدادات المعلم',
+          pageDescription: 'صفحة مستقلة لإعدادات المعلم: الملف الشخصي، التقييم، الإشعارات والأمان.',
+          brand: 'إعدادات المعلم',
+          logout: 'تسجيل الخروج',
+          navDashboard: 'لوحة المعلم',
+          navWizard: 'إنشاء اختبار',
+          navBank: 'بنك الأسئلة',
+          navSettings: 'الإعدادات',
+          profileMenu: 'الملف الشخصي',
+          headerTitle: 'إعدادات الحساب والتقييم',
+          headerText: 'خصص طريقة التقييم، الإشعارات، وإعدادات الأمان لتجربة تدريس أفضل.',
+          profileTitle: 'الملف الشخصي',
+          nameLabel: 'الاسم',
+          emailLabel: 'البريد الإلكتروني',
+          subjectLabel: 'التخصص',
+          subjectPlaceholder: 'اختر التخصص',
+          subjectEnglish: 'اللغة الإنجليزية',
+          subjectMath: 'الرياضيات',
+          subjectScience: 'العلوم',
+          gradingTitle: 'إعدادات التصحيح',
+          toggleAiGrading: 'تفعيل اقتراحات التصحيح بالذكاء الاصطناعي',
+          toggleBloom: 'تفعيل توزيع النقاط حسب بلوم',
+          toggleManual: 'السماح بالتعديل اليدوي قبل النشر',
+          notifyTitle: 'الإشعارات',
+          notifyExam: 'تنبيهات بدء الاختبارات',
+          notifyReports: 'تنبيهات التقارير الأسبوعية',
+          notifyCommunity: 'إشعارات مجتمع المعلمين',
+          securityTitle: 'الأمان والجلسة',
+          securityText: 'يمكنك تفعيل تحقق إضافي قبل نشر الاختبارات أو تغيير إعدادات المشاركة.',
+          security2fa: 'تفعيل التحقق بخطوتين',
+          securityLockdown: 'تفعيل وضع الامتحان المقيد افتراضيًا',
+          cancelBtn: 'إلغاء',
+          saveBtn: 'حفظ الإعدادات'
+        },
+        he: {
+          pageTitle: 'Mitests - הגדרות מורה',
+          pageDescription: 'עמוד הגדרות נפרד למורה.',
+          brand: 'הגדרות מורה',
+          logout: 'יציאה',
+          navDashboard: 'לוח מורה',
+          navWizard: 'יצירת מבחן',
+          navBank: 'בנק שאלות',
+          navSettings: 'הגדרות',
+          profileMenu: 'פרופיל',
+          headerTitle: 'הגדרות חשבון והערכה',
+          headerText: 'התאמת הערכה, התראות ואבטחה.',
+          profileTitle: 'פרופיל',
+          nameLabel: 'שם',
+          emailLabel: 'אימייל',
+          subjectLabel: 'תחום הוראה',
+          subjectPlaceholder: 'בחר תחום',
+          subjectEnglish: 'אנגלית',
+          subjectMath: 'מתמטיקה',
+          subjectScience: 'מדעים',
+          gradingTitle: 'הגדרות בדיקה',
+          toggleAiGrading: 'הפעלת הצעות בדיקה AI',
+          toggleBloom: 'הפעלת ניקוד בלום',
+          toggleManual: 'אפשר עריכה ידנית לפני פרסום',
+          notifyTitle: 'התראות',
+          notifyExam: 'התראות מבחן',
+          notifyReports: 'התראות דוחות שבועיים',
+          notifyCommunity: 'התראות קהילת מורים',
+          securityTitle: 'אבטחה',
+          securityText: 'אפשר להפעיל אימות נוסף לפני פרסום מבחנים.',
+          security2fa: 'אימות דו-שלבי',
+          securityLockdown: 'Lockdown ברירת מחדל',
+          cancelBtn: 'ביטול',
+          saveBtn: 'שמירת הגדרות'
+        },
+        en: {
+          pageTitle: 'Mitests - Teacher Settings',
+          pageDescription: 'Dedicated teacher settings page for profile, grading, notifications, and security.',
+          brand: 'Teacher Settings',
+          logout: 'Logout',
+          navDashboard: 'Teacher Dashboard',
+          navWizard: 'Exam Wizard',
+          navBank: 'Question Bank',
+          navSettings: 'Settings',
+          profileMenu: 'Profile',
+          headerTitle: 'Account and Assessment Settings',
+          headerText: 'Customize grading, notifications, and security preferences.',
+          profileTitle: 'Profile',
+          nameLabel: 'Name',
+          emailLabel: 'Email',
+          subjectLabel: 'Subject',
+          subjectPlaceholder: 'Select Subject',
+          subjectEnglish: 'English',
+          subjectMath: 'Math',
+          subjectScience: 'Science',
+          gradingTitle: 'Grading Settings',
+          toggleAiGrading: 'Enable AI grading suggestions',
+          toggleBloom: 'Enable Bloom-based weighting',
+          toggleManual: 'Allow manual edits before publish',
+          notifyTitle: 'Notifications',
+          notifyExam: 'Exam start alerts',
+          notifyReports: 'Weekly reports',
+          notifyCommunity: 'Teacher community updates',
+          securityTitle: 'Security',
+          securityText: 'Enable extra verification before publishing exams.',
+          security2fa: 'Enable two-factor authentication',
+          securityLockdown: 'Default exam lockdown',
+          cancelBtn: 'Cancel',
+          saveBtn: 'Save Settings'
+        }
+      };
+
+      var subjectsKey = 'mitests-admin-subjects';
+      var defaultSubjects = ['اللغة العربية', 'اللغة الإنجليزية', 'الرياضيات', 'العلوم'];
+
+      function loadSubjectsCatalog() {
+        try {
+          var raw = localStorage.getItem(subjectsKey);
+          if (!raw) return defaultSubjects.slice();
+          var parsed = JSON.parse(raw);
+          if (Array.isArray(parsed) && parsed.length) return parsed;
+        } catch (e) {}
+        return defaultSubjects.slice();
+      }
+
+      function renderSubjectSelect(lang) {
+        var t = I18N[lang] || I18N.ar;
+        var select = document.getElementById('subject');
+        if (!select) return;
+
+        var previous = select.value;
+        var subjects = loadSubjectsCatalog();
+        select.innerHTML = '';
+
+        var ph = document.createElement('option');
+        ph.value = '';
+        ph.textContent = t.subjectPlaceholder || 'اختر التخصص';
+        select.appendChild(ph);
+
+        for (var i = 0; i < subjects.length; i++) {
+          var opt = document.createElement('option');
+          opt.value = subjects[i];
+          opt.textContent = subjects[i];
+          select.appendChild(opt);
+        }
+
+        if (previous) select.value = previous;
+      }
+
+      function applyLanguage(lang) {
+        var t = I18N[lang] || I18N.ar;
+        var nodes = document.querySelectorAll('[data-i18n]');
+        var metaDesc = document.querySelector('meta[name="description"]');
+
+        document.title = t.pageTitle;
+        if (metaDesc) metaDesc.setAttribute('content', t.pageDescription);
+
+        for (var i = 0; i < nodes.length; i++) {
+          var key = nodes[i].getAttribute('data-i18n');
+          if (t[key]) nodes[i].textContent = t[key];
+        }
+
+        renderSubjectSelect(lang);
+      }
+
+      document.addEventListener('mitests:languagechange', function (e) {
+        var lang = (e.detail && e.detail.lang) || document.documentElement.getAttribute('lang') || 'ar';
+        applyLanguage(lang);
+      });
+
+      document.addEventListener('DOMContentLoaded', function () {
+        var lang = document.documentElement.getAttribute('lang') || 'ar';
+        applyLanguage(lang);
+      });
+    })();
+  </script>
+</body>
+</html>
+
+

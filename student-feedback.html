@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mitests - ملاحظات الاختبار</title>
+  <meta name="description" content="عرض ملاحظات المعلم على نتائج الاختبار مع تفاصيل كل سؤال.">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="styles.css">
+
+  <style>
+    /* ── Navbar & sidebar overrides (match student-dashboard) ── */
+    .student-navbar { border-bottom: 1px solid var(--color-gray-200); }
+    body.rtl .main-content .student-navbar { right: var(--sidebar-width); left: 0; }
+    body.ltr .main-content .student-navbar { left: var(--sidebar-width); right: 0; }
+    body.rtl .main-content.main-content--expanded .student-navbar { right: var(--sidebar-collapsed-width); }
+    body.ltr .main-content.main-content--expanded .student-navbar { left: var(--sidebar-collapsed-width); }
+    .student-navbar .navbar__brand-icon { background: linear-gradient(135deg, var(--color-student), #24c6c6); }
+    .sidebar__item:hover, .sidebar__item--active { background: rgba(14, 165, 165, 0.22); color: var(--color-white); }
+    .sidebar__item--active { border-inline-start: 3px solid var(--color-student); }
+    .btn--student { background: var(--color-student); border-color: var(--color-student); color: var(--color-white); }
+    .btn--student:hover { background: #0b8b8b; border-color: #0b8b8b; color: var(--color-white); }
+
+    /* ── Page layout ── */
+    .feedback-main {
+      padding: calc(var(--navbar-height) + var(--space-6)) var(--space-6) var(--space-8);
+      display: grid;
+      gap: var(--space-5);
+      max-width: 960px;
+    }
+
+    /* ── Back link ── */
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      color: var(--color-student);
+      font-weight: 600;
+      font-size: var(--font-size-sm);
+      text-decoration: none;
+      transition: color var(--transition-fast);
+    }
+    .back-link:hover { color: #0b8b8b; }
+
+    /* ── Exam header card ── */
+    .exam-header {
+      background: linear-gradient(145deg, rgba(14, 165, 165, 0.13), rgba(255,255,255,1) 60%);
+      border: 1px solid var(--color-teal-100);
+      border-radius: var(--border-radius-lg);
+      border-top: 4px solid var(--color-student);
+      box-shadow: var(--shadow-md);
+      padding: var(--space-6);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: var(--space-4);
+      flex-wrap: wrap;
+    }
+    .exam-header__info { display: grid; gap: var(--space-1); }
+    .exam-header__title { font-size: var(--font-size-2xl); font-weight: 700; color: var(--color-gray-900); }
+    .exam-header__meta { font-size: var(--font-size-sm); color: var(--color-gray-500); display: flex; gap: var(--space-4); flex-wrap: wrap; }
+    .exam-header__meta i { color: var(--color-student); }
+
+    /* ── Score ring ── */
+    .score-ring {
+      position: relative;
+      width: 110px;
+      height: 110px;
+      flex-shrink: 0;
+    }
+    .score-ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+    .score-ring__bg { fill: none; stroke: var(--color-gray-200); stroke-width: 8; }
+    .score-ring__fill {
+      fill: none;
+      stroke: var(--color-student);
+      stroke-width: 8;
+      stroke-linecap: round;
+      transition: stroke-dashoffset 1.2s ease;
+    }
+    .score-ring__label {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .score-ring__value { font-size: var(--font-size-2xl); font-weight: 700; color: var(--color-gray-900); }
+    .score-ring__text { font-size: var(--font-size-xs); color: var(--color-gray-500); }
+
+    /* ── Stat strip ── */
+    .stat-strip {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: var(--space-3);
+    }
+    .stat-card {
+      background: var(--color-white);
+      border: 1px solid var(--color-gray-200);
+      border-radius: var(--border-radius-md);
+      padding: var(--space-4);
+      text-align: center;
+      transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+    }
+    .stat-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+    .stat-card__icon { font-size: var(--font-size-xl); margin-bottom: var(--space-2); }
+    .stat-card__value { font-size: var(--font-size-2xl); font-weight: 700; color: var(--color-gray-900); }
+    .stat-card__label { font-size: var(--font-size-xs); color: var(--color-gray-500); margin-top: var(--space-1); }
+    .stat-card--correct .stat-card__icon { color: var(--color-green-500); }
+    .stat-card--wrong   .stat-card__icon { color: var(--color-coral-500); }
+    .stat-card--time    .stat-card__icon { color: var(--color-amber-500); }
+    .stat-card--rank    .stat-card__icon { color: var(--color-secondary-500); }
+
+    /* ── Teacher notes card ── */
+    .teacher-notes {
+      background: linear-gradient(135deg, rgba(14,165,165,0.06), rgba(255,255,255,1) 50%);
+      border: 1px solid var(--color-teal-100);
+      border-radius: var(--border-radius-md);
+      padding: var(--space-5);
+      display: grid;
+      gap: var(--space-3);
+    }
+    .teacher-notes__header {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+    }
+    .teacher-avatar {
+      width: 42px; height: 42px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--color-student), #21bdbd);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--color-white); font-weight: 700; font-size: var(--font-size-lg);
+    }
+    .teacher-notes__name { font-weight: 700; color: var(--color-gray-900); }
+    .teacher-notes__role { font-size: var(--font-size-xs); color: var(--color-gray-500); }
+    .teacher-notes__body {
+      background: var(--color-white);
+      border-radius: var(--border-radius-sm);
+      padding: var(--space-4);
+      border: 1px solid var(--color-gray-200);
+      line-height: 1.8;
+      color: var(--color-gray-700);
+      font-size: var(--font-size-sm);
+    }
+
+    /* ── Insights grid (strengths / weaknesses) ── */
+    .insights-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--space-4);
+    }
+    .insight-card {
+      border-radius: var(--border-radius-md);
+      padding: var(--space-5);
+      display: grid;
+      gap: var(--space-3);
+    }
+    .insight-card h3 { font-size: var(--font-size-lg); display: flex; align-items: center; gap: var(--space-2); }
+    .insight-card ul { display: grid; gap: var(--space-2); padding: 0; }
+    .insight-card li {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--space-2);
+      font-size: var(--font-size-sm);
+      line-height: 1.6;
+    }
+    .insight-card li i { margin-top: 4px; flex-shrink: 0; }
+    .insight--strength {
+      background: var(--color-green-100);
+      border: 1px solid rgba(34,197,94,0.25);
+    }
+    .insight--strength h3 { color: #16a34a; }
+    .insight--strength li i { color: #16a34a; }
+    .insight--weakness {
+      background: var(--color-coral-100);
+      border: 1px solid rgba(239,93,96,0.25);
+    }
+    .insight--weakness h3 { color: #dc2626; }
+    .insight--weakness li i { color: #dc2626; }
+
+    /* ── Questions section ── */
+    .questions-section h2 {
+      font-size: var(--font-size-xl);
+      color: var(--color-gray-900);
+      margin-bottom: var(--space-4);
+      display: flex; align-items: center; gap: var(--space-2);
+    }
+
+    .question-card {
+      background: var(--color-white);
+      border: 1px solid var(--color-gray-200);
+      border-radius: var(--border-radius-md);
+      margin-bottom: var(--space-3);
+      overflow: hidden;
+      transition: box-shadow var(--transition-fast);
+    }
+    .question-card:hover { box-shadow: var(--shadow-md); }
+
+    .question-card--correct { border-inline-start: 4px solid var(--color-green-500); }
+    .question-card--wrong   { border-inline-start: 4px solid var(--color-coral-500); }
+    .question-card--partial { border-inline-start: 4px solid var(--color-amber-500); }
+
+    .question-header {
+      padding: var(--space-4);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      gap: var(--space-3);
+      user-select: none;
+    }
+    .question-header:hover { background: var(--color-gray-50); }
+
+    .question-number {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: var(--font-size-sm);
+      flex-shrink: 0;
+    }
+    .question-card--correct .question-number { background: var(--color-green-100); color: #16a34a; }
+    .question-card--wrong   .question-number { background: var(--color-coral-100); color: #dc2626; }
+    .question-card--partial .question-number { background: var(--color-amber-100); color: #d97706; }
+
+    .question-title { flex: 1; font-size: var(--font-size-sm); color: var(--color-gray-800); font-weight: 600; }
+
+    .question-badge {
+      font-size: var(--font-size-xs);
+      padding: var(--space-1) var(--space-3);
+      border-radius: var(--border-radius-full);
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    .question-card--correct .question-badge { background: var(--color-green-100); color: #16a34a; }
+    .question-card--wrong   .question-badge { background: var(--color-coral-100); color: #dc2626; }
+    .question-card--partial .question-badge { background: var(--color-amber-100); color: #d97706; }
+
+    .question-chevron {
+      color: var(--color-gray-400);
+      transition: transform var(--transition-fast);
+      flex-shrink: 0;
+    }
+    .question-card.open .question-chevron { transform: rotate(180deg); }
+
+    .question-body {
+      display: none;
+      padding: 0 var(--space-4) var(--space-4);
+      border-top: 1px solid var(--color-gray-100);
+    }
+    .question-card.open .question-body { display: block; }
+
+    .answer-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-3);
+      margin-top: var(--space-3);
+    }
+    .answer-box {
+      border-radius: var(--border-radius-sm);
+      padding: var(--space-3);
+      font-size: var(--font-size-sm);
+    }
+    .answer-box__label {
+      font-weight: 700;
+      font-size: var(--font-size-xs);
+      margin-bottom: var(--space-1);
+      display: flex; align-items: center; gap: var(--space-1);
+    }
+    .answer-box--student { background: var(--color-gray-50); border: 1px solid var(--color-gray-200); }
+    .answer-box--student .answer-box__label { color: var(--color-gray-500); }
+    .answer-box--correct { background: rgba(34,197,94,0.07); border: 1px solid rgba(34,197,94,0.25); }
+    .answer-box--correct .answer-box__label { color: #16a34a; }
+
+    .question-feedback {
+      margin-top: var(--space-3);
+      background: linear-gradient(135deg, rgba(14,165,165,0.06), transparent);
+      border-radius: var(--border-radius-sm);
+      padding: var(--space-3);
+      font-size: var(--font-size-sm);
+      color: var(--color-gray-600);
+      line-height: 1.7;
+      display: flex;
+      gap: var(--space-2);
+    }
+    .question-feedback i { color: var(--color-student); margin-top: 3px; flex-shrink: 0; }
+
+    /* ── Responsive ── */
+    @media (max-width: 1023px) {
+      body.rtl .main-content .student-navbar { right: var(--sidebar-collapsed-width); }
+      body.ltr .main-content .student-navbar { left: var(--sidebar-collapsed-width); }
+      body.rtl .main-content { margin-right: var(--sidebar-collapsed-width); }
+      body.ltr .main-content { margin-left: var(--sidebar-collapsed-width); }
+      .sidebar { width: var(--sidebar-collapsed-width); }
+      .sidebar .sidebar__brand-text, .sidebar .sidebar__item span, .sidebar .sidebar__toggle span { display: none; }
+    }
+
+    @media (max-width: 767px) {
+      .sidebar { display: none; }
+      body.rtl .main-content, body.ltr .main-content { margin: 0; }
+      body.rtl .main-content .student-navbar, body.ltr .main-content .student-navbar { right: 0; left: 0; }
+      .feedback-main { padding-inline: var(--space-4); }
+      .exam-header { flex-direction: column; text-align: center; }
+      .insights-grid { grid-template-columns: 1fr; }
+      .answer-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+
+<body class="rtl">
+  <!-- ══ SIDEBAR ══ -->
+  <aside class="sidebar" id="sidebar" aria-label="Sidebar navigation">
+    <div class="sidebar__header">
+      <div class="sidebar__logo">M</div>
+      <span class="sidebar__brand-text">سراج - الطالب</span>
+    </div>
+    <nav class="sidebar__nav">
+      <a class="sidebar__item" href="student-dashboard.html"><i class="fas fa-gauge"></i><span data-i18n="navOverview">نظرة عامة</span></a>
+      <a class="sidebar__item" href="student-coming-tests.html"><i class="fas fa-calendar-days"></i><span data-i18n="navComing">اختبارات قادمة</span></a>
+      <a class="sidebar__item" href="student-groups.html"><i class="fas fa-users"></i><span data-i18n="navGroups">مجموعاتي</span></a>
+      <a class="sidebar__item" href="student-learning.html"><i class="fas fa-chart-line"></i><span data-i18n="navLearning">مسار التعلم</span></a>
+      <a class="sidebar__item sidebar__item--active" href="student-reports.html"><i class="fas fa-file-circle-check"></i><span data-i18n="navReports">تقارير حديثة</span></a>
+      <a class="sidebar__item" href="student-settings.html"><i class="fas fa-gear"></i><span data-i18n="navSettings">الإعدادات</span></a>
+    </nav>
+    <button class="sidebar__toggle" id="sidebar-toggle" aria-label="Toggle sidebar"><i class="fas fa-angles-right"></i><span>تصغير</span></button>
+  </aside>
+
+  <!-- ══ MAIN CONTENT ══ -->
+  <div class="main-content" id="main-content">
+    <!-- ── Top Navbar ── -->
+    <nav class="navbar student-navbar" role="navigation" aria-label="Student top navigation">
+      <a href="student-dashboard.html" class="navbar__brand">
+        <div class="navbar__brand-icon"><i class="fas fa-graduation-cap"></i></div>
+        <span class="navbar__brand-text" data-i18n="brand">مساحة الطالب</span>
+      </a>
+      <div class="navbar__actions">
+        <div class="lang-switcher" role="group" aria-label="Language selector">
+          <button class="lang-switcher__btn active" data-lang="ar" aria-label="Arabic">&#1593;</button>
+          <button class="lang-switcher__btn" data-lang="he" aria-label="Hebrew">&#1506;&#1489;</button>
+          <button class="lang-switcher__btn" data-lang="en" aria-label="English">En</button>
+        </div>
+        <a href="student-dashboard.html" class="btn btn--student btn--sm"><i class="fas fa-arrow-right"></i><span data-i18n="backDashboard">العودة للوحة</span></a>
+      </div>
+    </nav>
+
+    <!-- ── Page Body ── -->
+    <main class="feedback-main">
+
+      <!-- Back breadcrumb -->
+      <a href="student-reports.html" class="back-link" data-i18n-title="backReports">
+        <i class="fas fa-arrow-right"></i>
+        <span data-i18n="backReports">العودة إلى التقارير</span>
+      </a>
+
+      <!-- ── Exam Header ── -->
+      <section class="exam-header">
+        <div class="exam-header__info">
+          <h1 class="exam-header__title" data-i18n="examTitle">الإنجليزية - الوحدة 4</h1>
+          <div class="exam-header__meta">
+            <span><i class="fas fa-calendar-day"></i> <span data-i18n="examDate">12 فبراير 2026</span></span>
+            <span><i class="fas fa-clock"></i> <span data-i18n="examDuration">45 دقيقة</span></span>
+            <span><i class="fas fa-user-tie"></i> <span data-i18n="examTeacher">المعلم: أشرف شرقاوي</span></span>
+          </div>
+        </div>
+        <!-- Score ring -->
+        <div class="score-ring" aria-label="الدرجة 88 من 100">
+          <svg viewBox="0 0 120 120">
+            <circle class="score-ring__bg" cx="60" cy="60" r="52"/>
+            <circle class="score-ring__fill" cx="60" cy="60" r="52"
+                    stroke-dasharray="326.73"
+                    stroke-dashoffset="39.2"/>
+          </svg>
+          <div class="score-ring__label">
+            <span class="score-ring__value">88</span>
+            <span class="score-ring__text" data-i18n="outOf">/100</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Stats Strip ── -->
+      <div class="stat-strip">
+        <div class="stat-card stat-card--correct">
+          <div class="stat-card__icon"><i class="fas fa-circle-check"></i></div>
+          <div class="stat-card__value">7</div>
+          <div class="stat-card__label" data-i18n="statCorrect">إجابات صحيحة</div>
+        </div>
+        <div class="stat-card stat-card--wrong">
+          <div class="stat-card__icon"><i class="fas fa-circle-xmark"></i></div>
+          <div class="stat-card__value">2</div>
+          <div class="stat-card__label" data-i18n="statWrong">إجابات خاطئة</div>
+        </div>
+        <div class="stat-card stat-card--time">
+          <div class="stat-card__icon"><i class="fas fa-stopwatch"></i></div>
+          <div class="stat-card__value">38<small style="font-size:var(--font-size-xs)"> min</small></div>
+          <div class="stat-card__label" data-i18n="statTime">الوقت المستغرق</div>
+        </div>
+        <div class="stat-card stat-card--rank">
+          <div class="stat-card__icon"><i class="fas fa-ranking-star"></i></div>
+          <div class="stat-card__value">5<small style="font-size:var(--font-size-xs)">/28</small></div>
+          <div class="stat-card__label" data-i18n="statRank">الترتيب في الصف</div>
+        </div>
+      </div>
+
+      <!-- ── Teacher Notes ── -->
+      <section class="teacher-notes card">
+        <div class="teacher-notes__header">
+          <div class="teacher-avatar">أش</div>
+          <div>
+            <div class="teacher-notes__name" data-i18n="teacherName">أشرف شرقاوي</div>
+            <div class="teacher-notes__role" data-i18n="teacherRole">معلم الإنجليزية</div>
+          </div>
+        </div>
+        <div class="teacher-notes__body" data-i18n="teacherNotes">
+          عمل ممتاز يا نورا! تحسّن واضح في فهم القواعد مقارنة بالاختبار السابق. أنصحك بالتركيز أكثر على تمارين الكتابة الحرّة وخاصة استخدام الأزمنة في سياقات مختلفة. استمري بهذا الأداء الرائع! 🌟
+        </div>
+      </section>
+
+      <!-- ── Insights (Strengths / Weaknesses) ── -->
+      <div class="insights-grid">
+        <div class="insight-card insight--strength">
+          <h3><i class="fas fa-arrow-trend-up"></i> <span data-i18n="strengthsTitle">نقاط القوة</span></h3>
+          <ul>
+            <li><i class="fas fa-check"></i> <span data-i18n="strength1">فهم ممتاز للقواعد النحوية (Grammar)</span></li>
+            <li><i class="fas fa-check"></i> <span data-i18n="strength2">إجابات دقيقة في فهم المقروء</span></li>
+            <li><i class="fas fa-check"></i> <span data-i18n="strength3">استخدام مفردات متنوعة ومتقدمة</span></li>
+          </ul>
+        </div>
+        <div class="insight-card insight--weakness">
+          <h3><i class="fas fa-arrow-trend-down"></i> <span data-i18n="weaknessesTitle">نقاط للتحسين</span></h3>
+          <ul>
+            <li><i class="fas fa-xmark"></i> <span data-i18n="weakness1">الكتابة الحرّة - تنظيم الأفكار</span></li>
+            <li><i class="fas fa-xmark"></i> <span data-i18n="weakness2">استخدام أزمنة الأفعال في الكتابة</span></li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- ── Question-by-Question Breakdown ── -->
+      <section class="questions-section card">
+        <h2><i class="fas fa-list-check" style="color:var(--color-student)"></i> <span data-i18n="questionsTitle">تفاصيل الأسئلة</span></h2>
+
+        <!-- Q1 — Correct -->
+        <div class="question-card question-card--correct">
+          <div class="question-header" onclick="this.parentElement.classList.toggle('open')">
+            <div class="question-number">1</div>
+            <span class="question-title" data-i18n="q1title">Choose the correct verb tense to complete the sentence.</span>
+            <span class="question-badge" data-i18n="badgeCorrect">صحيح</span>
+            <i class="fas fa-chevron-down question-chevron"></i>
+          </div>
+          <div class="question-body">
+            <div class="answer-row">
+              <div class="answer-box answer-box--student">
+                <div class="answer-box__label"><i class="fas fa-user-graduate"></i> <span data-i18n="yourAnswer">إجابتك</span></div>
+                <div>has been studying</div>
+              </div>
+              <div class="answer-box answer-box--correct">
+                <div class="answer-box__label"><i class="fas fa-circle-check"></i> <span data-i18n="correctAnswer">الإجابة الصحيحة</span></div>
+                <div>has been studying</div>
+              </div>
+            </div>
+            <div class="question-feedback">
+              <i class="fas fa-comment-dots"></i>
+              <span data-i18n="q1feedback">أحسنت! اختيار Present Perfect Continuous صحيح لأن الفعل يعبر عن حدث بدأ في الماضي ومستمر حتى الآن.</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Q2 — Correct -->
+        <div class="question-card question-card--correct">
+          <div class="question-header" onclick="this.parentElement.classList.toggle('open')">
+            <div class="question-number">2</div>
+            <span class="question-title" data-i18n="q2title">Read the passage and answer: What is the author's main argument?</span>
+            <span class="question-badge" data-i18n="badgeCorrect">صحيح</span>
+            <i class="fas fa-chevron-down question-chevron"></i>
+          </div>
+          <div class="question-body">
+            <div class="answer-row">
+              <div class="answer-box answer-box--student">
+                <div class="answer-box__label"><i class="fas fa-user-graduate"></i> <span data-i18n="yourAnswer">إجابتك</span></div>
+                <div data-i18n="q2studentAns">التكنولوجيا تساعد في التعليم لكنها لا تحل محل المعلم</div>
+              </div>
+              <div class="answer-box answer-box--correct">
+                <div class="answer-box__label"><i class="fas fa-circle-check"></i> <span data-i18n="correctAnswer">الإجابة الصحيحة</span></div>
+                <div data-i18n="q2correctAns">التكنولوجيا تساعد في التعليم لكنها لا تحل محل المعلم</div>
+              </div>
+            </div>
+            <div class="question-feedback">
+              <i class="fas fa-comment-dots"></i>
+              <span data-i18n="q2feedback">ممتاز! حددت الفكرة الرئيسية بدقة. تحليلك للنص واضح ومنظم.</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Q3 — Correct -->
+        <div class="question-card question-card--correct">
+          <div class="question-header" onclick="this.parentElement.classList.toggle('open')">
+            <div class="question-number">3</div>
+            <span class="question-title" data-i18n="q3title">Fill in the blank: "She ___ to the store every day."</span>
+            <span class="question-badge" data-i18n="badgeCorrect">صحيح</span>
+            <i class="fas fa-chevron-down question-chevron"></i>
+          </div>
+          <div class="question-body">
+            <div class="answer-row">
+              <div class="answer-box answer-box--student">
+                <div class="answer-box__label"><i class="fas fa-user-graduate"></i> <span data-i18n="yourAnswer">إجابتك</span></div>
+                <div>goes</div>
+              </div>
+              <div class="answer-box answer-box--correct">
+                <div class="answer-box__label"><i class="fas fa-circle-check"></i> <span data-i18n="correctAnswer">الإجابة الصحيحة</span></div>
+                <div>goes</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Q4 — Correct -->
+        <div class="question-card question-card--correct">
+          <div class="question-header" onclick="this.parentElement.classList.toggle('open')">
+            <div class="question-number">4</div>
+            <span class="question-title" data-i18n="q4title">Match the vocabulary word with its correct definition.</span>
+            <span class="question-badge" data-i18n="badgeCorrect">صحيح</span>
+            <i class="fas fa-chevron-down question-chevron"></i>
+          </div>
+          <div class="question-body">
+            <div class="answer-row">
+              <div class="answer-box answer-box--student">
+                <div class="answer-box__label"><i class="fas fa-user-graduate"></i> <span data-i18n="yourAnswer">إجابتك</span></div>
+                <div>Diligent → Hardworking</div>
+              </div>
+              <div class="answer-box answer-box--correct">
+                <div class="answer-box__label"><i class="fas fa-circle-check"></i> <span data-i18n="correctAnswer">الإجابة الصحيحة</span></div>
+                <div>Diligent → Hardworking</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Q5 — Wrong -->
+        <div class="question-card question-card--wrong">
+          <div class="question-header" onclick="this.parentElement.classList.toggle('open')">
+            <div class="question-number">5</div>
+            <span class="question-title" data-i18n="q5title">Rewrite the sentence using the passive voice.</span>
+            <span class="question-badge" data-i18n="badgeWrong">خطأ</span>
+            <i class="fas fa-chevron-down question-chevron"></i>
+          </div>
+          <div class="question-body">
+            <div class="answer-row">
+              <div class="answer-box answer-box--student">
+                <div class="answer-box__label"><i class="fas fa-user-graduate"></i> <span data-i18n="yourAnswer">إجابتك</span></div>
+                <div>"The cake baked by my mother."</div>
+              </div>
+              <div class="answer-box answer-box--correct">
+                <div class="answer-box__label"><i class="fas fa-circle-check"></i> <span data-i18n="correctAnswer">الإجابة الصحيحة</span></div>
+                <div>"The cake was baked by my mother."</div>
+              </div>
+            </div>
+            <div class="question-feedback">
+              <i class="fas fa-comment-dots"></i>
+              <span data-i18n="q5feedback">نسيت إضافة الفعل المساعد "was" في صيغة المبني للمجهول. تذكري: Object + was/were + Past Participle.</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Q6 — Correct -->
+        <div class="question-card question-card--correct">
+          <div class="question-header" onclick="this.parentElement.classList.toggle('open')">
+            <div class="question-number">6</div>
+            <span class="question-title" data-i18n="q6title">Identify the correct conjunction: "I wanted to go, ___ it was raining."</span>
+            <span class="question-badge" data-i18n="badgeCorrect">صحيح</span>
+            <i class="fas fa-chevron-down question-chevron"></i>
+          </div>
+          <div class="question-body">
+            <div class="answer-row">
+              <div class="answer-box answer-box--student">
+                <div class="answer-box__label"><i class="fas fa-user-graduate"></i> <span data-i18n="yourAnswer">إجابتك</span></div>
+                <div>but</div>
+              </div>
+              <div class="answer-box answer-box--correct">
+                <div class="answer-box__label"><i class="fas fa-circle-check"></i> <span data-i18n="correctAnswer">الإجابة الصحيحة</span></div>
+                <div>but</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Q7 — Correct -->
+        <div class="question-card question-card--correct">
+          <div class="question-header" onclick="this.parentElement.classList.toggle('open')">
+            <div class="question-number">7</div>
+            <span class="question-title" data-i18n="q7title">Reading comprehension: What does the word "resilient" mean in context?</span>
+            <span class="question-badge" data-i18n="badgeCorrect">صحيح</span>
+            <i class="fas fa-chevron-down question-chevron"></i>
+          </div>
+          <div class="question-body">
+            <div class="answer-row">
+              <div class="answer-box answer-box--student">
+                <div class="answer-box__label"><i class="fas fa-user-graduate"></i> <span data-i18n="yourAnswer">إجابتك</span></div>
+                <div data-i18n="q7studentAns">قادر على التعافي بسرعة</div>
+              </div>
+              <div class="answer-box answer-box--correct">
+                <div class="answer-box__label"><i class="fas fa-circle-check"></i> <span data-i18n="correctAnswer">الإجابة الصحيحة</span></div>
+                <div data-i18n="q7correctAns">قادر على التعافي بسرعة</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Q8 — Partial -->
+        <div class="question-card question-card--partial">
+          <div class="question-header" onclick="this.parentElement.classList.toggle('open')">
+            <div class="question-number">8</div>
+            <span class="question-title" data-i18n="q8title">Write a short paragraph about your favorite hobby (5 sentences).</span>
+            <span class="question-badge" data-i18n="badgePartial">جزئي</span>
+            <i class="fas fa-chevron-down question-chevron"></i>
+          </div>
+          <div class="question-body">
+            <div class="answer-row">
+              <div class="answer-box answer-box--student" style="grid-column: 1 / -1;">
+                <div class="answer-box__label"><i class="fas fa-user-graduate"></i> <span data-i18n="yourAnswer">إجابتك</span></div>
+                <div>"I like reading books. It is my hobby since I was child. I read every day after school. My favorite type is fiction stories. Reading makes me smart and happy."</div>
+              </div>
+            </div>
+            <div class="question-feedback">
+              <i class="fas fa-comment-dots"></i>
+              <span data-i18n="q8feedback">أفكارك جيدة! لكن انتبهي للأزمنة: "It is my hobby since" يجب أن تكون "It has been my hobby since I was a child". أيضاً أضيفي المزيد من التفاصيل لتقوية الفقرة.</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Q9 — Correct -->
+        <div class="question-card question-card--correct">
+          <div class="question-header" onclick="this.parentElement.classList.toggle('open')">
+            <div class="question-number">9</div>
+            <span class="question-title" data-i18n="q9title">Choose the correct preposition: "She is interested ___ science."</span>
+            <span class="question-badge" data-i18n="badgeCorrect">صحيح</span>
+            <i class="fas fa-chevron-down question-chevron"></i>
+          </div>
+          <div class="question-body">
+            <div class="answer-row">
+              <div class="answer-box answer-box--student">
+                <div class="answer-box__label"><i class="fas fa-user-graduate"></i> <span data-i18n="yourAnswer">إجابتك</span></div>
+                <div>in</div>
+              </div>
+              <div class="answer-box answer-box--correct">
+                <div class="answer-box__label"><i class="fas fa-circle-check"></i> <span data-i18n="correctAnswer">الإجابة الصحيحة</span></div>
+                <div>in</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <script src="shared-layout.js"></script>
+  <script>
+    (function () {
+      'use strict';
+
+      var I18N = {
+        he: {
+          pageTitle: 'Mitests - משוב מבחן',
+          pageDescription: 'צפה במשוב המורה על תוצאות המבחן',
+          brand: 'מרחב תלמיד',
+          backDashboard: 'חזרה ללוח',
+          backReports: 'חזרה לדוחות',
+          navOverview: 'סקירה',
+          navComing: 'מבחנים קרובים',
+          navGroups: 'הקבוצות שלי',
+          navLearning: 'תהליך למידה',
+          navReports: 'דוחות אחרונים',
+          navSettings: 'הגדרות',
+          examTitle: 'אנגלית - Unit 4',
+          examDate: '12 בפברואר 2026',
+          examDuration: '45 דקות',
+          examTeacher: 'מורה: אשרף שרקאווי',
+          outOf: '/100',
+          statCorrect: 'תשובות נכונות',
+          statWrong: 'תשובות שגויות',
+          statTime: 'זמן שהושקע',
+          statRank: 'דירוג בכיתה',
+          teacherName: 'אשרף שרקאווי',
+          teacherRole: 'מורה לאנגלית',
+          teacherNotes: 'עבודה מצוינת נורא! שיפור ניכר בהבנת דקדוק לעומת המבחן הקודם. אני ממליצה להתמקד יותר בתרגילי כתיבה חופשית ובמיוחד בשימוש בזמנים בהקשרים שונים. המשיכי כך! 🌟',
+          strengthsTitle: 'נקודות חוזק',
+          strength1: 'הבנה מצוינת של כללי דקדוק (Grammar)',
+          strength2: 'תשובות מדויקות בהבנת הנקרא',
+          strength3: 'שימוש באוצר מילים מגוון ומתקדם',
+          weaknessesTitle: 'נקודות לשיפור',
+          weakness1: 'כתיבה חופשית - ארגון רעיונות',
+          weakness2: 'שימוש בזמני פעלים בכתיבה',
+          questionsTitle: 'פירוט שאלות',
+          yourAnswer: 'התשובה שלך',
+          correctAnswer: 'התשובה הנכונה',
+          badgeCorrect: 'נכון',
+          badgeWrong: 'שגוי',
+          badgePartial: 'חלקי',
+          q1title: 'בחר/י את זמן הפועל הנכון להשלמת המשפט.',
+          q1feedback: 'כל הכבוד! הבחירה ב-Present Perfect Continuous נכונה כי הפועל מתאר אירוע שהתחיל בעבר ונמשך עד עכשיו.',
+          q2title: 'קרא/י את הקטע וענה/י: מהי הטענה המרכזית של הכותב?',
+          q2studentAns: 'הטכנולוגיה עוזרת בחינוך אך אינה מחליפה את המורה',
+          q2correctAns: 'הטכנולוגיה עוזרת בחינוך אך אינה מחליפה את המורה',
+          q2feedback: 'מצוין! זיהית את הרעיון המרכזי בדייקנות. הניתוח שלך ברור ומסודר.',
+          q3title: 'השלימו: "She ___ to the store every day."',
+          q4title: 'התאם/י מילת אוצר עם ההגדרה הנכונה.',
+          q5title: 'כתוב/י את המשפט מחדש בצורה סבילה (Passive Voice).',
+          q5feedback: 'שכחת להוסיף את הפועל העזר "was" בצורה הסבילה. זכרי: Object + was/were + Past Participle.',
+          q6title: 'זיהוי מילת הקישור הנכונה: "I wanted to go, ___ it was raining."',
+          q7title: 'הבנת הנקרא: מה משמעות המילה "resilient" בהקשר?',
+          q7studentAns: 'מסוגל/ת להתאושש מהר',
+          q7correctAns: 'מסוגל/ת להתאושש מהר',
+          q8title: 'כתוב/י פסקה קצרה על התחביב האהוב עליך (5 משפטים).',
+          q8feedback: 'הרעיונות שלך טובים! אבל שימי לב לזמנים: "It is my hobby since" צריך להיות "It has been my hobby since I was a child". גם הוסיפי פרטים נוספים לחיזוק הפסקה.',
+          q9title: 'בחר/י את מילת היחס הנכונה: "She is interested ___ science."'
+        },
+        ar: {
+          pageTitle: 'Mitests - ملاحظات الاختبار',
+          pageDescription: 'عرض ملاحظات المعلم على نتائج الاختبار مع تفاصيل كل سؤال.',
+          brand: 'مساحة الطالب',
+          backDashboard: 'العودة للوحة',
+          backReports: 'العودة إلى التقارير',
+          navOverview: 'نظرة عامة',
+          navComing: 'اختبارات قادمة',
+          navGroups: 'مجموعاتي',
+          navLearning: 'مسار التعلم',
+          navReports: 'تقارير حديثة',
+          navSettings: 'الإعدادات',
+          examTitle: 'الإنجليزية - الوحدة 4',
+          examDate: '12 فبراير 2026',
+          examDuration: '45 دقيقة',
+          examTeacher: 'المعلم: أشرف شرقاوي',
+          outOf: '/100',
+          statCorrect: 'إجابات صحيحة',
+          statWrong: 'إجابات خاطئة',
+          statTime: 'الوقت المستغرق',
+          statRank: 'الترتيب في الصف',
+          teacherName: 'أشرف شرقاوي',
+          teacherRole: 'معلم الإنجليزية',
+          teacherNotes: 'عمل ممتاز يا نورا! تحسّن واضح في فهم القواعد مقارنة بالاختبار السابق. أنصحك بالتركيز أكثر على تمارين الكتابة الحرّة وخاصة استخدام الأزمنة في سياقات مختلفة. استمري بهذا الأداء الرائع! 🌟',
+          strengthsTitle: 'نقاط القوة',
+          strength1: 'فهم ممتاز للقواعد النحوية (Grammar)',
+          strength2: 'إجابات دقيقة في فهم المقروء',
+          strength3: 'استخدام مفردات متنوعة ومتقدمة',
+          weaknessesTitle: 'نقاط للتحسين',
+          weakness1: 'الكتابة الحرّة - تنظيم الأفكار',
+          weakness2: 'استخدام أزمنة الأفعال في الكتابة',
+          questionsTitle: 'تفاصيل الأسئلة',
+          yourAnswer: 'إجابتك',
+          correctAnswer: 'الإجابة الصحيحة',
+          badgeCorrect: 'صحيح',
+          badgeWrong: 'خطأ',
+          badgePartial: 'جزئي',
+          q1title: 'اختر زمن الفعل الصحيح لإكمال الجملة.',
+          q1feedback: 'أحسنت! اختيار Present Perfect Continuous صحيح لأن الفعل يعبر عن حدث بدأ في الماضي ومستمر حتى الآن.',
+          q2title: 'اقرأ الفقرة وأجب: ما هي الحجة الرئيسية للكاتب؟',
+          q2studentAns: 'التكنولوجيا تساعد في التعليم لكنها لا تحل محل المعلم',
+          q2correctAns: 'التكنولوجيا تساعد في التعليم لكنها لا تحل محل المعلم',
+          q2feedback: 'ممتاز! حددت الفكرة الرئيسية بدقة. تحليلك للنص واضح ومنظم.',
+          q3title: 'أكمل الفراغ: "She ___ to the store every day."',
+          q4title: 'طابق كلمة المفردات مع تعريفها الصحيح.',
+          q5title: 'أعد كتابة الجملة باستخدام المبني للمجهول (Passive Voice).',
+          q5feedback: 'نسيت إضافة الفعل المساعد "was" في صيغة المبني للمجهول. تذكري: Object + was/were + Past Participle.',
+          q6title: 'حدد أداة الربط الصحيحة: "I wanted to go, ___ it was raining."',
+          q7title: 'فهم المقروء: ماذا تعني كلمة "resilient" في السياق؟',
+          q7studentAns: 'قادر على التعافي بسرعة',
+          q7correctAns: 'قادر على التعافي بسرعة',
+          q8title: 'اكتب فقرة قصيرة عن هوايتك المفضلة (5 جمل).',
+          q8feedback: 'أفكارك جيدة! لكن انتبهي للأزمنة: "It is my hobby since" يجب أن تكون "It has been my hobby since I was a child". أيضاً أضيفي المزيد من التفاصيل لتقوية الفقرة.',
+          q9title: 'اختر حرف الجر الصحيح: "She is interested ___ science."'
+        },
+        en: {
+          pageTitle: 'Mitests - Exam Feedback',
+          pageDescription: 'View teacher feedback on exam results with detailed question breakdown.',
+          brand: 'Student Space',
+          backDashboard: 'Back to Dashboard',
+          backReports: 'Back to Reports',
+          navOverview: 'Overview',
+          navComing: 'Coming Tests',
+          navGroups: 'My Groups',
+          navLearning: 'Learning Process',
+          navReports: 'Recent Reports',
+          navSettings: 'Settings',
+          examTitle: 'English - Unit 4',
+          examDate: 'February 12, 2026',
+          examDuration: '45 minutes',
+          examTeacher: 'Teacher: Ashraf Sharqawi',
+          outOf: '/100',
+          statCorrect: 'Correct answers',
+          statWrong: 'Wrong answers',
+          statTime: 'Time spent',
+          statRank: 'Class rank',
+          teacherName: 'Ashraf Sharqawi',
+          teacherRole: 'English Teacher',
+          teacherNotes: 'Excellent work, Nora! Clear improvement in grammar understanding compared to the previous test. I recommend focusing more on free writing exercises, especially using tenses in different contexts. Keep up the great performance! 🌟',
+          strengthsTitle: 'Strengths',
+          strength1: 'Excellent understanding of Grammar rules',
+          strength2: 'Accurate reading comprehension answers',
+          strength3: 'Diverse and advanced vocabulary usage',
+          weaknessesTitle: 'Areas for Improvement',
+          weakness1: 'Free writing - organizing ideas',
+          weakness2: 'Using verb tenses in writing',
+          questionsTitle: 'Question Details',
+          yourAnswer: 'Your Answer',
+          correctAnswer: 'Correct Answer',
+          badgeCorrect: 'Correct',
+          badgeWrong: 'Wrong',
+          badgePartial: 'Partial',
+          q1title: 'Choose the correct verb tense to complete the sentence.',
+          q1feedback: 'Well done! Present Perfect Continuous is correct because the verb expresses an action that started in the past and continues to the present.',
+          q2title: 'Read the passage and answer: What is the author\'s main argument?',
+          q2studentAns: 'Technology helps in education but does not replace the teacher',
+          q2correctAns: 'Technology helps in education but does not replace the teacher',
+          q2feedback: 'Excellent! You identified the main idea precisely. Your analysis is clear and well-organized.',
+          q3title: 'Fill in the blank: "She ___ to the store every day."',
+          q4title: 'Match the vocabulary word with its correct definition.',
+          q5title: 'Rewrite the sentence using the passive voice.',
+          q5feedback: 'You forgot to add the auxiliary verb "was" in the passive form. Remember: Object + was/were + Past Participle.',
+          q6title: 'Identify the correct conjunction: "I wanted to go, ___ it was raining."',
+          q7title: 'Reading comprehension: What does "resilient" mean in context?',
+          q7studentAns: 'Able to recover quickly',
+          q7correctAns: 'Able to recover quickly',
+          q8title: 'Write a short paragraph about your favorite hobby (5 sentences).',
+          q8feedback: 'Good ideas! But watch the tenses: "It is my hobby since" should be "It has been my hobby since I was a child." Also, add more details to strengthen your paragraph.',
+          q9title: 'Choose the correct preposition: "She is interested ___ science."'
+        }
+      };
+
+      function applyLanguage(lang) {
+        var t = I18N[lang] || I18N.ar;
+        var metaDesc = document.querySelector('meta[name="description"]');
+        var nodes = document.querySelectorAll('[data-i18n]');
+
+        document.title = t.pageTitle;
+        if (metaDesc) metaDesc.setAttribute('content', t.pageDescription);
+
+        for (var i = 0; i < nodes.length; i++) {
+          var key = nodes[i].getAttribute('data-i18n');
+          if (t[key]) nodes[i].textContent = t[key];
+        }
+      }
+
+      document.addEventListener('mitests:languagechange', function (e) {
+        var lang = (e.detail && e.detail.lang) || document.documentElement.getAttribute('lang') || 'ar';
+        applyLanguage(lang);
+      });
+
+      document.addEventListener('DOMContentLoaded', function () {
+        var lang = document.documentElement.getAttribute('lang') || 'ar';
+        applyLanguage(lang);
+
+        // Animate score ring on load
+        var ring = document.querySelector('.score-ring__fill');
+        if (ring) {
+          var circumference = 326.73;
+          var score = 88;
+          var offset = circumference - (circumference * score / 100);
+          ring.style.strokeDasharray = circumference;
+          ring.style.strokeDashoffset = circumference;
+          requestAnimationFrame(function () {
+            requestAnimationFrame(function () {
+              ring.style.strokeDashoffset = offset;
+            });
+          });
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
+
+

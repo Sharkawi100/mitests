@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mitests - لوحة المعلم</title>
+  <meta name="description" content="لوحة المعلم لإنشاء الاختبارات، إدارة المجموعات، المجتمع، ومتابعة التقييم.">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="styles.css">
+
+  <style>
+    .teacher-navbar {
+      border-bottom: 1px solid var(--color-gray-200);
+    }
+
+    body.rtl .main-content .teacher-navbar {
+      right: var(--sidebar-width);
+      left: 0;
+    }
+
+    body.ltr .main-content .teacher-navbar {
+      left: var(--sidebar-width);
+      right: 0;
+    }
+
+    body.rtl .main-content.main-content--expanded .teacher-navbar {
+      right: var(--sidebar-collapsed-width);
+    }
+
+    body.ltr .main-content.main-content--expanded .teacher-navbar {
+      left: var(--sidebar-collapsed-width);
+    }
+
+    .teacher-navbar .navbar__brand-icon {
+      background: linear-gradient(135deg, var(--color-teacher), var(--color-primary-400));
+    }
+
+    .btn--teacher {
+      background: var(--color-teacher);
+      border-color: var(--color-teacher);
+      color: var(--color-white);
+    }
+
+    .btn--teacher:hover {
+      background: var(--color-primary-600);
+      border-color: var(--color-primary-600);
+      color: var(--color-white);
+    }
+
+    .btn--new-exam {
+      background: linear-gradient(135deg, var(--color-teacher), #4c6fd2);
+      border-color: var(--color-teacher);
+      color: var(--color-white);
+      box-shadow: 0 8px 16px rgba(53, 86, 178, 0.25);
+      transition: transform var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast);
+    }
+
+    .btn--new-exam:hover {
+      background: linear-gradient(135deg, var(--color-primary-600), var(--color-primary-500));
+      color: var(--color-white);
+      transform: translateY(-2px);
+      box-shadow: 0 14px 24px rgba(53, 86, 178, 0.32);
+    }
+
+    .sidebar__item:hover,
+    .sidebar__item--active {
+      background: rgba(53, 86, 178, 0.25);
+    }
+
+    .sidebar__item--active {
+      border-inline-start: 3px solid var(--color-teacher);
+    }
+
+    .teacher-main {
+      padding: calc(var(--navbar-height) + var(--space-6)) var(--space-6) var(--space-8);
+      display: grid;
+      gap: var(--space-6);
+    }
+
+    .page-header {
+      background: var(--color-white);
+      border-radius: var(--border-radius-lg);
+      padding: var(--space-6);
+      box-shadow: var(--shadow-md);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: var(--space-4);
+      flex-wrap: wrap;
+      border-top: 4px solid var(--color-teacher);
+    }
+
+    .page-header h1 {
+      font-size: var(--font-size-3xl);
+      color: var(--color-gray-900);
+      margin-bottom: var(--space-2);
+    }
+
+    .page-header p {
+      color: var(--color-gray-500);
+      font-size: var(--font-size-base);
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: var(--space-4);
+    }
+
+    .stat-card {
+      padding: var(--space-5);
+      box-shadow: var(--shadow-sm);
+      border-top: 4px solid var(--color-teacher);
+    }
+
+    .stat-card__label {
+      color: var(--color-gray-500);
+      font-size: var(--font-size-sm);
+      margin-bottom: var(--space-2);
+    }
+
+    .stat-card__value {
+      font-size: var(--font-size-2xl);
+      font-weight: 700;
+      color: var(--color-gray-900);
+      line-height: 1.2;
+      margin-bottom: var(--space-2);
+    }
+
+    .token-progress {
+      width: 100%;
+      height: 10px;
+      border-radius: var(--border-radius-full);
+      background: var(--color-primary-100);
+      overflow: hidden;
+      margin-top: var(--space-2);
+    }
+
+    .token-progress__bar {
+      height: 100%;
+      width: 75%;
+      background: linear-gradient(90deg, var(--color-teacher), var(--color-primary-400));
+      border-radius: var(--border-radius-full);
+    }
+
+    .section-title-inline {
+      font-size: var(--font-size-2xl);
+      color: var(--color-gray-900);
+      margin-bottom: var(--space-4);
+    }
+
+    .groups-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--space-4);
+    }
+
+    .group-card {
+      padding: var(--space-6);
+      border: 1px solid var(--color-gray-200);
+      border-top: 4px solid var(--color-teacher);
+      display: grid;
+      gap: var(--space-3);
+    }
+
+    .group-card h3 {
+      font-size: var(--font-size-xl);
+      color: var(--color-gray-900);
+      line-height: 1.4;
+    }
+
+    .group-card p {
+      color: var(--color-gray-600);
+      font-size: var(--font-size-sm);
+    }
+
+    .feed-card {
+      display: grid;
+      gap: var(--space-4);
+    }
+
+    .new-post-box {
+      border: 1px solid var(--color-primary-200);
+      background: var(--color-primary-100);
+      border-radius: var(--border-radius-md);
+      padding: var(--space-4);
+      display: grid;
+      gap: var(--space-3);
+    }
+
+    .new-post-box textarea {
+      width: 100%;
+      min-height: 110px;
+      resize: vertical;
+      border: 1px solid var(--color-primary-300);
+      border-radius: var(--border-radius-sm);
+      padding: var(--space-3);
+      font-family: inherit;
+      font-size: var(--font-size-base);
+      background: var(--color-white);
+      transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+    }
+
+    .new-post-box textarea:focus {
+      outline: none;
+      border-color: var(--color-teacher);
+      box-shadow: 0 0 0 3px rgba(53, 86, 178, 0.16);
+    }
+
+    .post {
+      border: 1px solid var(--color-gray-200);
+      border-radius: var(--border-radius-md);
+      padding: var(--space-4);
+      background: var(--color-white);
+      display: grid;
+      gap: var(--space-2);
+    }
+
+    .post__meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: var(--color-gray-500);
+      font-size: var(--font-size-sm);
+      gap: var(--space-3);
+      flex-wrap: wrap;
+    }
+
+    .post__content {
+      color: var(--color-gray-800);
+      font-size: var(--font-size-base);
+      line-height: 1.7;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+    }
+
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 620px;
+    }
+
+    .data-table th,
+    .data-table td {
+      padding: var(--space-3);
+      border-bottom: 1px solid var(--color-gray-200);
+      text-align: start;
+      font-size: var(--font-size-sm);
+    }
+
+    .data-table th {
+      color: var(--color-gray-500);
+      font-weight: 600;
+      background: var(--color-gray-50);
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: var(--space-1) var(--space-3);
+      border-radius: var(--border-radius-full);
+      font-size: var(--font-size-xs);
+      font-weight: 700;
+    }
+
+    .status-pill--draft {
+      color: #9a3412;
+      background: var(--color-amber-100);
+    }
+
+    .status-pill--published {
+      color: #166534;
+      background: var(--color-green-100);
+    }
+
+    .utility-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--space-4);
+    }
+
+    .utility-card {
+      border: 1px dashed var(--color-primary-300);
+      background: var(--color-white);
+      border-radius: var(--border-radius-md);
+      padding: var(--space-5);
+      color: inherit;
+      text-decoration: none;
+      display: block;
+    }
+
+    .utility-card h3 {
+      color: var(--color-gray-900);
+      margin-bottom: var(--space-2);
+      font-size: var(--font-size-lg);
+    }
+
+    .utility-card p {
+      color: var(--color-gray-600);
+      font-size: var(--font-size-sm);
+    }
+
+    @media (max-width: 1023px) {
+      body.rtl .main-content .teacher-navbar {
+        right: var(--sidebar-collapsed-width);
+      }
+
+      body.ltr .main-content .teacher-navbar {
+        left: var(--sidebar-collapsed-width);
+      }
+
+      body.rtl .main-content {
+        margin-right: var(--sidebar-collapsed-width);
+      }
+
+      body.ltr .main-content {
+        margin-left: var(--sidebar-collapsed-width);
+      }
+
+      .sidebar {
+        width: var(--sidebar-collapsed-width);
+      }
+
+      .sidebar .sidebar__brand-text,
+      .sidebar .sidebar__item span,
+      .sidebar .sidebar__toggle span {
+        display: none;
+      }
+
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .groups-grid,
+      .utility-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 767px) {
+      .sidebar {
+        display: none;
+      }
+
+      body.rtl .main-content,
+      body.ltr .main-content {
+        margin: 0;
+      }
+
+      body.rtl .main-content .teacher-navbar,
+      body.ltr .main-content .teacher-navbar {
+        right: 0;
+        left: 0;
+      }
+
+      .teacher-main {
+        padding-inline: var(--space-4);
+      }
+
+      .page-header h1 {
+        font-size: var(--font-size-2xl);
+      }
+
+      .navbar__actions .btn span {
+        display: none;
+      }
+    }
+  </style>
+</head>
+
+<body class="rtl">
+  <aside class="sidebar" id="sidebar" aria-label="Sidebar navigation">
+    <div class="sidebar__header">
+      <div class="sidebar__logo">M</div>
+      <span class="sidebar__brand-text">سراج - المعلم</span>
+    </div>
+
+    <nav class="sidebar__nav">
+      <a class="sidebar__item sidebar__item--active" href="teacher-dashboard.html">
+        <i class="fas fa-gauge"></i>
+        <span>نظرة عامة</span>
+      </a>
+      <a class="sidebar__item" href="teacher-exams.html">
+        <i class="fas fa-file-lines"></i>
+        <span>اختباراتي</span>
+      </a>
+      <a class="sidebar__item" href="teacher-group.html">
+        <i class="fas fa-users"></i>
+        <span>المجموعات</span>
+      </a>
+      <a class="sidebar__item" href="teacher-question-bank.html">
+        <i class="fas fa-database"></i>
+        <span>بنك الأسئلة</span>
+      </a>
+      <a class="sidebar__item" href="teacher-community.html" data-school-only>
+        <i class="fas fa-comments"></i>
+        <span>المجتمع</span>
+      </a>
+      <a class="sidebar__item" href="teacher-settings.html">
+        <i class="fas fa-gear"></i>
+        <span>الإعدادات</span>
+      </a>
+    </nav>
+
+    <button class="sidebar__toggle" id="sidebar-toggle" aria-label="Toggle sidebar">
+      <i class="fas fa-angles-right"></i>
+      <span>تصغير</span>
+    </button>
+  </aside>
+
+  <div class="main-content" id="main-content">
+    <nav class="navbar teacher-navbar" role="navigation" aria-label="Teacher top navigation">
+      <a href="teacher-dashboard.html" class="navbar__brand">
+        <div class="navbar__brand-icon">
+          <i class="fas fa-chalkboard-user"></i>
+        </div>
+        <span class="navbar__brand-text">لوحة المعلم</span>
+      </a>
+
+      <div class="navbar__actions">
+        <div class="lang-switcher" role="group" aria-label="Language selector">
+          <button class="lang-switcher__btn active" data-lang="ar" aria-label="Arabic">&#1593;</button>
+          <button class="lang-switcher__btn" data-lang="he" aria-label="Hebrew">&#1506;&#1489;</button>
+          <button class="lang-switcher__btn" data-lang="en" aria-label="English">En</button>
+        </div>
+        <div class="notification-bell" id="teacher-notif-bell" data-school-only>
+          <button class="notification-bell__btn" type="button" aria-label="الإشعارات"><i class="fas fa-bell"></i></button>
+          <span class="notification-bell__badge" id="teacher-notif-badge">3</span>
+          <div class="notification-panel" id="teacher-notif-panel">
+            <div class="notification-panel__header"><h3>الإشعارات</h3><button class="notification-panel__mark-read" id="teacher-mark-read" type="button">تعيين الكل كمقروء</button></div>
+            <div class="notification-panel__body" id="teacher-notif-body"></div>
+          </div>
+        </div>
+        <div class="avatar-dropdown">
+          <button class="avatar-btn" type="button" data-avatar-toggle="teacher-avatar-menu" aria-label="قائمة حساب المعلم">
+            <i class="fas fa-user"></i>
+          </button>
+          <div class="avatar-menu" id="teacher-avatar-menu" data-avatar-menu>
+            <span class="avatar-menu__label">حساب المعلم</span>
+            <a class="avatar-menu__link" href="teacher-profile.html"><i class="fas fa-id-card"></i><span>الملف الشخصي</span></a>
+            <a class="avatar-menu__link" href="teacher-settings.html"><i class="fas fa-gear"></i><span>الإعدادات</span></a>
+          </div>
+        </div>
+
+        <a href="index.html" class="btn btn--teacher btn--sm">
+          <i class="fas fa-right-from-bracket"></i>
+          <span>تسجيل الخروج</span>
+        </a>
+      </div>
+    </nav>
+
+    <main class="teacher-main">
+      <header class="page-header" id="overview">
+        <div>
+          <h1>مرحبًا، نورة العلي</h1>
+          <p>يوم ممتاز لإدارة الاختبارات، المجموعات، وتغذية راجعة أفضل للطلاب.</p>
+        </div>
+        <a href="exam-wizard.html" class="btn btn--new-exam btn--lg" aria-label="إنشاء اختبار جديد">
+          <i class="fas fa-plus"></i>
+          <span>إنشاء اختبار جديد +</span>
+        </a>
+      </header>
+
+      <section aria-label="نظرة البيانات">
+        <h2 class="section-title-inline">نظرة سريعة</h2>
+        <div class="stats-grid">
+          <article class="card stat-card">
+            <p class="stat-card__label">التوكنز المتاحة</p>
+            <p class="stat-card__value">7,500 / 10,000</p>
+            <div class="token-progress" role="img" aria-label="٧٥٪ من التوكنز متاح">
+              <div class="token-progress__bar"></div>
+            </div>
+          </article>
+          <article class="card stat-card">
+            <p class="stat-card__label">المجموعات النشطة</p>
+            <p class="stat-card__value">6</p>
+            <p class="stat-card__label">مجموعتان جديدتان هذا الشهر</p>
+          </article>
+          <article class="card stat-card">
+            <p class="stat-card__label">اختبارات بانتظار التصحيح</p>
+            <p class="stat-card__value">14</p>
+            <p class="stat-card__label">4 تحتاج مراجعة يدوية</p>
+          </article>
+        </div>
+      </section>
+
+      <section id="groups" aria-label="مجموعاتي">
+        <h2 class="section-title-inline">مجموعاتي</h2>
+        <div class="groups-grid">
+          <article class="card group-card">
+            <h3>الصف تاسع 1 - إنجليزي</h3>
+            <p>32 طالبًا</p>
+            <a class="btn btn--teacher btn--sm" href="teacher-group.html?g=grade9-eng">فتح المجموعة</a>
+          </article>
+          <article class="card group-card">
+            <h3>الصف ثامن 3 - رياضيات</h3>
+            <p>29 طالبًا</p>
+            <a class="btn btn--teacher btn--sm" href="teacher-group.html?g=grade8-math">فتح المجموعة</a>
+          </article>
+          <article class="card group-card">
+            <h3>الصف عاشر 2 - علوم</h3>
+            <p>26 طالبًا</p>
+            <a class="btn btn--teacher btn--sm" href="teacher-group.html?g=grade10-sci">فتح المجموعة</a>
+          </article>
+          <article class="card group-card">
+            <h3>الصف سابع 1 - إنجليزي</h3>
+            <p>30 طالبًا</p>
+            <a class="btn btn--teacher btn--sm" href="teacher-group.html?g=grade7-eng">فتح المجموعة</a>
+          </article>
+        </div>
+      </section>
+
+      <section id="community" aria-label="منشورات المجتمع" data-school-only>
+        <h2 class="section-title-inline">مجتمع المعلمين</h2>
+        <article class="card feed-card">
+          <div class="new-post-box">
+            <textarea placeholder="شارك تحديثًا أو موردًا تعليميًا..."></textarea>
+            <div>
+              <button class="btn btn--teacher btn--sm">نشر المنشور</button>
+            </div>
+          </div>
+
+          <article class="post">
+            <div class="post__meta">
+              <strong>إدارة المدرسة</strong>
+              <span>منذ ساعة</span>
+            </div>
+            <p class="post__content">تمت إضافة قوالب جديدة لاختبارات منتصف الفصل. يُنصح بمراجعتها قبل النشر للطلاب.</p>
+          </article>
+
+          <article class="post">
+            <div class="post__meta">
+              <strong>نور الخطيب - فريق الرياضيات</strong>
+              <span>اليوم، 09:20</span>
+            </div>
+            <p class="post__content">شاركتُ rubric لتصحيح الأسئلة المفتوحة في الجبر. متاح الآن في مساحة المجتمع.</p>
+          </article>
+        </article>
+      </section>
+
+      <section id="my-exams" aria-label="الاختبارات الأخيرة">
+        <h2 class="section-title-inline">آخر الاختبارات</h2>
+        <article class="card">
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>العنوان</th>
+                  <th>التاريخ</th>
+                  <th>الحالة</th>
+                  <th>الإجراء</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>اختبار قراءة - الوحدة 4</td>
+                  <td>2026-02-10</td>
+                  <td><span class="status-pill status-pill--published">منشور</span></td>
+                  <td><a href="exam-report.html" class="btn btn--teacher btn--sm">النتائج</a></td>
+                </tr>
+                <tr>
+                  <td>اختبار الكسور - الصف الثامن</td>
+                  <td>2026-02-08</td>
+                  <td><span class="status-pill status-pill--draft">مسودة</span></td>
+                  <td><a href="exam-report.html" class="btn btn--teacher btn--sm">النتائج</a></td>
+                </tr>
+                <tr>
+                  <td>اختبار العلوم - سلامة المختبر</td>
+                  <td>2026-02-05</td>
+                  <td><span class="status-pill status-pill--published">منشور</span></td>
+                  <td><a href="exam-report.html" class="btn btn--teacher btn--sm">النتائج</a></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </article>
+      </section>
+
+      <section class="utility-grid">
+        <a class="utility-card" href="teacher-question-bank.html">
+          <h3>بنك الأسئلة</h3>
+          <p>إدارة الأسئلة المفضلة وإعادة استخدامها لبناء الاختبارات بسرعة.</p>
+        </a>
+        <a class="utility-card" href="teacher-settings.html">
+          <h3>إعدادات المعلم</h3>
+          <p>تفضيلات التصحيح، الإشعارات، وسياسات مشاركة المحتوى.</p>
+        </a>
+      </section>
+    </main>
+  </div>
+
+  <script src="shared-layout.js"></script>
+  <script src="tenant-mode.js"></script>
+  <script>
+  (function(){
+    var bell = document.querySelector('#teacher-notif-bell .notification-bell__btn');
+    var panel = document.getElementById('teacher-notif-panel');
+    var badge = document.getElementById('teacher-notif-badge');
+    var body = document.getElementById('teacher-notif-body');
+    var markBtn = document.getElementById('teacher-mark-read');
+    var notifs = [
+      {icon:'exam',text:'تم تسليم 14 اختبار جديد بانتظار التصحيح',time:'منذ 5 دقائق',unread:true},
+      {icon:'alert',text:'تمت إضافة قوالب جديدة لاختبارات منتصف الفصل',time:'منذ ساعة',unread:true},
+      {icon:'grade',text:'نور الخطيب شاركت rubric في المجتمع',time:'منذ 3 ساعات',unread:true},
+      {icon:'exam',text:'تم تحديث بنك الأسئلة بـ 20 سؤال جديد',time:'أمس',unread:false},
+      {icon:'alert',text:'تذكير: موعد اختبار الصف التاسع بعد 3 أيام',time:'أمس',unread:false}
+    ];
+    function render(){
+      var unread=0;body.innerHTML='';
+      for(var i=0;i<notifs.length;i++){var n=notifs[i];if(n.unread)unread++;
+        body.innerHTML+='<div class="notification-item'+(n.unread?' notification-item--unread':'')+'"><div class="notification-item__icon notification-item__icon--'+n.icon+'"><i class="fas fa-'+(n.icon==='exam'?'file-lines':n.icon==='grade'?'star':n.icon==='alert'?'bell':'circle-info')+'"></i></div><div class="notification-item__content"><p class="notification-item__text">'+n.text+'</p><span class="notification-item__time">'+n.time+'</span></div></div>';
+      }
+      badge.textContent=unread;badge.style.display=unread?'flex':'none';
+    }
+    bell.addEventListener('click',function(e){e.stopPropagation();panel.classList.toggle('notification-panel--open');});
+    document.addEventListener('click',function(e){if(!panel.contains(e.target)&&e.target!==bell)panel.classList.remove('notification-panel--open');});
+    markBtn.addEventListener('click',function(){for(var i=0;i<notifs.length;i++)notifs[i].unread=false;render();});
+    render();
+  })();
+  </script>
+  <button class="chat-fab chat-fab--teacher" id="chat-fab" type="button" aria-label="فتح الدردشة" data-school-only><i class="fas fa-comments"></i><span class="chat-fab__badge">2</span></button>
+  <div class="chat-widget" id="chat-widget" data-school-only>
+    <div class="chat-widget__header chat-widget__header--teacher"><span>الدردشة</span><button class="chat-widget__close" id="chat-close" type="button"><i class="fas fa-xmark"></i></button></div>
+    <div class="chat-widget__body">
+      <div class="chat-widget__threads" id="chat-threads"></div>
+      <div class="chat-widget__messages-area">
+        <div class="chat-widget__messages" id="chat-messages"></div>
+        <div class="chat-widget__compose"><textarea id="chat-input" placeholder="اكتب رسالة..." rows="1"></textarea><button class="chat-widget__send" id="chat-send" type="button"><i class="fas fa-paper-plane"></i></button></div>
+      </div>
+    </div>
+  </div>
+  <script>
+  (function(){
+    var fab=document.getElementById('chat-fab'),widget=document.getElementById('chat-widget'),closeBtn=document.getElementById('chat-close'),threadsEl=document.getElementById('chat-threads'),msgsEl=document.getElementById('chat-messages'),inputEl=document.getElementById('chat-input'),sendBtn=document.getElementById('chat-send');
+    var threads=[
+      {id:'g9',title:'الصف تاسع 1',msgs:[{me:false,text:'أستاذ، متى موعد الاختبار القادم؟',t:'09:15'},{me:true,text:'الاختبار يوم الأحد القادم، تابع الإعلان في المجموعة.',t:'09:20'}]},
+      {id:'admin',title:'إدارة المدرسة',msgs:[{me:false,text:'يرجى تسليم درجات اختبار منتصف الفصل قبل الخميس.',t:'10:00'},{me:true,text:'تم إدخال جميع الدرجات.',t:'10:15'}]},
+      {id:'teachers',title:'زملاء المعلمين',msgs:[{me:false,text:'شاركت rubric جديد للتقييم في المجتمع.',t:'11:30'},{me:true,text:'ممتاز، سأراجعه اليوم.',t:'11:45'}]}
+    ];
+    var cur='g9';
+    function find(){for(var i=0;i<threads.length;i++)if(threads[i].id===cur)return threads[i];return threads[0];}
+    function renderThreads(){threadsEl.innerHTML='';for(var i=0;i<threads.length;i++){var t=threads[i];threadsEl.innerHTML+='<button class="chat-thread-btn'+(t.id===cur?' chat-thread-btn--active':'')+'" data-tid="'+t.id+'">'+t.title+'</button>';}}
+    function renderMsgs(){var t=find();msgsEl.innerHTML='';for(var i=0;i<t.msgs.length;i++){var m=t.msgs[i];msgsEl.innerHTML+='<div class="chat-msg '+(m.me?'chat-msg--me':'chat-msg--them')+'">'+m.text+'<div class="chat-msg__time">'+m.t+'</div></div>';}msgsEl.scrollTop=msgsEl.scrollHeight;}
+    fab.addEventListener('click',function(){widget.classList.toggle('chat-widget--open');});
+    closeBtn.addEventListener('click',function(){widget.classList.remove('chat-widget--open');});
+    threadsEl.addEventListener('click',function(e){var b=e.target.closest('[data-tid]');if(b){cur=b.dataset.tid;renderThreads();renderMsgs();}});
+    sendBtn.addEventListener('click',function(){var txt=inputEl.value.trim();if(!txt)return;var t=find();var d=new Date();t.msgs.push({me:true,text:txt,t:String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')});inputEl.value='';renderMsgs();});
+    inputEl.addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendBtn.click();}});
+    renderThreads();renderMsgs();
+  })();
+  </script>
+</body>
+</html>
+
+
+

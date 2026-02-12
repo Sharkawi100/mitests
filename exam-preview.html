@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>معاينة الاختبار | سراج</title>
+  <meta name="description" content="معاينة الاختبار المُنشأ بالذكاء الاصطناعي مع إمكانية تعديل وإعادة توليد كل سؤال.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .teacher-navbar { border-bottom: 1px solid var(--color-gray-200); }
+    body.rtl .main-content .teacher-navbar { right: var(--sidebar-width); left: 0; }
+    body.ltr .main-content .teacher-navbar { left: var(--sidebar-width); right: 0; }
+    body.rtl .main-content.main-content--expanded .teacher-navbar { right: var(--sidebar-collapsed-width); }
+    body.ltr .main-content.main-content--expanded .teacher-navbar { left: var(--sidebar-collapsed-width); }
+    .teacher-navbar .navbar__brand-icon { background: linear-gradient(135deg, var(--color-teacher), var(--color-primary-400)); }
+    .sidebar__item:hover, .sidebar__item--active { background: rgba(53, 86, 178, 0.25); color: var(--color-white); }
+    .sidebar__item--active { border-inline-start: 3px solid var(--color-teacher); }
+    .btn--teacher { background: var(--color-teacher); border-color: var(--color-teacher); color: var(--color-white); }
+    .btn--teacher:hover { background: var(--color-primary-600); border-color: var(--color-primary-600); color: var(--color-white); }
+
+    .preview-main {
+      padding: calc(var(--navbar-height) + var(--space-6)) var(--space-6) var(--space-8);
+      display: grid;
+      gap: var(--space-5);
+    }
+
+    .breadcrumb { font-size: var(--font-size-sm); color: var(--color-gray-500); margin-bottom: var(--space-2); }
+    .breadcrumb a { color: var(--color-teacher); text-decoration: none; }
+    .breadcrumb a:hover { text-decoration: underline; }
+
+    /* Header */
+    .preview-header {
+      background: var(--color-white); border-radius: var(--border-radius-lg);
+      box-shadow: var(--shadow-md); border-top: 4px solid var(--color-teacher);
+      padding: var(--space-6); display: grid; gap: var(--space-3);
+    }
+    .preview-header h1 { font-size: var(--font-size-3xl); color: var(--color-gray-900); }
+    .preview-meta { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+    .chip {
+      display: inline-flex; align-items: center; gap: var(--space-2);
+      background: var(--color-primary-100); color: var(--color-primary-700);
+      border-radius: var(--border-radius-full); padding: var(--space-1) var(--space-3);
+      font-size: var(--font-size-sm); font-weight: 600;
+    }
+    .preview-actions { display: flex; gap: var(--space-3); flex-wrap: wrap; margin-top: var(--space-2); }
+
+    /* Question Card */
+    .question-list { display: grid; gap: var(--space-4); }
+    .q-card {
+      background: var(--color-white); border-radius: var(--border-radius-md);
+      box-shadow: var(--shadow-sm); border: 1px solid var(--color-gray-200);
+      border-top: 4px solid var(--color-teacher); padding: var(--space-5);
+      display: grid; gap: var(--space-3); transition: box-shadow var(--transition-fast);
+    }
+    .q-card:hover { box-shadow: var(--shadow-md); }
+
+    .q-header {
+      display: flex; justify-content: space-between; align-items: center;
+      gap: var(--space-3); flex-wrap: wrap;
+    }
+    .q-header h3 { font-size: var(--font-size-lg); color: var(--color-gray-900); }
+    .q-badges { display: flex; gap: var(--space-2); flex-wrap: wrap; }
+    .badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      border-radius: var(--border-radius-full); padding: var(--space-1) var(--space-3);
+      font-size: var(--font-size-xs); font-weight: 700;
+    }
+    .badge--type { background: var(--color-primary-100); color: var(--color-teacher); }
+    .badge--bloom { background: var(--color-secondary-100); color: var(--color-secondary-700); }
+    .badge--difficulty-easy { background: var(--color-green-100); color: #15803d; }
+    .badge--difficulty-medium { background: #fef3c7; color: #92400e; }
+    .badge--difficulty-hard { background: #fde2e2; color: var(--color-admin); }
+    .badge--points { background: var(--color-gray-100); color: var(--color-gray-700); }
+
+    .q-body { line-height: 1.8; color: var(--color-gray-800); font-size: var(--font-size-base); }
+
+    .q-options { display: grid; gap: var(--space-2); }
+    .q-option {
+      display: flex; align-items: flex-start; gap: var(--space-2);
+      padding: var(--space-2) var(--space-3); border-radius: var(--border-radius-sm);
+      border: 1px solid var(--color-gray-200); font-size: var(--font-size-sm);
+    }
+    .q-option--correct {
+      border-color: var(--color-green-500); background: var(--color-green-100);
+    }
+    .q-option__marker {
+      width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--color-gray-300);
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+      font-size: 10px; margin-top: 2px;
+    }
+    .q-option--correct .q-option__marker {
+      border-color: var(--color-green-500); background: var(--color-green-500); color: var(--color-white);
+    }
+
+    .q-answer {
+      padding: var(--space-3); border: 1px dashed var(--color-green-400);
+      border-radius: var(--border-radius-sm); background: rgba(34,197,94,0.04);
+      font-size: var(--font-size-sm); color: var(--color-gray-700);
+    }
+    .q-answer strong { color: #15803d; }
+
+    .q-actions {
+      display: flex; gap: var(--space-2); flex-wrap: wrap;
+      border-top: 1px solid var(--color-gray-100); padding-top: var(--space-3);
+    }
+    .q-actions .btn { font-size: var(--font-size-xs); }
+
+    /* Edit mode */
+    .q-edit-area { display: none; }
+    .q-card--editing .q-body, .q-card--editing .q-options, .q-card--editing .q-answer { display: none; }
+    .q-card--editing .q-edit-area { display: grid; gap: var(--space-3); }
+    .q-edit-area textarea {
+      width: 100%; min-height: 80px; border: 1px solid var(--color-gray-300);
+      border-radius: var(--border-radius-sm); padding: var(--space-3);
+      font-family: inherit; font-size: var(--font-size-sm); resize: vertical;
+    }
+    .q-edit-area textarea:focus { outline: none; border-color: var(--color-teacher); }
+    .q-edit-actions { display: flex; gap: var(--space-2); }
+
+    /* Regenerating state */
+    .q-card--regenerating { opacity: 0.6; pointer-events: none; }
+    .q-card--regenerating::after {
+      content: 'جاري إعادة التوليد...';
+      position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+      background: rgba(255,255,255,0.85); border-radius: var(--border-radius-md);
+      font-weight: 700; color: var(--color-teacher); font-size: var(--font-size-lg);
+    }
+    .q-card { position: relative; }
+
+    /* Sticky footer */
+    .preview-footer {
+      position: sticky; bottom: 0;
+      background: rgba(255,255,255,0.97); border: 1px solid var(--color-gray-200);
+      border-radius: var(--border-radius-md); box-shadow: var(--shadow-lg);
+      padding: var(--space-4); display: flex; justify-content: space-between;
+      align-items: center; gap: var(--space-3); flex-wrap: wrap;
+    }
+    .preview-footer__info { color: var(--color-gray-600); font-size: var(--font-size-sm); }
+    .preview-footer__actions { display: flex; gap: var(--space-3); }
+    .btn--approve { background: var(--color-green-500); border-color: var(--color-green-500); color: var(--color-white); }
+    .btn--approve:hover { background: #16a34a; border-color: #16a34a; color: var(--color-white); }
+
+    /* Toast */
+    .toast {
+      position: fixed; bottom: var(--space-6); left: 50%; transform: translateX(-50%);
+      background: var(--color-gray-900); color: var(--color-white); padding: var(--space-3) var(--space-6);
+      border-radius: var(--border-radius-md); font-size: var(--font-size-sm); font-weight: 600;
+      box-shadow: var(--shadow-lg); z-index: 999; display: none;
+    }
+    .toast--show { display: block; animation: fadeUp .3s ease; }
+    @keyframes fadeUp { from { opacity: 0; transform: translateX(-50%) translateY(10px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+
+    @media (max-width: 1023px) {
+      body.rtl .main-content .teacher-navbar { right: var(--sidebar-collapsed-width); }
+      body.ltr .main-content .teacher-navbar { left: var(--sidebar-collapsed-width); }
+      body.rtl .main-content { margin-right: var(--sidebar-collapsed-width); }
+      body.ltr .main-content { margin-left: var(--sidebar-collapsed-width); }
+      .sidebar { width: var(--sidebar-collapsed-width); }
+      .sidebar .sidebar__brand-text, .sidebar .sidebar__item span, .sidebar .sidebar__toggle span { display: none; }
+    }
+    @media (max-width: 767px) {
+      .sidebar { display: none; }
+      body.rtl .main-content, body.ltr .main-content { margin: 0; }
+      body.rtl .main-content .teacher-navbar, body.ltr .main-content .teacher-navbar { right: 0; left: 0; }
+      .preview-main { padding-inline: var(--space-4); }
+      .preview-header h1 { font-size: var(--font-size-2xl); }
+      .preview-footer { flex-direction: column; align-items: stretch; }
+      .preview-footer__actions { flex-direction: column; }
+    }
+  </style>
+</head>
+
+<body class="rtl">
+  <aside class="sidebar" id="sidebar" aria-label="Sidebar navigation">
+    <div class="sidebar__header">
+      <div class="sidebar__logo">M</div>
+      <span class="sidebar__brand-text">سراج - المعلم</span>
+    </div>
+    <nav class="sidebar__nav">
+      <a class="sidebar__item" href="teacher-dashboard.html"><i class="fas fa-gauge"></i><span>نظرة عامة</span></a>
+      <a class="sidebar__item sidebar__item--active" href="exam-preview.html"><i class="fas fa-eye"></i><span>معاينة الاختبار</span></a>
+      <a class="sidebar__item" href="teacher-exams.html"><i class="fas fa-file-lines"></i><span>اختباراتي</span></a>
+      <a class="sidebar__item" href="teacher-group.html"><i class="fas fa-users"></i><span>المجموعات</span></a>
+      <a class="sidebar__item" href="teacher-question-bank.html"><i class="fas fa-database"></i><span>بنك الأسئلة</span></a>
+      <a class="sidebar__item" href="teacher-settings.html"><i class="fas fa-gear"></i><span>الإعدادات</span></a>
+    </nav>
+    <button class="sidebar__toggle" id="sidebar-toggle" aria-label="Toggle sidebar"><i class="fas fa-angles-right"></i><span>تصغير</span></button>
+  </aside>
+
+  <div class="main-content" id="main-content">
+    <nav class="navbar teacher-navbar" role="navigation" aria-label="Teacher top navigation">
+      <a href="teacher-dashboard.html" class="navbar__brand">
+        <div class="navbar__brand-icon"><i class="fas fa-eye"></i></div>
+        <span class="navbar__brand-text">معاينة الاختبار</span>
+      </a>
+      <div class="navbar__actions">
+        <div class="lang-switcher" role="group" aria-label="Language selector">
+          <button class="lang-switcher__btn active" data-lang="ar" aria-label="Arabic">&#1593;</button>
+          <button class="lang-switcher__btn" data-lang="he" aria-label="Hebrew">&#1506;&#1489;</button>
+          <button class="lang-switcher__btn" data-lang="en" aria-label="English">En</button>
+        </div>
+        <div class="avatar-dropdown">
+          <button class="avatar-btn" type="button" data-avatar-toggle="teacher-avatar-menu" aria-label="قائمة حساب المعلم"><i class="fas fa-user"></i></button>
+          <div class="avatar-menu" id="teacher-avatar-menu" data-avatar-menu>
+            <span class="avatar-menu__label">حساب المعلم</span>
+            <a class="avatar-menu__link" href="teacher-profile.html"><i class="fas fa-id-card"></i><span>الملف الشخصي</span></a>
+            <a class="avatar-menu__link" href="teacher-settings.html"><i class="fas fa-gear"></i><span>الإعدادات</span></a>
+          </div>
+        </div>
+        <a href="index.html" class="btn btn--teacher btn--sm"><i class="fas fa-right-from-bracket"></i><span>تسجيل الخروج</span></a>
+      </div>
+    </nav>
+
+    <main class="preview-main">
+      <nav class="breadcrumb" aria-label="Breadcrumb"><a href="teacher-dashboard.html">لوحة المعلم</a> <span>›</span> <a href="exam-wizard.html">معالج الاختبار</a> <span>›</span> <span>معاينة الاختبار</span></nav>
+
+      <header class="preview-header" id="exam-header">
+        <h1 id="exam-title">اختبار اللغة الإنجليزية — منتصف الفصل</h1>
+        <div class="preview-meta" id="exam-meta">
+          <span class="chip"><i class="fas fa-graduation-cap"></i> الصف التاسع</span>
+          <span class="chip"><i class="fas fa-book-open"></i> اللغة الإنجليزية</span>
+          <span class="chip"><i class="fas fa-list-ol"></i> 8 أسئلة</span>
+          <span class="chip"><i class="fas fa-clock"></i> 45 دقيقة</span>
+          <span class="chip"><i class="fas fa-layer-group"></i> مختلط</span>
+        </div>
+        <div class="preview-actions">
+          <button class="btn btn--outline btn--sm" id="regenerate-all-btn"><i class="fas fa-rotate"></i> إعادة توليد الكل</button>
+          <button class="btn btn--outline btn--sm" id="print-btn"><i class="fas fa-print"></i> طباعة</button>
+          <button class="btn btn--outline btn--sm" id="export-btn"><i class="fas fa-file-export"></i> تصدير PDF</button>
+        </div>
+      </header>
+
+      <section class="question-list" id="question-list" aria-label="Question list"></section>
+
+      <footer class="preview-footer">
+        <span class="preview-footer__info"><i class="fas fa-circle-info"></i> تأكد من مراجعة جميع الأسئلة قبل الاعتماد النهائي</span>
+        <div class="preview-footer__actions">
+          <a href="exam-wizard.html" class="btn btn--outline"><i class="fas fa-arrow-right"></i> العودة للمعالج</a>
+          <button class="btn btn--approve btn--lg" id="approve-btn"><i class="fas fa-check-double"></i> اعتماد ونشر الاختبار</button>
+        </div>
+      </footer>
+    </main>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="shared-layout.js"></script>
+  <script src="tenant-mode.js"></script>
+  <script>
+  (function(){
+    'use strict';
+
+    /* ── Sample questions data ── */
+    var questions = [
+      {
+        id: 1, type: 'MC', bloom: 'L2 — الفهم', difficulty: 'easy', points: 5,
+        text: 'ما المعنى الأقرب لكلمة "inevitable" في الفقرة الثالثة؟',
+        options: [
+          {label: 'أ', text: 'حتمي', correct: true},
+          {label: 'ب', text: 'عشوائي', correct: false},
+          {label: 'ج', text: 'متكرر', correct: false},
+          {label: 'د', text: 'مؤقت', correct: false}
+        ],
+        answer: 'الإجابة الصحيحة: (أ) حتمي — كلمة inevitable تعني شيء لا مفر منه أو حتمي الحدوث.'
+      },
+      {
+        id: 2, type: 'MC', bloom: 'L3 — التطبيق', difficulty: 'medium', points: 5,
+        text: 'أي من الجمل التالية يستخدم الفعل في زمن Present Perfect بشكل صحيح؟',
+        options: [
+          {label: 'أ', text: 'She has went to school yesterday.', correct: false},
+          {label: 'ب', text: 'They have finished their homework.', correct: true},
+          {label: 'ج', text: 'He have been to Paris.', correct: false},
+          {label: 'د', text: 'We has completed the project.', correct: false}
+        ],
+        answer: 'الإجابة الصحيحة: (ب) — They have finished their homework هي الجملة الصحيحة نحويًا.'
+      },
+      {
+        id: 3, type: 'True/False', bloom: 'L1 — التذكر', difficulty: 'easy', points: 3,
+        text: 'صح أم خطأ: الكاتب في النص يرى أن التكنولوجيا لها تأثير سلبي فقط على التعليم.',
+        options: [],
+        answer: 'خطأ — الكاتب يرى أن للتكنولوجيا تأثيرات إيجابية وسلبية على التعليم.'
+      },
+      {
+        id: 4, type: 'Open-end', bloom: 'L4 — التحليل', difficulty: 'hard', points: 10,
+        text: 'حلّل الأسلوب البلاغي الذي استخدمه الكاتب في الفقرة الثانية لإقناع القارئ بوجهة نظره. استشهد بأمثلة من النص.',
+        options: [],
+        answer: 'يتوقع من الطالب تحليل استخدام الكاتب للاستعارات والتشبيهات والأسئلة البلاغية مع ذكر أمثلة محددة من النص.'
+      },
+      {
+        id: 5, type: 'MC', bloom: 'L2 — الفهم', difficulty: 'medium', points: 5,
+        text: 'ما الفكرة الرئيسية للفقرة الأخيرة من النص؟',
+        options: [
+          {label: 'أ', text: 'التعليم التقليدي أفضل من الرقمي.', correct: false},
+          {label: 'ب', text: 'يجب الموازنة بين التكنولوجيا والأساليب التقليدية.', correct: true},
+          {label: 'ج', text: 'المستقبل سيكون رقميًا بالكامل.', correct: false},
+          {label: 'د', text: 'لا يوجد حل مثالي لمشاكل التعليم.', correct: false}
+        ],
+        answer: 'الإجابة الصحيحة: (ب) — الفقرة تدعو إلى التوازن بين الأساليب التقليدية والرقمية.'
+      },
+      {
+        id: 6, type: 'Matching', bloom: 'L1 — التذكر', difficulty: 'easy', points: 5,
+        text: 'طابق الكلمات الإنجليزية في العمود (أ) مع معانيها العربية في العمود (ب):\nأ: 1. Accomplish 2. Neglect 3. Contribute 4. Persistent 5. Reluctant\nب: أ. مثابر  ب. يُهمل  ج. يُنجز  د. يُساهم  هـ. متردد',
+        options: [],
+        answer: '1→ج، 2→ب، 3→د، 4→أ، 5→هـ'
+      },
+      {
+        id: 7, type: 'Short Answer', bloom: 'L3 — التطبيق', difficulty: 'medium', points: 5,
+        text: 'أعد كتابة الجملة التالية باستخدام صيغة Passive Voice:\n"The teacher explained the lesson clearly."',
+        options: [],
+        answer: 'The lesson was explained clearly by the teacher.'
+      },
+      {
+        id: 8, type: 'Open-end', bloom: 'L5 — التقييم', difficulty: 'hard', points: 12,
+        text: 'اكتب فقرة من 8-10 جمل تقيّم فيها فعالية حجة الكاتب في النص. هل نجح في إقناعك؟ ادعم إجابتك بأمثلة من النص وتجربتك الشخصية.',
+        options: [],
+        answer: 'يُقيّم بناءً على: قوة الحجة (4)، الاستشهاد من النص (4)، جودة الكتابة (4).'
+      }
+    ];
+
+    var typeMap = {'MC':'اختيار متعدد','Open-end':'مفتوح','True/False':'صح/خطأ','Matching':'مطابقة','Short Answer':'إجابة قصيرة','Completion':'إكمال'};
+    var diffMap = {'easy':'سهل','medium':'متوسط','hard':'صعب'};
+    var diffCls = {'easy':'difficulty-easy','medium':'difficulty-medium','hard':'difficulty-hard'};
+
+    var listEl = document.getElementById('question-list');
+    var toast = document.getElementById('toast');
+
+    function showToast(msg) {
+      toast.textContent = msg;
+      toast.classList.add('toast--show');
+      setTimeout(function(){ toast.classList.remove('toast--show'); }, 2500);
+    }
+
+    function renderQuestions() {
+      listEl.innerHTML = '';
+      for (var i = 0; i < questions.length; i++) {
+        var q = questions[i];
+        var card = document.createElement('article');
+        card.className = 'q-card';
+        card.dataset.qid = q.id;
+
+        var optionsHtml = '';
+        if (q.options.length) {
+          optionsHtml = '<div class="q-options">';
+          for (var j = 0; j < q.options.length; j++) {
+            var o = q.options[j];
+            optionsHtml += '<div class="q-option' + (o.correct ? ' q-option--correct' : '') + '">' +
+              '<span class="q-option__marker">' + (o.correct ? '<i class="fas fa-check"></i>' : '') + '</span>' +
+              '<span>' + o.label + '. ' + o.text + '</span></div>';
+          }
+          optionsHtml += '</div>';
+        }
+
+        card.innerHTML =
+          '<div class="q-header">' +
+            '<h3>السؤال ' + q.id + '</h3>' +
+            '<div class="q-badges">' +
+              '<span class="badge badge--type"><i class="fas fa-tag"></i> ' + (typeMap[q.type] || q.type) + '</span>' +
+              '<span class="badge badge--bloom"><i class="fas fa-layer-group"></i> ' + q.bloom + '</span>' +
+              '<span class="badge badge--' + diffCls[q.difficulty] + '">' + (diffMap[q.difficulty] || q.difficulty) + '</span>' +
+              '<span class="badge badge--points"><i class="fas fa-star"></i> ' + q.points + ' نقاط</span>' +
+            '</div>' +
+          '</div>' +
+          '<div class="q-body">' + q.text.replace(/\n/g, '<br>') + '</div>' +
+          optionsHtml +
+          '<div class="q-answer"><strong><i class="fas fa-key"></i> المفتاح:</strong> ' + q.answer + '</div>' +
+          '<div class="q-edit-area">' +
+            '<label style="font-weight:600;font-size:var(--font-size-sm);">تعديل نص السؤال:</label>' +
+            '<textarea class="edit-text">' + q.text + '</textarea>' +
+            '<div class="q-edit-actions">' +
+              '<button class="btn btn--teacher btn--sm save-edit-btn"><i class="fas fa-check"></i> حفظ التعديل</button>' +
+              '<button class="btn btn--outline btn--sm cancel-edit-btn"><i class="fas fa-xmark"></i> إلغاء</button>' +
+            '</div>' +
+          '</div>' +
+          '<div class="q-actions">' +
+            '<button class="btn btn--outline btn--sm edit-btn"><i class="fas fa-pen"></i> تعديل</button>' +
+            '<button class="btn btn--outline btn--sm regen-btn"><i class="fas fa-rotate"></i> إعادة توليد</button>' +
+            '<button class="btn btn--outline btn--sm delete-btn" style="color:var(--color-admin);border-color:var(--color-admin);"><i class="fas fa-trash"></i> حذف</button>' +
+          '</div>';
+
+        listEl.appendChild(card);
+      }
+    }
+
+    /* Delegated events */
+    listEl.addEventListener('click', function(e) {
+      var btn = e.target.closest('button');
+      if (!btn) return;
+      var card = btn.closest('.q-card');
+      var qid = Number(card.dataset.qid);
+
+      if (btn.classList.contains('edit-btn')) {
+        card.classList.add('q-card--editing');
+      }
+      else if (btn.classList.contains('cancel-edit-btn')) {
+        card.classList.remove('q-card--editing');
+      }
+      else if (btn.classList.contains('save-edit-btn')) {
+        var newText = card.querySelector('.edit-text').value.trim();
+        if (newText) {
+          for (var i = 0; i < questions.length; i++) {
+            if (questions[i].id === qid) { questions[i].text = newText; break; }
+          }
+          renderQuestions();
+          showToast('✅ تم حفظ التعديل');
+        }
+      }
+      else if (btn.classList.contains('regen-btn')) {
+        card.classList.add('q-card--regenerating');
+        setTimeout(function() {
+          card.classList.remove('q-card--regenerating');
+          showToast('✨ تم إعادة توليد السؤال ' + qid);
+        }, 1800);
+      }
+      else if (btn.classList.contains('delete-btn')) {
+        if (confirm('هل أنت متأكد من حذف السؤال ' + qid + '؟')) {
+          questions = questions.filter(function(q){ return q.id !== qid; });
+          for (var k = 0; k < questions.length; k++) questions[k].id = k + 1;
+          renderQuestions();
+          showToast('🗑️ تم حذف السؤال');
+        }
+      }
+    });
+
+    /* Regenerate all */
+    document.getElementById('regenerate-all-btn').addEventListener('click', function() {
+      var cards = listEl.querySelectorAll('.q-card');
+      for (var i = 0; i < cards.length; i++) cards[i].classList.add('q-card--regenerating');
+      setTimeout(function() {
+        for (var i = 0; i < cards.length; i++) cards[i].classList.remove('q-card--regenerating');
+        showToast('✨ تم إعادة توليد جميع الأسئلة');
+      }, 2400);
+    });
+
+    /* Print */
+    document.getElementById('print-btn').addEventListener('click', function() { window.print(); });
+
+    /* Export PDF */
+    document.getElementById('export-btn').addEventListener('click', function() {
+      showToast('📄 جاري تصدير PDF...');
+    });
+
+    /* Approve */
+    document.getElementById('approve-btn').addEventListener('click', function() {
+      showToast('✅ تم اعتماد الاختبار ونشره بنجاح!');
+      setTimeout(function() { window.location.href = 'teacher-exams.html'; }, 2000);
+    });
+
+    renderQuestions();
+  })();
+  </script>
+</body>
+</html>
+

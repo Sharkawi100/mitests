@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mitests - إدارة المجموعات</title>
+  <meta name="description" content="صفحة إدارة مجموعات المعلم: إنشاء مجموعة جديدة، تعديل، حذف، وفتح المجموعة.">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="styles.css">
+
+  <style>
+    .teacher-navbar { border-bottom: 1px solid var(--color-gray-200); }
+    body.rtl .main-content .teacher-navbar { right: var(--sidebar-width); left: 0; }
+    body.ltr .main-content .teacher-navbar { left: var(--sidebar-width); right: 0; }
+    body.rtl .main-content.main-content--expanded .teacher-navbar { right: var(--sidebar-collapsed-width); }
+    body.ltr .main-content.main-content--expanded .teacher-navbar { left: var(--sidebar-collapsed-width); }
+
+    .teacher-navbar .navbar__brand-icon { background: linear-gradient(135deg, var(--color-teacher), var(--color-primary-400)); }
+    .sidebar__item:hover, .sidebar__item--active { background: rgba(53, 86, 178, 0.25); color: var(--color-white); }
+    .sidebar__item--active { border-inline-start: 3px solid var(--color-teacher); }
+
+    .btn--teacher { background: var(--color-teacher); border-color: var(--color-teacher); color: var(--color-white); }
+    .btn--teacher:hover { background: var(--color-primary-600); border-color: var(--color-primary-600); color: var(--color-white); }
+
+    .group-main {
+      padding: calc(var(--navbar-height) + var(--space-6)) var(--space-6) var(--space-8);
+      display: grid;
+      gap: var(--space-5);
+    }
+
+    .group-manager {
+      background: var(--color-white);
+      border: 1px solid var(--color-gray-200);
+      border-top: 4px solid var(--color-teacher);
+      border-radius: var(--border-radius-lg);
+      box-shadow: var(--shadow-md);
+      padding: var(--space-5);
+      display: grid;
+      gap: var(--space-4);
+    }
+
+    .group-manager__head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: var(--space-3);
+      flex-wrap: wrap;
+    }
+
+    .group-manager__head h1 { color: var(--color-gray-900); font-size: var(--font-size-3xl); margin-bottom: var(--space-1); }
+    .group-manager__head p { color: var(--color-gray-600); font-size: var(--font-size-sm); }
+
+    .groups-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: var(--space-3);
+    }
+
+    .group-card-item {
+      border: 1px solid var(--color-gray-200);
+      border-radius: var(--border-radius-md);
+      background: var(--color-white);
+      padding: var(--space-4);
+      display: grid;
+      gap: var(--space-3);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .group-card-item--active {
+      border-color: var(--color-teacher);
+      box-shadow: 0 0 0 2px rgba(53, 86, 178, 0.12);
+      background: #f8fbff;
+    }
+
+    .group-card-item h3 { color: var(--color-gray-900); font-size: var(--font-size-lg); line-height: 1.35; }
+    .group-card-meta {
+      display: flex;
+      gap: var(--space-2);
+      flex-wrap: wrap;
+      color: var(--color-gray-500);
+      font-size: var(--font-size-xs);
+      font-weight: 700;
+    }
+    .group-card-meta span {
+      padding: var(--space-1) var(--space-2);
+      border-radius: var(--border-radius-full);
+      background: var(--color-gray-100);
+    }
+
+    .group-card-actions {
+      display: flex;
+      gap: var(--space-2);
+      flex-wrap: wrap;
+      border-top: 1px solid var(--color-gray-200);
+      padding-top: var(--space-3);
+    }
+
+    .group-header {
+      background: var(--color-white);
+      border-top: 4px solid var(--color-teacher);
+      border-radius: var(--border-radius-lg);
+      box-shadow: var(--shadow-md);
+      padding: var(--space-6);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: var(--space-4);
+      flex-wrap: wrap;
+    }
+
+    .group-header h2 { font-size: var(--font-size-3xl); color: var(--color-gray-900); }
+    .group-header p { color: var(--color-gray-600); }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: var(--space-3);
+    }
+
+    .stat {
+      border: 1px solid var(--color-gray-200);
+      border-top: 4px solid var(--color-teacher);
+      border-radius: var(--border-radius-md);
+      background: var(--color-white);
+      padding: var(--space-4);
+    }
+
+    .stat p { color: var(--color-gray-500); font-size: var(--font-size-sm); }
+    .stat strong { color: var(--color-gray-900); font-size: var(--font-size-2xl); }
+
+    .students-card {
+      background: var(--color-white);
+      border: 1px solid var(--color-gray-200);
+      border-top: 4px solid var(--color-teacher);
+      border-radius: var(--border-radius-md);
+      box-shadow: var(--shadow-sm);
+      padding: var(--space-4);
+      display: grid;
+      gap: var(--space-3);
+    }
+
+    .access-grid {
+      display: grid;
+      grid-template-columns: 1.1fr 1.9fr;
+      gap: var(--space-3);
+    }
+
+    .access-card {
+      background: var(--color-white);
+      border: 1px solid var(--color-gray-200);
+      border-top: 4px solid var(--color-teacher);
+      border-radius: var(--border-radius-md);
+      box-shadow: var(--shadow-sm);
+      padding: var(--space-4);
+      display: grid;
+      gap: var(--space-3);
+    }
+
+    .invite-code {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-2);
+      padding: var(--space-3);
+      background: #f8fbff;
+      border: 1px dashed var(--color-teacher);
+      border-radius: var(--border-radius-sm);
+    }
+
+    .invite-code strong {
+      font-size: var(--font-size-xl);
+      letter-spacing: 0.08em;
+      color: var(--color-gray-900);
+      font-family: "Courier New", Courier, monospace;
+    }
+
+    .invite-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-2);
+    }
+
+    .hint {
+      color: var(--color-gray-500);
+      font-size: var(--font-size-xs);
+      line-height: 1.5;
+    }
+
+    .table-wrap { overflow-x: auto; }
+    .data-table { width: 100%; border-collapse: collapse; min-width: 640px; }
+    .data-table th, .data-table td {
+      padding: var(--space-3);
+      border-bottom: 1px solid var(--color-gray-200);
+      text-align: start;
+      font-size: var(--font-size-sm);
+    }
+    .data-table th { color: var(--color-gray-500); background: var(--color-gray-50); font-weight: 600; }
+
+    .empty-state {
+      border: 1px dashed var(--color-primary-300);
+      border-radius: var(--border-radius-sm);
+      padding: var(--space-4);
+      color: var(--color-gray-600);
+      background: var(--color-primary-100);
+      text-align: center;
+      font-size: var(--font-size-sm);
+    }
+
+    .group-modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 1100;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: var(--space-4);
+    }
+
+    .group-modal-overlay.on { display: flex; }
+
+    .group-modal {
+      background: var(--color-white);
+      border-radius: var(--border-radius-lg);
+      box-shadow: var(--shadow-xl);
+      width: min(520px, 100%);
+      overflow: hidden;
+    }
+
+    .group-modal__header {
+      padding: var(--space-4);
+      border-bottom: 1px solid var(--color-gray-200);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: var(--space-3);
+      background: var(--color-gray-50);
+    }
+
+    .group-modal__header h3 { color: var(--color-gray-900); font-size: var(--font-size-lg); }
+    .group-modal__close {
+      border: none;
+      background: transparent;
+      color: var(--color-gray-500);
+      font-size: var(--font-size-xl);
+      cursor: pointer;
+    }
+
+    .group-modal__body { padding: var(--space-4); display: grid; gap: var(--space-3); }
+    .field { display: grid; gap: var(--space-1); }
+    .field label { font-size: var(--font-size-sm); font-weight: 600; color: var(--color-gray-700); }
+    .field input, .field select {
+      border: 1px solid var(--color-gray-300);
+      border-radius: var(--border-radius-sm);
+      padding: var(--space-2) var(--space-3);
+      font-family: inherit;
+      color: var(--color-gray-800);
+    }
+    .field input:focus, .field select:focus {
+      outline: none;
+      border-color: var(--color-teacher);
+      box-shadow: 0 0 0 3px rgba(53, 86, 178, 0.15);
+    }
+
+    .group-modal__actions {
+      padding: var(--space-4);
+      border-top: 1px solid var(--color-gray-200);
+      display: flex;
+      justify-content: space-between;
+      gap: var(--space-2);
+      flex-wrap: wrap;
+      background: var(--color-gray-50);
+    }
+
+    @media (max-width: 1023px) {
+      body.rtl .main-content .teacher-navbar { right: var(--sidebar-collapsed-width); }
+      body.ltr .main-content .teacher-navbar { left: var(--sidebar-collapsed-width); }
+      body.rtl .main-content { margin-right: var(--sidebar-collapsed-width); }
+      body.ltr .main-content { margin-left: var(--sidebar-collapsed-width); }
+      .sidebar { width: var(--sidebar-collapsed-width); }
+      .sidebar .sidebar__brand-text, .sidebar .sidebar__item span, .sidebar .sidebar__toggle span { display: none; }
+      .stats { grid-template-columns: 1fr; }
+      .access-grid { grid-template-columns: 1fr; }
+      .groups-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 767px) {
+      .sidebar { display: none; }
+      body.rtl .main-content, body.ltr .main-content { margin: 0; }
+      body.rtl .main-content .teacher-navbar, body.ltr .main-content .teacher-navbar { right: 0; left: 0; }
+      .group-main { padding-inline: var(--space-4); }
+      .group-manager__head h1, .group-header h2 { font-size: var(--font-size-2xl); }
+      .groups-grid { grid-template-columns: 1fr; }
+      .group-card-actions .btn { width: 100%; }
+      .group-modal__actions .btn { width: 100%; }
+    }
+  </style>
+</head>
+<body class="rtl">
+  <aside class="sidebar" id="sidebar" aria-label="Sidebar navigation">
+    <div class="sidebar__header"><div class="sidebar__logo">M</div><span class="sidebar__brand-text">سراج - المعلم</span></div>
+    <nav class="sidebar__nav">
+      <a class="sidebar__item" href="teacher-dashboard.html" data-teacher-home><i class="fas fa-gauge"></i><span>لوحة المعلم</span></a>
+      <a class="sidebar__item" href="exam-wizard.html"><i class="fas fa-wand-magic-sparkles"></i><span>إنشاء اختبار</span></a>
+      <a class="sidebar__item sidebar__item--active" href="teacher-group.html"><i class="fas fa-users"></i><span>إدارة المجموعات</span></a>
+      <a class="sidebar__item" href="teacher-question-bank.html"><i class="fas fa-database"></i><span>بنك الأسئلة</span></a>
+      <a class="sidebar__item" href="teacher-settings.html"><i class="fas fa-gear"></i><span>الإعدادات</span></a>
+    </nav>
+    <button class="sidebar__toggle" id="sidebar-toggle" aria-label="Toggle sidebar"><i class="fas fa-angles-right"></i><span>تصغير</span></button>
+  </aside>
+
+  <div class="main-content" id="main-content">
+    <nav class="navbar teacher-navbar" role="navigation" aria-label="Teacher top navigation">
+      <a href="teacher-group.html" class="navbar__brand">
+        <div class="navbar__brand-icon"><i class="fas fa-users"></i></div>
+        <span class="navbar__brand-text">إدارة المجموعات</span>
+      </a>
+      <div class="navbar__actions">
+        <div class="lang-switcher" role="group" aria-label="Language selector">
+          <button class="lang-switcher__btn active" data-lang="ar" aria-label="Arabic">&#1593;</button>
+          <button class="lang-switcher__btn" data-lang="he" aria-label="Hebrew">&#1506;&#1489;</button>
+          <button class="lang-switcher__btn" data-lang="en" aria-label="English">En</button>
+        </div>
+        <div class="avatar-dropdown">
+          <button class="avatar-btn" type="button" data-avatar-toggle="teacher-avatar-menu" aria-label="قائمة حساب المعلم"><i class="fas fa-user"></i></button>
+          <div class="avatar-menu" id="teacher-avatar-menu" data-avatar-menu>
+            <span class="avatar-menu__label">حساب المعلم</span>
+            <a class="avatar-menu__link" href="teacher-profile.html"><i class="fas fa-id-card"></i><span>الملف الشخصي</span></a>
+            <a class="avatar-menu__link" href="teacher-settings.html"><i class="fas fa-gear"></i><span>الإعدادات</span></a>
+          </div>
+        </div>
+        <a href="index.html" class="btn btn--teacher btn--sm"><i class="fas fa-right-from-bracket"></i><span>تسجيل الخروج</span></a>
+      </div>
+    </nav>
+
+    <main class="group-main">
+      <section class="group-manager">
+        <div class="group-manager__head">
+          <div>
+            <h1>إدارة مجموعاتك</h1>
+            <p>أنشئ مجموعة جديدة، عدّل البيانات، وافتح المجموعة لإدارة الطلاب والتقييم.</p>
+          </div>
+          <button class="btn btn--teacher" id="add-group-btn" type="button"><i class="fas fa-plus"></i><span>إضافة مجموعة</span></button>
+        </div>
+        <div id="groups-grid" class="groups-grid"></div>
+      </section>
+
+      <header class="group-header">
+        <div>
+          <h2 id="group-title">-</h2>
+          <p id="group-subtitle">-</p>
+        </div>
+        <a id="group-exam-link" href="exam-wizard.html" class="btn btn--teacher"><i class="fas fa-plus"></i><span>إنشاء اختبار للمجموعة</span></a>
+      </header>
+
+      <section class="access-grid">
+        <article class="access-card">
+          <h2>كود الانضمام</h2>
+          <div class="invite-code">
+            <strong id="invite-code-value">-</strong>
+          </div>
+          <div class="invite-actions">
+            <button class="btn btn--teacher btn--sm" id="copy-invite-code-btn" type="button"><i class="fas fa-copy"></i><span>نسخ الكود</span></button>
+            <button class="btn btn--outline btn--sm" id="rotate-invite-code-btn" type="button"><i class="fas fa-rotate"></i><span>تدوير الكود</span></button>
+          </div>
+          <p class="hint">الطالب يدخل هذا الكود من صفحة "مجموعاتي"، ثم يظهر لك طلب الانضمام للموافقة.</p>
+        </article>
+
+        <article class="access-card">
+          <h2>طلبات الانضمام المعلقة</h2>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>الطالب</th>
+                  <th>الصف / الشعبة</th>
+                  <th>وقت الطلب</th>
+                  <th>الإجراء</th>
+                </tr>
+              </thead>
+              <tbody id="join-requests-body"></tbody>
+            </table>
+          </div>
+        </article>
+      </section>
+
+      <section class="stats">
+        <article class="stat"><p>عدد الطلاب</p><strong id="stat-students">0</strong></article>
+        <article class="stat"><p>اختبارات هذا الشهر</p><strong id="stat-exams">0</strong></article>
+        <article class="stat"><p>متوسط الأداء</p><strong id="stat-score">0%</strong></article>
+      </section>
+
+      <section class="students-card">
+        <h2>قائمة الطلاب</h2>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>الطالب</th>
+                <th>آخر اختبار</th>
+                <th>النتيجة</th>
+                <th>الإجراء</th>
+              </tr>
+            </thead>
+            <tbody id="students-body"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="group-modal-overlay" class="group-modal-overlay" aria-hidden="true">
+    <div class="group-modal" role="dialog" aria-modal="true" aria-labelledby="group-modal-title">
+      <div class="group-modal__header">
+        <h3 id="group-modal-title">إضافة مجموعة</h3>
+        <button id="group-modal-close" class="group-modal__close" type="button" aria-label="إغلاق"><i class="fas fa-xmark"></i></button>
+      </div>
+      <form id="group-form">
+        <div class="group-modal__body">
+          <div class="field">
+            <label for="group-name">اسم المجموعة</label>
+            <input id="group-name" type="text" placeholder="مثال: الصف تاسع 1">
+          </div>
+          <div class="field">
+            <label for="group-subject">المادة</label>
+            <select id="group-subject">
+              <option value="">اختر المادة</option>
+              <option value="اللغة الإنجليزية">اللغة الإنجليزية</option>
+              <option value="الرياضيات">الرياضيات</option>
+              <option value="العلوم">العلوم</option>
+              <option value="اللغة العربية">اللغة العربية</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="group-grade">الصف</label>
+            <select id="group-grade">
+              <option value="">اختر الصف</option>
+              <option value="الصف السابع">الصف السابع</option>
+              <option value="الصف الثامن">الصف الثامن</option>
+              <option value="الصف التاسع">الصف التاسع</option>
+              <option value="الصف العاشر">الصف العاشر</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="group-section">الشعبة / الفصل (اختياري)</label>
+            <input id="group-section" type="text" placeholder="مثال: 1 (أ)">
+          </div>
+          <div class="field">
+            <label for="group-count">عدد الطلاب</label>
+            <input id="group-count" type="number" min="1" max="200" value="25">
+          </div>
+        </div>
+        <div class="group-modal__actions">
+          <button class="btn btn--outline" id="group-modal-cancel" type="button">إلغاء</button>
+          <button class="btn btn--teacher" type="submit">حفظ المجموعة</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="shared-layout.js"></script>
+  <script src="tenant-mode.js"></script>
+  <script>
+    (function () {
+      'use strict';
+
+      var tenantType = 'school_teacher';
+      try {
+        tenantType = localStorage.getItem('mitests-tenant-type') || 'school_teacher';
+      } catch (e) {}
+
+      var groupsKey = 'mitests-teacher-groups:' + tenantType;
+      var defaultGroups = [
+        { id: 1, code: 'grade9-eng', name: 'الصف تاسع 1', grade: 'الصف التاسع', subject: 'اللغة الإنجليزية', studentsCount: 32, examsMonth: 5, avgScore: 84 },
+        { id: 2, code: 'grade8-math', name: 'الصف ثامن 3', grade: 'الصف الثامن', subject: 'الرياضيات', studentsCount: 29, examsMonth: 4, avgScore: 81 },
+        { id: 3, code: 'grade10-sci', name: 'الصف عاشر 2', grade: 'الصف العاشر', subject: 'العلوم', studentsCount: 26, examsMonth: 3, avgScore: 87 },
+        { id: 4, code: 'grade7-eng', name: 'الصف سابع 1', grade: 'الصف السابع', subject: 'اللغة الإنجليزية', studentsCount: 30, examsMonth: 6, avgScore: 83 }
+      ];
+      var firstNames = ['يوسف', 'سارة', 'ريم', 'خالد', 'سلمى', 'عبدالله', 'ليان', 'نور', 'مالك', 'جود', 'آدم', 'هبة'];
+      var lastNames = ['لؤي', 'بدر', 'خالد', 'العمري', 'السيد', 'المطيري', 'حسن', 'الزهراني', 'القحطاني', 'العلي'];
+      var examNames = ['اختبار قراءة', 'اختبار مفاهيم', 'اختبار وحدة', 'اختبار نصف الفصل'];
+
+      var groups = loadGroups();
+      var selectedCode = '';
+      var editCode = null;
+
+      var groupsGrid = document.getElementById('groups-grid');
+      var groupTitle = document.getElementById('group-title');
+      var groupSubtitle = document.getElementById('group-subtitle');
+      var groupExamLink = document.getElementById('group-exam-link');
+      var studentsBody = document.getElementById('students-body');
+      var statStudents = document.getElementById('stat-students');
+      var statExams = document.getElementById('stat-exams');
+      var statScore = document.getElementById('stat-score');
+
+      var addGroupBtn = document.getElementById('add-group-btn');
+      var modalOverlay = document.getElementById('group-modal-overlay');
+      var modalClose = document.getElementById('group-modal-close');
+      var modalCancel = document.getElementById('group-modal-cancel');
+      var modalTitle = document.getElementById('group-modal-title');
+      var groupForm = document.getElementById('group-form');
+      var groupNameInput = document.getElementById('group-name');
+      var groupSubjectInput = document.getElementById('group-subject');
+      var groupGradeInput = document.getElementById('group-grade');
+      var groupCountInput = document.getElementById('group-count');
+
+      function loadGroups() {
+        try {
+          var raw = localStorage.getItem(groupsKey);
+          if (!raw) {
+            return defaultGroups.slice();
+          }
+          var parsed = JSON.parse(raw);
+          if (Array.isArray(parsed) && parsed.length) {
+            return parsed;
+          }
+        } catch (e) {}
+        return defaultGroups.slice();
+      }
+
+      function saveGroups() {
+        try {
+          localStorage.setItem(groupsKey, JSON.stringify(groups));
+        } catch (e) {}
+      }
+
+      function escapeHtml(value) {
+        return String(value || '')
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
+      }
+
+      function updateUrlGroup(code) {
+        var params = new URLSearchParams(window.location.search);
+        params.set('g', code);
+        var next = window.location.pathname + '?' + params.toString();
+        window.history.replaceState({}, '', next);
+      }
+
+      function getGroupByCode(code) {
+        for (var i = 0; i < groups.length; i++) {
+          if (groups[i].code === code) return groups[i];
+        }
+        return null;
+      }
+
+      function ensureSelectedGroup() {
+        var params = new URLSearchParams(window.location.search);
+        var q = params.get('g');
+        if (q && getGroupByCode(q)) {
+          selectedCode = q;
+          return;
+        }
+        selectedCode = groups.length ? groups[0].code : '';
+      }
+
+      function renderGroups() {
+        if (!groups.length) {
+          groupsGrid.innerHTML = '<div class="empty-state">لا توجد مجموعات حتى الآن. اضغط "إضافة مجموعة" للبدء.</div>';
+          return;
+        }
+
+        var html = '';
+        for (var i = 0; i < groups.length; i++) {
+          var g = groups[i];
+          html += '' +
+            '<article class="group-card-item' + (g.code === selectedCode ? ' group-card-item--active' : '') + '">' +
+              '<h3>' + escapeHtml(g.name) + ' - ' + escapeHtml(subjectShort(g.subject)) + '</h3>' +
+              '<div class="group-card-meta">' +
+                '<span>' + escapeHtml(g.grade) + '</span>' +
+                '<span>' + (Number(g.studentsCount) || 0) + ' طالب</span>' +
+                '<span>' + (Number(g.avgScore) || 0) + '% متوسط</span>' +
+              '</div>' +
+              '<div class="group-card-actions">' +
+                '<button type="button" class="btn btn--teacher btn--sm" data-action="open" data-code="' + escapeHtml(g.code) + '">فتح</button>' +
+                '<button type="button" class="btn btn--outline btn--sm" data-action="edit" data-code="' + escapeHtml(g.code) + '">تعديل</button>' +
+                '<button type="button" class="btn btn--outline btn--sm" data-action="delete" data-code="' + escapeHtml(g.code) + '">حذف</button>' +
+              '</div>' +
+            '</article>';
+        }
+
+        groupsGrid.innerHTML = html;
+      }
+
+      function renderSelectedGroupDetails() {
+        var group = getGroupByCode(selectedCode);
+        if (!group) {
+          groupTitle.textContent = '-';
+          groupSubtitle.textContent = 'لا توجد مجموعة محددة.';
+          statStudents.textContent = '0';
+          statExams.textContent = '0';
+          statScore.textContent = '0%';
+          studentsBody.innerHTML = '<tr><td colspan="4">لا توجد بيانات طلاب.</td></tr>';
+          return;
+        }
+
+        groupTitle.textContent = group.name + ' - ' + subjectShort(group.subject);
+        groupSubtitle.textContent = 'إدارة الطلاب ومتابعة الأداء لمجموعة ' + group.grade + '.';
+        statStudents.textContent = String(Number(group.studentsCount) || 0);
+        statExams.textContent = String(Number(group.examsMonth) || 0);
+        statScore.textContent = String(Number(group.avgScore) || 0) + '%';
+        groupExamLink.href = 'exam-wizard.html?group=' + encodeURIComponent(group.code);
+        renderStudents(group);
+        updateUrlGroup(group.code);
+      }
+
+      function renderStudents(group) {
+        var count = Math.max(1, Number(group.studentsCount) || 1);
+        var rows = '';
+
+        for (var i = 0; i < count; i++) {
+          var first = firstNames[i % firstNames.length];
+          var last = lastNames[(i * 2) % lastNames.length];
+          var scoreBase = Number(group.avgScore) || 80;
+          var score = Math.max(50, Math.min(100, scoreBase + ((i % 5) - 2) * 3));
+          var examName = examNames[i % examNames.length];
+          rows += '' +
+            '<tr>' +
+              '<td>' + first + ' ' + last + '</td>' +
+              '<td>' + examName + '</td>' +
+              '<td>' + score + '</td>' +
+              '<td><a class="btn btn--teacher btn--sm" href="exam-report.html">عرض التقرير</a></td>' +
+            '</tr>';
+        }
+
+        studentsBody.innerHTML = rows;
+      }
+
+      function subjectShort(subject) {
+        if (subject === 'اللغة الإنجليزية') return 'إنجليزي';
+        if (subject === 'الرياضيات') return 'رياضيات';
+        if (subject === 'العلوم') return 'علوم';
+        if (subject === 'اللغة العربية') return 'عربي';
+        return subject || 'مادة';
+      }
+
+      function slugify(value) {
+        return String(value || '')
+          .toLowerCase()
+          .replace(/[^\u0600-\u06FFa-z0-9]+/g, '-')
+          .replace(/^-+|-+$/g, '');
+      }
+
+      function openModal(isEdit, code) {
+        editCode = null;
+        groupForm.reset();
+        groupCountInput.value = '25';
+        modalTitle.textContent = isEdit ? 'تعديل المجموعة' : 'إضافة مجموعة';
+
+        if (isEdit && code) {
+          var group = getGroupByCode(code);
+          if (!group) return;
+          editCode = code;
+          groupNameInput.value = group.name || '';
+          groupSubjectInput.value = group.subject || '';
+          groupGradeInput.value = group.grade || '';
+          groupCountInput.value = String(Number(group.studentsCount) || 25);
+        }
+
+        modalOverlay.classList.add('on');
+        modalOverlay.setAttribute('aria-hidden', 'false');
+      }
+
+      function closeModal() {
+        modalOverlay.classList.remove('on');
+        modalOverlay.setAttribute('aria-hidden', 'true');
+      }
+
+      function handleSaveGroup(e) {
+        e.preventDefault();
+        var name = String(groupNameInput.value || '').trim();
+        var subject = String(groupSubjectInput.value || '').trim();
+        var grade = String(groupGradeInput.value || '').trim();
+        var studentsCount = Number(groupCountInput.value || 0);
+
+        if (!name || !subject || !grade || !studentsCount || studentsCount < 1) {
+          alert('يرجى تعبئة كل الحقول بشكل صحيح.');
+          return;
+        }
+
+        if (editCode) {
+          var existing = getGroupByCode(editCode);
+          if (!existing) return;
+          existing.name = name;
+          existing.subject = subject;
+          existing.grade = grade;
+          existing.studentsCount = studentsCount;
+        } else {
+          var code = slugify(grade + '-' + subject + '-' + name).slice(0, 40) + '-' + Date.now().toString().slice(-4);
+          groups.unshift({
+            id: Date.now(),
+            code: code,
+            name: name,
+            grade: grade,
+            subject: subject,
+            studentsCount: studentsCount,
+            examsMonth: 0,
+            avgScore: 0
+          });
+          selectedCode = code;
+        }
+
+        saveGroups();
+        closeModal();
+        renderGroups();
+        renderSelectedGroupDetails();
+      }
+
+      groupsGrid.addEventListener('click', function (e) {
+        var btn = e.target.closest('button[data-action]');
+        if (!btn) return;
+
+        var action = btn.getAttribute('data-action');
+        var code = btn.getAttribute('data-code');
+        var target = getGroupByCode(code);
+        if (!target) return;
+
+        if (action === 'open') {
+          selectedCode = code;
+          renderGroups();
+          renderSelectedGroupDetails();
+          return;
+        }
+
+        if (action === 'edit') {
+          openModal(true, code);
+          return;
+        }
+
+        if (action === 'delete') {
+          if (groups.length === 1) {
+            alert('يجب أن تبقى مجموعة واحدة على الأقل.');
+            return;
+          }
+          if (!window.confirm('هل أنت متأكد من حذف هذه المجموعة؟')) return;
+
+          groups = groups.filter(function (item) { return item.code !== code; });
+          if (selectedCode === code && groups.length) {
+            selectedCode = groups[0].code;
+          }
+          saveGroups();
+          renderGroups();
+          renderSelectedGroupDetails();
+        }
+      });
+
+      addGroupBtn.addEventListener('click', function () {
+        openModal(false);
+      });
+
+      modalClose.addEventListener('click', closeModal);
+      modalCancel.addEventListener('click', closeModal);
+      modalOverlay.addEventListener('click', function (e) {
+        if (e.target === modalOverlay) closeModal();
+      });
+      groupForm.addEventListener('submit', handleSaveGroup);
+
+      ensureSelectedGroup();
+      saveGroups();
+      renderGroups();
+      renderSelectedGroupDetails();
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mitests - تقرير اختبار جماعي</title>
+  <meta name="description" content="تقرير تربوي جماعي مع تحليل الدرجات، أداء بلوم، ورؤى الذكاء الاصطناعي.">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="styles.css">
+
+  <style>
+    .teacher-navbar { border-bottom: 1px solid var(--color-gray-200); }
+    body.rtl .main-content .teacher-navbar { right: var(--sidebar-width); left: 0; }
+    body.ltr .main-content .teacher-navbar { left: var(--sidebar-width); right: 0; }
+    body.rtl .main-content.main-content--expanded .teacher-navbar { right: var(--sidebar-collapsed-width); }
+    body.ltr .main-content.main-content--expanded .teacher-navbar { left: var(--sidebar-collapsed-width); }
+
+    .teacher-navbar .navbar__brand-icon { background: linear-gradient(135deg, var(--color-teacher), var(--color-primary-400)); }
+    .sidebar__item:hover, .sidebar__item--active { background: rgba(53, 86, 178, 0.24); color: var(--color-white); }
+    .sidebar__item--active { border-inline-start: 3px solid var(--color-teacher); }
+
+    .btn--teacher { background: var(--color-teacher); border-color: var(--color-teacher); color: var(--color-white); }
+    .btn--teacher:hover { background: var(--color-primary-600); border-color: var(--color-primary-600); color: var(--color-white); }
+
+    .report-main {
+      padding: calc(var(--navbar-height) + var(--space-6)) var(--space-6) var(--space-8);
+      display: grid;
+      gap: var(--space-5);
+    }
+
+    .header-card {
+      background: var(--color-white);
+      border-radius: var(--border-radius-lg);
+      box-shadow: var(--shadow-md);
+      border-top: 4px solid var(--color-teacher);
+      padding: var(--space-6);
+      display: grid;
+      gap: var(--space-3);
+    }
+
+    .header-card h1 {
+      color: var(--color-gray-900);
+      font-size: var(--font-size-3xl);
+      line-height: 1.25;
+    }
+
+    .header-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-2);
+    }
+
+    .meta-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      padding: var(--space-1) var(--space-3);
+      border-radius: var(--border-radius-full);
+      font-size: var(--font-size-sm);
+      font-weight: 600;
+      background: var(--color-primary-100);
+      color: var(--color-primary-700);
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: var(--space-3);
+    }
+
+    .summary-card {
+      background: var(--color-white);
+      border: 1px solid var(--color-gray-200);
+      border-top: 4px solid var(--color-teacher);
+      border-radius: var(--border-radius-md);
+      box-shadow: var(--shadow-sm);
+      padding: var(--space-4);
+      display: grid;
+      gap: var(--space-2);
+    }
+
+    .summary-card__label { color: var(--color-gray-600); font-size: var(--font-size-sm); font-weight: 600; }
+    .summary-card__value { color: var(--color-gray-900); font-size: var(--font-size-3xl); font-weight: 700; line-height: 1.1; }
+    .summary-card__hint { color: var(--color-gray-500); font-size: var(--font-size-xs); }
+
+    .analytics-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--space-4);
+    }
+
+    .panel-card {
+      background: var(--color-white);
+      border: 1px solid var(--color-gray-200);
+      border-radius: var(--border-radius-md);
+      box-shadow: var(--shadow-sm);
+      padding: var(--space-4);
+      display: grid;
+      gap: var(--space-3);
+    }
+
+    .panel-card h2 { color: var(--color-gray-900); font-size: var(--font-size-xl); }
+
+    .histogram {
+      border: 1px dashed var(--color-teacher);
+      border-radius: var(--border-radius-md);
+      background: linear-gradient(180deg, rgba(53, 86, 178, 0.08), rgba(53, 86, 178, 0.02));
+      padding: var(--space-4);
+      display: grid;
+      gap: var(--space-2);
+      min-height: 250px;
+      align-content: end;
+    }
+
+    .h-row {
+      display: grid;
+      grid-template-columns: 90px 1fr 42px;
+      gap: var(--space-2);
+      align-items: center;
+      font-size: var(--font-size-xs);
+      color: var(--color-gray-600);
+    }
+
+    .h-bar {
+      height: 12px;
+      border-radius: var(--border-radius-full);
+      background: var(--color-primary-100);
+      overflow: hidden;
+    }
+
+    .h-bar span {
+      display: block;
+      height: 100%;
+      background: linear-gradient(90deg, var(--color-teacher), var(--color-primary-400));
+    }
+
+    .bloom-chart {
+      border: 1px dashed var(--color-teacher);
+      border-radius: var(--border-radius-md);
+      background: #f8fbff;
+      padding: var(--space-4);
+      display: grid;
+      gap: var(--space-3);
+      min-height: 250px;
+    }
+
+    .b-row {
+      display: grid;
+      grid-template-columns: 120px 1fr 52px;
+      gap: var(--space-2);
+      align-items: center;
+      font-size: var(--font-size-sm);
+      color: var(--color-gray-700);
+    }
+
+    .b-track {
+      height: 14px;
+      border-radius: var(--border-radius-full);
+      background: var(--color-gray-100);
+      overflow: hidden;
+    }
+
+    .b-track span {
+      display: block;
+      height: 100%;
+      background: linear-gradient(90deg, #8aa3e0, var(--color-teacher));
+    }
+
+    .insights-card {
+      background: linear-gradient(160deg, rgba(53, 86, 178, 0.12), rgba(255, 255, 255, 1) 40%);
+      border: 1px solid var(--color-primary-200);
+      border-top: 4px solid var(--color-teacher);
+      border-radius: var(--border-radius-md);
+      box-shadow: var(--shadow-sm);
+      padding: var(--space-5);
+      display: grid;
+      gap: var(--space-3);
+    }
+
+    .insights-title {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      color: var(--color-gray-900);
+      font-size: var(--font-size-xl);
+    }
+
+    .insights-title i { color: var(--color-teacher); }
+
+    .insight-line {
+      background: rgba(255, 255, 255, 0.9);
+      border: 1px solid var(--color-primary-100);
+      border-radius: var(--border-radius-sm);
+      padding: var(--space-3);
+      color: var(--color-gray-700);
+      line-height: 1.7;
+    }
+
+    .table-card {
+      background: var(--color-white);
+      border: 1px solid var(--color-gray-200);
+      border-radius: var(--border-radius-md);
+      box-shadow: var(--shadow-sm);
+      padding: var(--space-4);
+      display: grid;
+      gap: var(--space-3);
+    }
+
+    .table-wrap { overflow-x: auto; }
+    .data-table { width: 100%; border-collapse: collapse; min-width: 680px; }
+    .data-table th, .data-table td {
+      padding: var(--space-3);
+      border-bottom: 1px solid var(--color-gray-200);
+      text-align: start;
+      font-size: var(--font-size-sm);
+    }
+    .data-table th { color: var(--color-gray-500); font-weight: 600; background: var(--color-gray-50); }
+
+    .grade-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: var(--space-1) var(--space-3);
+      border-radius: var(--border-radius-full);
+      background: var(--color-primary-100);
+      color: var(--color-teacher);
+      font-size: var(--font-size-xs);
+      font-weight: 700;
+    }
+
+    .paper-link {
+      color: var(--color-teacher);
+      font-weight: 600;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    @media (max-width: 1023px) {
+      body.rtl .main-content .teacher-navbar { right: var(--sidebar-collapsed-width); }
+      body.ltr .main-content .teacher-navbar { left: var(--sidebar-collapsed-width); }
+      body.rtl .main-content { margin-right: var(--sidebar-collapsed-width); }
+      body.ltr .main-content { margin-left: var(--sidebar-collapsed-width); }
+      .sidebar { width: var(--sidebar-collapsed-width); }
+      .sidebar .sidebar__brand-text, .sidebar .sidebar__item span, .sidebar .sidebar__toggle span { display: none; }
+      .summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .analytics-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 767px) {
+      .sidebar { display: none; }
+      body.rtl .main-content, body.ltr .main-content { margin: 0; }
+      body.rtl .main-content .teacher-navbar, body.ltr .main-content .teacher-navbar { right: 0; left: 0; }
+      .report-main { padding-inline: var(--space-4); }
+      .header-card h1 { font-size: var(--font-size-2xl); }
+      .summary-grid { grid-template-columns: 1fr; }
+    }
+
+    @media print {
+      body {
+        background: #fff;
+        color: #000;
+      }
+
+      .sidebar,
+      .navbar,
+      .sidebar__toggle,
+      .lang-switcher,
+      .btn {
+        display: none !important;
+      }
+
+      .main-content {
+        margin: 0 !important;
+      }
+
+      .report-main {
+        padding: 0;
+        gap: 14px;
+      }
+
+      .header-card,
+      .summary-card,
+      .panel-card,
+      .insights-card,
+      .table-card {
+        box-shadow: none;
+        border: 1px solid #d1d5db;
+        break-inside: avoid;
+      }
+
+      a.paper-link {
+        color: #000;
+        text-decoration: none;
+      }
+    }
+  </style>
+</head>
+
+<body class="rtl">
+  <aside class="sidebar" id="sidebar" aria-label="Sidebar navigation">
+    <div class="sidebar__header">
+      <div class="sidebar__logo">M</div>
+      <span class="sidebar__brand-text">سراج - المعلم</span>
+    </div>
+    <nav class="sidebar__nav">
+      <a class="sidebar__item" href="teacher-dashboard.html"><i class="fas fa-gauge"></i><span data-i18n="navOverview">نظرة عامة</span></a>
+      <a class="sidebar__item" href="teacher-exams.html"><i class="fas fa-file-lines"></i><span data-i18n="navExams">اختباراتي</span></a>
+      <a class="sidebar__item sidebar__item--active" href="exam-report.html"><i class="fas fa-chart-pie"></i><span data-i18n="navReports">التقارير</span></a>
+      <a class="sidebar__item" href="teacher-group.html"><i class="fas fa-users"></i><span data-i18n="navGroups">المجموعات</span></a>
+      <a class="sidebar__item" href="teacher-settings.html"><i class="fas fa-gear"></i><span data-i18n="navSettings">الإعدادات</span></a>
+    </nav>
+    <button class="sidebar__toggle" id="sidebar-toggle" aria-label="Toggle sidebar"><i class="fas fa-angles-right"></i><span>تصغير</span></button>
+  </aside>
+
+  <div class="main-content" id="main-content">
+    <nav class="navbar teacher-navbar" role="navigation" aria-label="Teacher top navigation">
+      <a href="teacher-dashboard.html" class="navbar__brand">
+        <div class="navbar__brand-icon"><i class="fas fa-chart-line"></i></div>
+        <span class="navbar__brand-text" data-i18n="brand">تقرير الاختبار</span>
+      </a>
+      <div class="navbar__actions">
+        <div class="lang-switcher" role="group" aria-label="Language selector">
+          <button class="lang-switcher__btn active" data-lang="ar" aria-label="Arabic">&#1593;</button>
+          <button class="lang-switcher__btn" data-lang="he" aria-label="Hebrew">&#1506;&#1489;</button>
+          <button class="lang-switcher__btn" data-lang="en" aria-label="English">En</button>
+        </div>
+        <div class="avatar-dropdown">
+          <button class="avatar-btn" type="button" data-avatar-toggle="teacher-avatar-menu" aria-label="قائمة حساب المعلم">
+            <i class="fas fa-user"></i>
+          </button>
+          <div class="avatar-menu" id="teacher-avatar-menu" data-avatar-menu>
+            <span class="avatar-menu__label">حساب المعلم</span>
+            <a class="avatar-menu__link" href="teacher-profile.html"><i class="fas fa-id-card"></i><span data-i18n="profileMenu">الملف الشخصي</span></a>
+            <a class="avatar-menu__link" href="teacher-settings.html"><i class="fas fa-gear"></i><span>الإعدادات</span></a>
+          </div>
+        </div>
+        <a href="index.html" class="btn btn--teacher btn--sm"><i class="fas fa-right-from-bracket"></i><span data-i18n="logout">تسجيل الخروج</span></a>
+      </div>
+    </nav>
+
+    <main class="report-main">
+      <header class="header-card">
+        <h1 data-i18n="headerTitle">تقرير اختبار: الإنجليزية - الوحدة 5 (المجموعة 9/1)</h1>
+        <div class="header-meta">
+          <span class="meta-chip"><i class="fas fa-book-open"></i><span data-i18n="headerSubject">المادة: الإنجليزية</span></span>
+          <span class="meta-chip"><i class="fas fa-calendar-day"></i><span data-i18n="headerDate">التاريخ: 2026-02-12</span></span>
+          <span class="meta-chip"><i class="fas fa-users"></i><span data-i18n="headerStudents">عدد المشاركين: 31 طالبًا</span></span>
+        </div>
+      </header>
+
+      <section class="summary-grid">
+        <article class="summary-card">
+          <p class="summary-card__label" data-i18n="sumAvgGrade">متوسط الدرجات</p>
+          <p class="summary-card__value">82.6</p>
+          <p class="summary-card__hint" data-i18n="sumAvgHint">+4.2 مقارنة بالاختبار السابق</p>
+        </article>
+        <article class="summary-card">
+          <p class="summary-card__label" data-i18n="sumHighLow">أعلى / أدنى</p>
+          <p class="summary-card__value">98 / 54</p>
+          <p class="summary-card__hint" data-i18n="sumSpreadHint">اتساع التوزيع: 44 نقطة</p>
+        </article>
+        <article class="summary-card">
+          <p class="summary-card__label" data-i18n="sumCompletion">نسبة الإكمال</p>
+          <p class="summary-card__value">96%</p>
+          <p class="summary-card__hint" data-i18n="sumCompletionHint">30 من أصل 31 قاموا بالتسليم</p>
+        </article>
+        <article class="summary-card">
+          <p class="summary-card__label" data-i18n="sumBloom">متوسط مستوى بلوم المتقن</p>
+          <p class="summary-card__value">L3.4</p>
+          <p class="summary-card__hint" data-i18n="sumBloomHint">أداء قوي في المعرفة + التطبيق</p>
+        </article>
+      </section>
+
+      <section class="analytics-grid">
+        <article class="panel-card">
+          <h2 data-i18n="gradeDistTitle">توزيع الدرجات (Histogram)</h2>
+          <div class="histogram" aria-label="Grade distribution placeholder">
+            <div class="h-row"><span>0-60</span><div class="h-bar"><span style="width: 18%"></span></div><strong>4</strong></div>
+            <div class="h-row"><span>60-70</span><div class="h-bar"><span style="width: 25%"></span></div><strong>6</strong></div>
+            <div class="h-row"><span>70-80</span><div class="h-bar"><span style="width: 47%"></span></div><strong>11</strong></div>
+            <div class="h-row"><span>80-90</span><div class="h-bar"><span style="width: 40%"></span></div><strong>8</strong></div>
+            <div class="h-row"><span>90-100</span><div class="h-bar"><span style="width: 16%"></span></div><strong>2</strong></div>
+          </div>
+        </article>
+
+        <article class="panel-card">
+          <h2 data-i18n="bloomPerfTitle">الأداء حسب تصنيف بلوم</h2>
+          <div class="bloom-chart" aria-label="Bloom performance placeholder">
+            <div class="b-row"><span data-i18n="bloomKnowledge">المعرفة</span><div class="b-track"><span style="width: 88%"></span></div><strong>88%</strong></div>
+            <div class="b-row"><span data-i18n="bloomComprehension">الفهم</span><div class="b-track"><span style="width: 81%"></span></div><strong>81%</strong></div>
+            <div class="b-row"><span data-i18n="bloomApplication">التطبيق</span><div class="b-track"><span style="width: 74%"></span></div><strong>74%</strong></div>
+            <div class="b-row"><span data-i18n="bloomAnalysis">التحليل</span><div class="b-track"><span style="width: 58%"></span></div><strong>58%</strong></div>
+            <div class="b-row"><span data-i18n="bloomEvaluation">التقييم</span><div class="b-track"><span style="width: 52%"></span></div><strong>52%</strong></div>
+          </div>
+        </article>
+      </section>
+
+      <section class="insights-card">
+        <h2 class="insights-title">
+          <i class="fas fa-sparkles"></i>
+          <span data-i18n="insightsTitle">رؤى AI (تحليل عميق)</span>
+        </h2>
+        <p class="insight-line" data-i18n="insight1">
+          ملاحظة: 70٪ من الصف واجهوا صعوبة في السؤال 5 (مستوى التحليل). نوصي بتقوية موضوع "المنهج العلمي".
+        </p>
+        <p class="insight-line" data-i18n="insight2">
+          ملاحظة: أداء المجموعة 9/1 أعلى بنسبة 15٪ في الاختيار من متعدد مقارنة بالأسئلة المفتوحة.
+        </p>
+      </section>
+
+      <section class="table-card">
+        <h2 data-i18n="rankingTitle">ترتيب الطلاب</h2>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th data-i18n="tblStudent">الطالب</th>
+                <th data-i18n="tblGrade">العلامة النهائية</th>
+                <th data-i18n="tblTime">الوقت المستغرق</th>
+                <th data-i18n="tblPaper">ورقة شخصية</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>نورا الخطيب</td>
+                <td><span class="grade-pill">98</span></td>
+                <td>41:12</td>
+                <td><a class="paper-link" href="exam-assessment.html" data-i18n="viewPaper">عرض الورقة الشخصية</a></td>
+              </tr>
+              <tr>
+                <td>يوسف علي</td>
+                <td><span class="grade-pill">91</span></td>
+                <td>44:56</td>
+                <td><a class="paper-link" href="exam-assessment.html" data-i18n="viewPaper">عرض الورقة الشخصية</a></td>
+              </tr>
+              <tr>
+                <td>مها عودة</td>
+                <td><span class="grade-pill">86</span></td>
+                <td>38:03</td>
+                <td><a class="paper-link" href="exam-assessment.html" data-i18n="viewPaper">عرض الورقة الشخصية</a></td>
+              </tr>
+              <tr>
+                <td>داني الأدري</td>
+                <td><span class="grade-pill">72</span></td>
+                <td>49:34</td>
+                <td><a class="paper-link" href="exam-assessment.html" data-i18n="viewPaper">عرض الورقة الشخصية</a></td>
+              </tr>
+              <tr>
+                <td>ليان السعدي</td>
+                <td><span class="grade-pill">64</span></td>
+                <td>51:20</td>
+                <td><a class="paper-link" href="exam-assessment.html" data-i18n="viewPaper">عرض الورقة الشخصية</a></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="shared-layout.js"></script>
+  <script src="tenant-mode.js"></script>
+  <script>
+    (function () {
+      'use strict';
+
+      var I18N = {
+        he: {
+          pageTitle: 'Mitests - דוח מבחן קבוצתי',
+          pageDescription: 'דוח פדגוגי לקבוצה עם ניתוח ציונים, בלום ותובנות AI.',
+          brand: 'דוח מבחן',
+          logout: 'יציאה',
+          profileMenu: 'פרופיל',
+          navOverview: 'סקירה',
+          navExams: 'המבחנים שלי',
+          navReports: 'דוחות',
+          navGroups: 'קבוצות',
+          navSettings: 'הגדרות',
+          headerTitle: 'דוח מבחן: אנגלית - יחידה 5 (קבוצה ט\'1)',
+          headerSubject: 'מקצוע: אנגלית',
+          headerDate: 'תאריך: 2026-02-12',
+          headerStudents: 'נבחנו: 31 תלמידים',
+          sumAvgGrade: 'ממוצע ציונים',
+          sumAvgHint: '+4.2 לעומת המבחן הקודם',
+          sumHighLow: 'גבוה / נמוך',
+          sumSpreadHint: 'פער התפלגות: 44 נקודות',
+          sumCompletion: 'שיעור השלמה',
+          sumCompletionHint: '30 מתוך 31 הגישו',
+          sumBloom: 'ממוצע רמת בלום שהושגה',
+          sumBloomHint: 'חזק בידע + יישום',
+          gradeDistTitle: 'התפלגות ציונים (היסטוגרמה)',
+          bloomPerfTitle: 'ביצועים לפי טקסונומיית בלום',
+          bloomKnowledge: 'ידע',
+          bloomComprehension: 'הבנה',
+          bloomApplication: 'יישום',
+          bloomAnalysis: 'ניתוח',
+          bloomEvaluation: 'הערכה',
+          insightsTitle: 'תובנות AI (ניתוח עומק)',
+          insight1: 'תובנה: 70% מהכיתה התקשו בשאלה 5 (רמת ניתוח). מומלץ לחזק את נושא "השיטה המדעית".',
+          insight2: 'תובנה: קבוצה ט\'1 מצליחה ב-15% יותר בשאלות אמריקאיות לעומת שאלות פתוחות.',
+          rankingTitle: 'דירוג תלמידים',
+          tblStudent: 'תלמיד',
+          tblGrade: 'ציון סופי',
+          tblTime: 'זמן ביצוע',
+          tblPaper: 'מבחן אישי',
+          viewPaper: 'צפייה במבחן אישי'
+        },
+        ar: {
+          pageTitle: 'Mitests - تقرير اختبار جماعي',
+          pageDescription: 'تقرير تربوي جماعي مع تحليل الدرجات، بلوم، ورؤى الذكاء الاصطناعي.',
+          brand: 'تقرير الاختبار',
+          logout: 'تسجيل الخروج',
+          profileMenu: 'الملف الشخصي',
+          navOverview: 'نظرة عامة',
+          navExams: 'اختباراتي',
+          navReports: 'التقارير',
+          navGroups: 'المجموعات',
+          navSettings: 'الإعدادات',
+          headerTitle: 'تقرير اختبار: الإنجليزية - الوحدة 5 (المجموعة 9/1)',
+          headerSubject: 'المادة: الإنجليزية',
+          headerDate: 'التاريخ: 2026-02-12',
+          headerStudents: 'عدد المشاركين: 31 طالبًا',
+          sumAvgGrade: 'متوسط الدرجات',
+          sumAvgHint: '+4.2 مقارنة بالاختبار السابق',
+          sumHighLow: 'أعلى / أدنى',
+          sumSpreadHint: 'اتساع التوزيع: 44 نقطة',
+          sumCompletion: 'نسبة الإكمال',
+          sumCompletionHint: '30 من أصل 31 قاموا بالتسليم',
+          sumBloom: 'متوسط مستوى بلوم المتقن',
+          sumBloomHint: 'أداء قوي في المعرفة + التطبيق',
+          gradeDistTitle: 'توزيع الدرجات (Histogram)',
+          bloomPerfTitle: 'الأداء حسب تصنيف بلوم',
+          bloomKnowledge: 'المعرفة',
+          bloomComprehension: 'الفهم',
+          bloomApplication: 'التطبيق',
+          bloomAnalysis: 'التحليل',
+          bloomEvaluation: 'التقييم',
+          insightsTitle: 'رؤى AI (تحليل عميق)',
+          insight1: 'ملاحظة: 70٪ من الصف واجهوا صعوبة في السؤال 5 (مستوى التحليل). نوصي بتقوية موضوع "المنهج العلمي".',
+          insight2: 'ملاحظة: أداء المجموعة 9/1 أعلى بنسبة 15٪ في الاختيار من متعدد مقارنة بالأسئلة المفتوحة.',
+          rankingTitle: 'ترتيب الطلاب',
+          tblStudent: 'الطالب',
+          tblGrade: 'العلامة النهائية',
+          tblTime: 'الوقت المستغرق',
+          tblPaper: 'ورقة شخصية',
+          viewPaper: 'عرض الورقة الشخصية'
+        },
+        en: {
+          pageTitle: 'Mitests - Group Exam Report',
+          pageDescription: 'Group pedagogical report with grade analysis, Bloom performance, and AI insights.',
+          brand: 'Exam Report',
+          logout: 'Logout',
+          profileMenu: 'Profile',
+          navOverview: 'Overview',
+          navExams: 'My Exams',
+          navReports: 'Reports',
+          navGroups: 'Groups',
+          navSettings: 'Settings',
+          headerTitle: 'Exam Report: English - Unit 5 (Group 9/1)',
+          headerSubject: 'Subject: English',
+          headerDate: 'Date: 2026-02-12',
+          headerStudents: 'Participants: 31 students',
+          sumAvgGrade: 'Average Grade',
+          sumAvgHint: '+4.2 vs previous test',
+          sumHighLow: 'Highest / Lowest',
+          sumSpreadHint: 'Distribution spread: 44 points',
+          sumCompletion: 'Completion Rate',
+          sumCompletionHint: '30 out of 31 submitted',
+          sumBloom: 'Average Bloom Level Mastered',
+          sumBloomHint: 'Strong in Knowledge + Application',
+          gradeDistTitle: 'Grade Distribution (Histogram)',
+          bloomPerfTitle: 'Bloom Taxonomy Performance',
+          bloomKnowledge: 'Knowledge',
+          bloomComprehension: 'Comprehension',
+          bloomApplication: 'Application',
+          bloomAnalysis: 'Analysis',
+          bloomEvaluation: 'Evaluation',
+          insightsTitle: 'AI Insights (Deep Analysis)',
+          insight1: 'Insight: 70% of the class struggled with Question 5 (Analysis level). Recommend reinforcing "Scientific Method" topics.',
+          insight2: 'Insight: Group 9/1 performs 15% better in Multiple Choice than in Open-ended questions.',
+          rankingTitle: 'Student Ranking',
+          tblStudent: 'Student',
+          tblGrade: 'Final Grade',
+          tblTime: 'Time Spent',
+          tblPaper: 'Personal Paper',
+          viewPaper: 'View Personal Paper'
+        }
+      };
+
+      function applyLanguage(lang) {
+        var t = I18N[lang] || I18N.ar;
+        var metaDesc = document.querySelector('meta[name="description"]');
+        var nodes = document.querySelectorAll('[data-i18n]');
+
+        document.title = t.pageTitle;
+        if (metaDesc) metaDesc.setAttribute('content', t.pageDescription);
+
+        for (var i = 0; i < nodes.length; i++) {
+          var key = nodes[i].getAttribute('data-i18n');
+          if (t[key]) nodes[i].textContent = t[key];
+        }
+      }
+
+      document.addEventListener('mitests:languagechange', function (e) {
+        var lang = (e.detail && e.detail.lang) || document.documentElement.getAttribute('lang') || 'ar';
+        applyLanguage(lang);
+      });
+
+      document.addEventListener('DOMContentLoaded', function () {
+        var lang = document.documentElement.getAttribute('lang') || 'ar';
+        applyLanguage(lang);
+      });
+    })();
+  </script>
+</body>
+</html>
+
+

@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mitests - التواصل والإشعارات</title>
+  <meta name="description" content="مركز تواصل المدرسة: دردشة وإرسال إشعارات للمعلمين والطلاب.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .school-navbar { border-bottom: 1px solid var(--color-gray-200); }
+    body.rtl .main-content .school-navbar { right: var(--sidebar-width); left: 0; }
+    body.ltr .main-content .school-navbar { left: var(--sidebar-width); right: 0; }
+    body.rtl .main-content.main-content--expanded .school-navbar { right: var(--sidebar-collapsed-width); }
+    body.ltr .main-content.main-content--expanded .school-navbar { left: var(--sidebar-collapsed-width); }
+    .school-navbar .navbar__brand-icon { background: linear-gradient(135deg, var(--color-school), #fbbf24); }
+    .sidebar__item:hover, .sidebar__item--active { background: rgba(245, 158, 11, 0.24); color: var(--color-white); }
+    .sidebar__item--active { border-inline-start: 3px solid var(--color-school); }
+    .btn--school { background: var(--color-school); border-color: var(--color-school); color: var(--color-white); }
+    .btn--school:hover { background: #d97706; border-color: #d97706; color: var(--color-white); }
+
+    .main { padding: calc(var(--navbar-height) + var(--space-6)) var(--space-6) var(--space-8); display: grid; gap: var(--space-4); }
+    .head { background: var(--color-white); border-top: 4px solid var(--color-school); border-radius: var(--border-radius-lg); box-shadow: var(--shadow-md); padding: var(--space-5); }
+    .head h1 { font-size: var(--font-size-3xl); color: var(--color-gray-900); margin-bottom: var(--space-1); }
+    .head p { color: var(--color-gray-600); }
+
+    .grid { display: grid; grid-template-columns: 1.1fr 1fr; gap: var(--space-4); }
+    .card-block { background: var(--color-white); border: 1px solid var(--color-gray-200); border-top: 4px solid var(--color-school); border-radius: var(--border-radius-md); box-shadow: var(--shadow-sm); padding: var(--space-4); display: grid; gap: var(--space-3); }
+
+    .chat-layout { display: grid; grid-template-columns: 220px 1fr; gap: var(--space-3); min-height: 360px; }
+    .thread-list { border: 1px solid var(--color-gray-200); border-radius: var(--border-radius-sm); overflow: hidden; background: var(--color-gray-50); }
+    .thread-item {
+      width: 100%;
+      border: none;
+      border-bottom: 1px solid var(--color-gray-200);
+      background: transparent;
+      padding: var(--space-3);
+      text-align: start;
+      font-family: inherit;
+      cursor: pointer;
+      display: grid;
+      gap: 2px;
+    }
+    .thread-item strong { color: var(--color-gray-900); font-size: var(--font-size-sm); }
+    .thread-item small { color: var(--color-gray-500); font-size: var(--font-size-xs); }
+    .thread-item:hover, .thread-item--active { background: rgba(245, 158, 11, 0.14); }
+
+    .chat-box {
+      border: 1px solid var(--color-gray-200);
+      border-radius: var(--border-radius-sm);
+      background: var(--color-gray-50);
+      display: grid;
+      grid-template-rows: 1fr auto;
+      overflow: hidden;
+    }
+
+    .chat-messages {
+      padding: var(--space-3);
+      display: grid;
+      gap: var(--space-2);
+      max-height: 310px;
+      overflow-y: auto;
+    }
+    .bubble {
+      max-width: 88%;
+      padding: var(--space-2) var(--space-3);
+      border-radius: var(--border-radius-md);
+      font-size: var(--font-size-sm);
+      line-height: 1.7;
+    }
+    .bubble--school { background: #fef3c7; border: 1px solid #f5d889; justify-self: end; }
+    .bubble--user { background: #fff; border: 1px solid var(--color-gray-200); justify-self: start; }
+    .bubble small { display: block; color: var(--color-gray-500); font-size: 11px; margin-top: 2px; }
+
+    .chat-compose { padding: var(--space-3); border-top: 1px solid var(--color-gray-200); display: grid; gap: var(--space-2); background: #fff; }
+    .chat-compose textarea { width: 100%; min-height: 72px; resize: vertical; border: 1px solid var(--color-gray-300); border-radius: var(--border-radius-sm); padding: var(--space-2) var(--space-3); font-family: inherit; }
+    .chat-compose textarea:focus { outline: none; border-color: var(--color-school); box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.16); }
+
+    .notify-form { display: grid; gap: var(--space-3); }
+    .field { display: grid; gap: var(--space-1); }
+    .field label { color: var(--color-gray-700); font-size: var(--font-size-sm); font-weight: 600; }
+    .field input, .field select, .field textarea {
+      border: 1px solid var(--color-gray-300);
+      border-radius: var(--border-radius-sm);
+      padding: var(--space-2) var(--space-3);
+      font-family: inherit;
+      color: var(--color-gray-800);
+      background: var(--color-white);
+    }
+    .field textarea { min-height: 96px; resize: vertical; }
+    .field input:focus, .field select:focus, .field textarea:focus { outline: none; border-color: var(--color-school); box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.16); }
+
+    .table-wrap { overflow-x: auto; }
+    .data-table { width: 100%; border-collapse: collapse; min-width: 700px; }
+    .data-table th, .data-table td { padding: var(--space-3); border-bottom: 1px solid var(--color-gray-200); text-align: start; font-size: var(--font-size-sm); }
+    .data-table th { background: var(--color-gray-50); color: var(--color-gray-500); font-weight: 700; }
+
+    .helper { color: var(--color-gray-500); font-size: var(--font-size-xs); }
+
+    @media (max-width: 1023px) {
+      body.rtl .main-content .school-navbar { right: var(--sidebar-collapsed-width); }
+      body.ltr .main-content .school-navbar { left: var(--sidebar-collapsed-width); }
+      body.rtl .main-content { margin-right: var(--sidebar-collapsed-width); }
+      body.ltr .main-content { margin-left: var(--sidebar-collapsed-width); }
+      .sidebar { width: var(--sidebar-collapsed-width); }
+      .sidebar .sidebar__brand-text, .sidebar .sidebar__item span, .sidebar .sidebar__toggle span { display: none; }
+      .grid, .chat-layout { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 767px) {
+      .sidebar { display: none; }
+      body.rtl .main-content, body.ltr .main-content { margin: 0; }
+      body.rtl .main-content .school-navbar, body.ltr .main-content .school-navbar { right: 0; left: 0; }
+      .main { padding-inline: var(--space-4); }
+      .btn { width: 100%; }
+    }
+  </style>
+</head>
+<body class="rtl">
+  <aside class="sidebar" id="sidebar" aria-label="Sidebar navigation">
+    <div class="sidebar__header"><div class="sidebar__logo">M</div><span class="sidebar__brand-text">سراج - المدرسة</span></div>
+    <nav class="sidebar__nav">
+      <a class="sidebar__item" href="school.html"><i class="fas fa-gauge"></i><span>لوحة المدرسة</span></a>
+      <a class="sidebar__item" href="school-profile.html"><i class="fas fa-id-card"></i><span>ملف المؤسسة</span></a>
+      <a class="sidebar__item" href="school-whitelabel.html"><i class="fas fa-palette"></i><span>الهوية المؤسسية</span></a>
+      <a class="sidebar__item sidebar__item--active" href="school-communications.html"><i class="fas fa-comments"></i><span>التواصل والإشعارات</span></a>
+    </nav>
+    <button class="sidebar__toggle" id="sidebar-toggle" aria-label="Toggle sidebar"><i class="fas fa-angles-right"></i><span>تصغير</span></button>
+  </aside>
+
+  <div class="main-content" id="main-content">
+    <nav class="navbar school-navbar" role="navigation" aria-label="School top navigation">
+      <a href="school-communications.html" class="navbar__brand"><div class="navbar__brand-icon"><i class="fas fa-comments"></i></div><span class="navbar__brand-text">مركز التواصل</span></a>
+      <div class="navbar__actions">
+        <div class="lang-switcher" role="group" aria-label="Language selector">
+          <button class="lang-switcher__btn active" data-lang="ar" aria-label="Arabic">&#1593;</button>
+          <button class="lang-switcher__btn" data-lang="he" aria-label="Hebrew">&#1506;&#1489;</button>
+          <button class="lang-switcher__btn" data-lang="en" aria-label="English">En</button>
+        </div>
+        <div class="avatar-dropdown">
+          <button class="avatar-btn" type="button" data-avatar-toggle="school-avatar-menu" aria-label="قائمة حساب المدرسة"><i class="fas fa-building-columns"></i></button>
+          <div class="avatar-menu" id="school-avatar-menu" data-avatar-menu>
+            <span class="avatar-menu__label">حساب المدرسة</span>
+            <a class="avatar-menu__link" href="school-profile.html"><i class="fas fa-id-card"></i><span>ملف المؤسسة</span></a>
+            <a class="avatar-menu__link" href="school-whitelabel.html"><i class="fas fa-palette"></i><span>الهوية المؤسسية</span></a>
+            <a class="avatar-menu__link" href="school-communications.html"><i class="fas fa-comments"></i><span>التواصل والإشعارات</span></a>
+          </div>
+        </div>
+        <a href="index.html" class="btn btn--school btn--sm"><i class="fas fa-right-from-bracket"></i><span>تسجيل الخروج</span></a>
+      </div>
+    </nav>
+
+    <main class="main">
+      <header class="head">
+        <h1>الدردشة وإرسال الإشعارات</h1>
+        <p>تواصل مباشر مع المعلمين والطلاب وإرسال تنبيهات رسمية من إدارة المدرسة.</p>
+      </header>
+
+      <section class="grid">
+        <article class="card-block">
+          <h2>الدردشة الداخلية</h2>
+          <div class="chat-layout">
+            <div class="thread-list" id="thread-list"></div>
+            <div class="chat-box">
+              <div class="chat-messages" id="chat-messages"></div>
+              <div class="chat-compose">
+                <textarea id="chat-input" placeholder="اكتب رسالة داخلية..." aria-label="رسالة جديدة"></textarea>
+                <button class="btn btn--school" id="send-chat" type="button">إرسال الرسالة</button>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="card-block">
+          <h2>إرسال إشعار</h2>
+          <form class="notify-form" id="notify-form">
+            <div class="field">
+              <label for="notify-target">الجهة المستهدفة</label>
+              <select id="notify-target">
+                <option value="all">جميع المستخدمين</option>
+                <option value="teachers">المعلمون فقط</option>
+                <option value="students">الطلاب فقط</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="notify-title">عنوان الإشعار</label>
+              <input id="notify-title" type="text" placeholder="مثال: تحديث جدول الاختبارات">
+            </div>
+            <div class="field">
+              <label for="notify-body">نص الإشعار</label>
+              <textarea id="notify-body" placeholder="اكتب الرسالة التي ستصل للمعلمين/الطلاب..."></textarea>
+            </div>
+            <button class="btn btn--school" type="submit">إرسال الإشعار</button>
+            <p class="helper">هذا النموذج تجريبي ويعرض الرسائل في السجل أدناه.</p>
+          </form>
+        </article>
+      </section>
+
+      <section class="card-block">
+        <h2>سجل الإشعارات الأخيرة</h2>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>الوقت</th>
+                <th>العنوان</th>
+                <th>المستلمون</th>
+                <th>الحالة</th>
+              </tr>
+            </thead>
+            <tbody id="notifications-body"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="shared-layout.js"></script>
+  <script>
+    (function () {
+      'use strict';
+
+      var chatKey = 'mitests-school-chat';
+      var notificationsKey = 'mitests-school-notifications';
+
+      var threadListEl = document.getElementById('thread-list');
+      var chatMessagesEl = document.getElementById('chat-messages');
+      var chatInputEl = document.getElementById('chat-input');
+
+      var notifyFormEl = document.getElementById('notify-form');
+      var notifyTargetEl = document.getElementById('notify-target');
+      var notifyTitleEl = document.getElementById('notify-title');
+      var notifyBodyEl = document.getElementById('notify-body');
+      var notificationsBodyEl = document.getElementById('notifications-body');
+
+      var threads = [
+        { id: 'teachers', title: 'فريق المعلمين', note: '42 عضو', messages: [
+          { sender: 'teacher', text: 'نحتاج تفعيل إشعار أسبوع المراجعة لجميع الصفوف.', time: '09:10' },
+          { sender: 'school', text: 'تم، سنرسل إشعارًا رسميًا اليوم.', time: '09:18' }
+        ]},
+        { id: 'students', title: 'مجلس الطلاب', note: '860 طالب', messages: [
+          { sender: 'student', text: 'هل يوجد تحديث على مواعيد الاختبارات التجريبية؟', time: '10:02' },
+          { sender: 'school', text: 'سيتم نشر الجدول النهائي مساءً.', time: '10:11' }
+        ]},
+        { id: 'it', title: 'دعم تقني المدرسة', note: '4 أعضاء', messages: [
+          { sender: 'it', text: 'تم حل مشكلة الدخول في الصف الثامن.', time: '11:07' }
+        ]}
+      ];
+
+      var currentThreadId = 'teachers';
+
+      function escapeHtml(value) {
+        return String(value || '')
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
+      }
+
+      function nowTime() {
+        var d = new Date();
+        return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+      }
+
+      function nowDateTime() {
+        var d = new Date();
+        var m = String(d.getMonth() + 1).padStart(2, '0');
+        var day = String(d.getDate()).padStart(2, '0');
+        var h = String(d.getHours()).padStart(2, '0');
+        var min = String(d.getMinutes()).padStart(2, '0');
+        return d.getFullYear() + '-' + m + '-' + day + ' ' + h + ':' + min;
+      }
+
+      function loadChatStorage() {
+        try {
+          var raw = localStorage.getItem(chatKey);
+          if (!raw) return;
+          var parsed = JSON.parse(raw);
+          if (!Array.isArray(parsed) || !parsed.length) return;
+          threads = parsed;
+        } catch (e) {}
+      }
+
+      function saveChatStorage() {
+        try {
+          localStorage.setItem(chatKey, JSON.stringify(threads));
+        } catch (e) {}
+      }
+
+      function loadNotifications() {
+        try {
+          var raw = localStorage.getItem(notificationsKey);
+          if (!raw) return [];
+          var parsed = JSON.parse(raw);
+          if (Array.isArray(parsed)) return parsed;
+        } catch (e) {}
+        return [];
+      }
+
+      function saveNotifications(list) {
+        try {
+          localStorage.setItem(notificationsKey, JSON.stringify(list));
+        } catch (e) {}
+      }
+
+      function targetLabel(value) {
+        if (value === 'teachers') return 'المعلمون';
+        if (value === 'students') return 'الطلاب';
+        return 'الجميع';
+      }
+
+      function findCurrentThread() {
+        for (var i = 0; i < threads.length; i++) {
+          if (threads[i].id === currentThreadId) return threads[i];
+        }
+        return threads[0] || null;
+      }
+
+      function renderThreads() {
+        threadListEl.innerHTML = '';
+
+        for (var i = 0; i < threads.length; i++) {
+          var t = threads[i];
+          var btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'thread-item' + (t.id === currentThreadId ? ' thread-item--active' : '');
+          btn.setAttribute('data-thread-id', t.id);
+          btn.innerHTML = '<strong>' + escapeHtml(t.title) + '</strong><small>' + escapeHtml(t.note) + '</small>';
+          threadListEl.appendChild(btn);
+        }
+      }
+
+      function renderMessages() {
+        var thread = findCurrentThread();
+        chatMessagesEl.innerHTML = '';
+        if (!thread) return;
+
+        var list = thread.messages || [];
+        for (var i = 0; i < list.length; i++) {
+          var row = list[i];
+          var bubble = document.createElement('div');
+          bubble.className = 'bubble ' + (row.sender === 'school' ? 'bubble--school' : 'bubble--user');
+          bubble.innerHTML = '<span>' + escapeHtml(row.text) + '</span><small>' + escapeHtml(row.time) + '</small>';
+          chatMessagesEl.appendChild(bubble);
+        }
+
+        chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight;
+      }
+
+      function renderNotifications() {
+        var list = loadNotifications();
+        notificationsBodyEl.innerHTML = '';
+
+        if (!list.length) {
+          notificationsBodyEl.innerHTML = '<tr><td colspan="4">لا توجد إشعارات مرسلة بعد.</td></tr>';
+          return;
+        }
+
+        for (var i = 0; i < list.length; i++) {
+          var row = list[i];
+          var tr = document.createElement('tr');
+          tr.innerHTML = '' +
+            '<td>' + escapeHtml(row.time) + '</td>' +
+            '<td>' + escapeHtml(row.title) + '</td>' +
+            '<td>' + escapeHtml(targetLabel(row.target)) + '</td>' +
+            '<td>تم الإرسال</td>';
+          notificationsBodyEl.appendChild(tr);
+        }
+      }
+
+      threadListEl.addEventListener('click', function (e) {
+        var btn = e.target.closest('[data-thread-id]');
+        if (!btn) return;
+        currentThreadId = btn.getAttribute('data-thread-id');
+        renderThreads();
+        renderMessages();
+      });
+
+      document.getElementById('send-chat').addEventListener('click', function () {
+        var message = String(chatInputEl.value || '').trim();
+        if (!message) return;
+
+        var thread = findCurrentThread();
+        if (!thread) return;
+
+        if (!Array.isArray(thread.messages)) thread.messages = [];
+        thread.messages.push({ sender: 'school', text: message, time: nowTime() });
+
+        saveChatStorage();
+        chatInputEl.value = '';
+        renderMessages();
+      });
+
+      notifyFormEl.addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        var target = String(notifyTargetEl.value || 'all');
+        var title = String(notifyTitleEl.value || '').trim();
+        var body = String(notifyBodyEl.value || '').trim();
+
+        if (!title || !body) {
+          alert('يرجى إدخال عنوان ونص الإشعار.');
+          return;
+        }
+
+        var list = loadNotifications();
+        list.unshift({
+          target: target,
+          title: title,
+          body: body,
+          time: nowDateTime()
+        });
+
+        if (list.length > 20) list = list.slice(0, 20);
+        saveNotifications(list);
+
+        notifyTitleEl.value = '';
+        notifyBodyEl.value = '';
+        notifyTargetEl.value = 'all';
+
+        renderNotifications();
+        alert('تم إرسال الإشعار بنجاح.');
+      });
+
+      document.addEventListener('DOMContentLoaded', function () {
+        loadChatStorage();
+        renderThreads();
+        renderMessages();
+        renderNotifications();
+      });
+    })();
+  </script>
+</body>
+</html>
+

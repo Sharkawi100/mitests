@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mitests - اعتماد المحتوى</title>
+  <meta name="description" content="صفحة مستقلة لاعتماد محتوى المدرسة.">
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"><link rel="stylesheet" href="styles.css">
+  <style>
+    .school-navbar{border-bottom:1px solid var(--color-gray-200)} body.rtl .main-content .school-navbar{right:var(--sidebar-width);left:0} body.ltr .main-content .school-navbar{left:var(--sidebar-width);right:0} body.rtl .main-content.main-content--expanded .school-navbar{right:var(--sidebar-collapsed-width)} body.ltr .main-content.main-content--expanded .school-navbar{left:var(--sidebar-collapsed-width)} .school-navbar .navbar__brand-icon{background:linear-gradient(135deg,var(--color-school),#fbbf24)} .sidebar__item:hover,.sidebar__item--active{background:rgba(245,158,11,.24);color:var(--color-white)} .sidebar__item--active{border-inline-start:3px solid var(--color-school)} .btn--school{background:var(--color-school);border-color:var(--color-school);color:var(--color-white)}
+    .main{padding:calc(var(--navbar-height) + var(--space-6)) var(--space-6) var(--space-8);display:grid;gap:var(--space-4)} .card-block{background:var(--color-white);border:1px solid var(--color-gray-200);border-top:4px solid var(--color-school);border-radius:var(--border-radius-md);box-shadow:var(--shadow-sm);padding:var(--space-4);display:grid;gap:var(--space-3)} .table-wrap{overflow-x:auto} .data-table{width:100%;border-collapse:collapse;min-width:680px} .data-table th,.data-table td{padding:var(--space-3);border-bottom:1px solid var(--color-gray-200);text-align:start;font-size:var(--font-size-sm)} .data-table th{background:var(--color-gray-50);color:var(--color-gray-500);font-weight:600}
+    @media (max-width:1023px){ body.rtl .main-content .school-navbar{right:var(--sidebar-collapsed-width)} body.ltr .main-content .school-navbar{left:var(--sidebar-collapsed-width)} body.rtl .main-content{margin-right:var(--sidebar-collapsed-width)} body.ltr .main-content{margin-left:var(--sidebar-collapsed-width)} .sidebar{width:var(--sidebar-collapsed-width)} .sidebar .sidebar__brand-text,.sidebar .sidebar__item span,.sidebar .sidebar__toggle span{display:none} }
+    @media (max-width:767px){ .sidebar{display:none} body.rtl .main-content,body.ltr .main-content{margin:0} body.rtl .main-content .school-navbar,body.ltr .main-content .school-navbar{right:0;left:0} .main{padding-inline:var(--space-4)} }
+  </style>
+</head>
+<body class="rtl">
+  <aside class="sidebar" id="sidebar" aria-label="Sidebar navigation"><div class="sidebar__header"><div class="sidebar__logo">M</div><span class="sidebar__brand-text">سراج - المدرسة</span></div><nav class="sidebar__nav"><a class="sidebar__item" href="school.html"><i class="fas fa-gauge"></i><span>نظرة عامة</span></a><a class="sidebar__item" href="school-tokens.html"><i class="fas fa-coins"></i><span>إدارة التوكنز</span></a><a class="sidebar__item" href="school-users.html"><i class="fas fa-user-plus"></i><span>إدارة المستخدمين</span></a><a class="sidebar__item" href="school-profile.html"><i class="fas fa-id-card"></i><span>ملف المؤسسة</span></a><a class="sidebar__item" href="school-whitelabel.html"><i class="fas fa-palette"></i><span>الهوية المؤسسية</span></a><a class="sidebar__item" href="school-qa-review.html"><i class="fas fa-clipboard-check"></i><span>تدقيق الاختبارات</span></a><a class="sidebar__item sidebar__item--active" href="school-approval.html"><i class="fas fa-badge-check"></i><span>اعتماد المحتوى</span></a><a class="sidebar__item" href="school-communications.html"><i class="fas fa-comments"></i><span>التواصل والإشعارات</span></a><a class="sidebar__item" href="school-settings.html"><i class="fas fa-gear"></i><span>الإعدادات</span></a></nav><button class="sidebar__toggle" id="sidebar-toggle" aria-label="Toggle sidebar"><i class="fas fa-angles-right"></i><span>تصغير</span></button></aside>
+  <div class="main-content" id="main-content"><nav class="navbar school-navbar" role="navigation" aria-label="School top navigation"><a href="school-approval.html" class="navbar__brand"><div class="navbar__brand-icon"><i class="fas fa-badge-check"></i></div><span class="navbar__brand-text">اعتماد المحتوى</span></a><div class="navbar__actions"><div class="lang-switcher" role="group" aria-label="Language selector"><button class="lang-switcher__btn active" data-lang="ar" aria-label="Arabic">&#1593;</button><button class="lang-switcher__btn" data-lang="he" aria-label="Hebrew">&#1506;&#1489;</button><button class="lang-switcher__btn" data-lang="en" aria-label="English">En</button></div><div class="avatar-dropdown"><button class="avatar-btn" type="button" data-avatar-toggle="school-avatar-menu" aria-label="قائمة حساب المدرسة"><i class="fas fa-building-columns"></i></button><div class="avatar-menu" id="school-avatar-menu" data-avatar-menu><span class="avatar-menu__label">حساب المدرسة</span><a class="avatar-menu__link" href="school-profile.html"><i class="fas fa-id-card"></i><span>ملف المؤسسة</span></a><a class="avatar-menu__link" href="school-settings.html"><i class="fas fa-gear"></i><span>الإعدادات</span></a></div></div><a href="index.html" class="btn btn--school btn--sm"><i class="fas fa-right-from-bracket"></i><span>تسجيل الخروج</span></a></div></nav>
+    <main class="main"><section class="card-block"><h1>اعتماد المحتوى</h1><p>مراجعة منشورات المجتمع والمحتوى الأكاديمي قبل النشر النهائي.</p></section><section class="card-block"><div class="table-wrap"><table class="data-table"><thead><tr><th>المعلم</th><th>نوع المحتوى</th><th>الحالة</th><th>الإجراء</th></tr></thead><tbody><tr><td>أحمد ياسين</td><td>اختبار جديد</td><td>قيد المراجعة</td><td><button class="btn btn--school btn--sm" type="button">اعتماد</button></td></tr><tr><td>سلمى هاشم</td><td>منشور مجتمعي</td><td>قيد المراجعة</td><td><button class="btn btn--school btn--sm" type="button">اعتماد</button></td></tr></tbody></table></div></section></main>
+  </div>
+  <script src="shared-layout.js"></script>
+  <script>
+  (function(){
+    var table = document.querySelector('.data-table');
+    if (!table) return;
+    table.addEventListener('click', function(e) {
+      var btn = e.target.closest('button');
+      if (!btn || btn.disabled) return;
+      var row = btn.closest('tr');
+      if (!row) return;
+      var cells = row.querySelectorAll('td');
+      // cells[2] = status, cells[3] = action
+      if (cells.length >= 4) {
+        cells[2].innerHTML = '<span style="color:#15803d;font-weight:700;">✅ تم الاعتماد</span>';
+        btn.disabled = true;
+        btn.textContent = 'تم';
+        btn.style.opacity = '0.5';
+        btn.style.cursor = 'default';
+      }
+    });
+  })();
+  </script>
+</body>
+</html>
+

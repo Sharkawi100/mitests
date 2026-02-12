@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mitests - إدارة التوكنز</title>
+  <meta name="description" content="صفحة مستقلة لإدارة توكنز المدرسة.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .school-navbar { border-bottom: 1px solid var(--color-gray-200); }
+    body.rtl .main-content .school-navbar { right: var(--sidebar-width); left: 0; }
+    body.ltr .main-content .school-navbar { left: var(--sidebar-width); right: 0; }
+    body.rtl .main-content.main-content--expanded .school-navbar { right: var(--sidebar-collapsed-width); }
+    body.ltr .main-content.main-content--expanded .school-navbar { left: var(--sidebar-collapsed-width); }
+    .school-navbar .navbar__brand-icon { background: linear-gradient(135deg, var(--color-school), #fbbf24); }
+    .sidebar__item:hover, .sidebar__item--active { background: rgba(245, 158, 11, 0.24); color: var(--color-white); }
+    .sidebar__item--active { border-inline-start: 3px solid var(--color-school); }
+    .btn--school { background: var(--color-school); border-color: var(--color-school); color: var(--color-white); }
+    .main { padding: calc(var(--navbar-height) + var(--space-6)) var(--space-6) var(--space-8); display:grid; gap:var(--space-4); }
+    .card-block { background:var(--color-white); border:1px solid var(--color-gray-200); border-top:4px solid var(--color-school); border-radius:var(--border-radius-md); box-shadow:var(--shadow-sm); padding:var(--space-4); display:grid; gap:var(--space-3); }
+    
+    .token-track { height: 14px; border-radius: var(--border-radius-full); background: var(--color-amber-100); overflow: hidden; position: relative; }
+    .token-track span { display:block; width:64%; height:100%; background: linear-gradient(90deg, var(--color-school), #f59e0b); transition: width 0.5s ease-out; }
+    .field { display:grid; gap: var(--space-1); }
+    .field label { color: var(--color-gray-700); font-size: var(--font-size-sm); font-weight: 600; }
+    .field input { border:1px solid var(--color-gray-300); border-radius: var(--border-radius-sm); padding: var(--space-2) var(--space-3); font-family: inherit; }
+    
+    .table-wrap { overflow-x: auto; margin-top: var(--space-2); }
+    .data-table { width: 100%; border-collapse: collapse; min-width: 600px; }
+    .data-table th, .data-table td { padding: var(--space-3); border-bottom: 1px solid var(--color-gray-200); text-align: start; font-size: var(--font-size-sm); }
+    .data-table th { background: var(--color-gray-50); color: var(--color-gray-500); font-weight: 600; }
+    .txn-plus { color: #16a34a; font-weight: 700; }
+    .txn-minus { color: #dc2626; font-weight: 700; }
+
+    @media (max-width:1023px){ body.rtl .main-content .school-navbar{right:var(--sidebar-collapsed-width);} body.ltr .main-content .school-navbar{left:var(--sidebar-collapsed-width);} body.rtl .main-content{margin-right:var(--sidebar-collapsed-width);} body.ltr .main-content{margin-left:var(--sidebar-collapsed-width);} .sidebar{width:var(--sidebar-collapsed-width);} .sidebar .sidebar__brand-text,.sidebar .sidebar__item span,.sidebar .sidebar__toggle span{display:none;} }
+    @media (max-width:767px){ .sidebar{display:none;} body.rtl .main-content,body.ltr .main-content{margin:0;} body.rtl .main-content .school-navbar,body.ltr .main-content .school-navbar{right:0;left:0;} .main{padding-inline:var(--space-4);} }
+  </style>
+</head>
+<body class="rtl">
+  <aside class="sidebar" id="sidebar" aria-label="Sidebar navigation">
+    <div class="sidebar__header"><div class="sidebar__logo">M</div><span class="sidebar__brand-text">سراج - المدرسة</span></div>
+    <nav class="sidebar__nav">
+      <a class="sidebar__item" href="school.html"><i class="fas fa-gauge"></i><span>نظرة عامة</span></a>
+      <a class="sidebar__item sidebar__item--active" href="school-tokens.html"><i class="fas fa-coins"></i><span>إدارة التوكنز</span></a>
+      <a class="sidebar__item" href="school-users.html"><i class="fas fa-user-plus"></i><span>إدارة المستخدمين</span></a>
+      <a class="sidebar__item" href="school-profile.html"><i class="fas fa-id-card"></i><span>ملف المؤسسة</span></a>
+      <a class="sidebar__item" href="school-whitelabel.html"><i class="fas fa-palette"></i><span>الهوية المؤسسية</span></a>
+      <a class="sidebar__item" href="school-qa-review.html"><i class="fas fa-clipboard-check"></i><span>تدقيق الاختبارات</span></a>
+      <a class="sidebar__item" href="school-approval.html"><i class="fas fa-badge-check"></i><span>اعتماد المحتوى</span></a>
+      <a class="sidebar__item" href="school-communications.html"><i class="fas fa-comments"></i><span>التواصل والإشعارات</span></a>
+      <a class="sidebar__item" href="school-settings.html"><i class="fas fa-gear"></i><span>الإعدادات</span></a>
+    </nav>
+    <button class="sidebar__toggle" id="sidebar-toggle" aria-label="Toggle sidebar"><i class="fas fa-angles-right"></i><span>تصغير</span></button>
+  </aside>
+  <div class="main-content" id="main-content">
+    <nav class="navbar school-navbar" role="navigation" aria-label="School top navigation">
+      <a href="school-tokens.html" class="navbar__brand"><div class="navbar__brand-icon"><i class="fas fa-coins"></i></div><span class="navbar__brand-text">إدارة التوكنز</span></a>
+      <div class="navbar__actions">
+        <div class="lang-switcher" role="group" aria-label="Language selector"><button class="lang-switcher__btn active" data-lang="ar" aria-label="Arabic">&#1593;</button><button class="lang-switcher__btn" data-lang="he" aria-label="Hebrew">&#1506;&#1489;</button><button class="lang-switcher__btn" data-lang="en" aria-label="English">En</button></div>
+        <div class="avatar-dropdown"><button class="avatar-btn" type="button" data-avatar-toggle="school-avatar-menu" aria-label="قائمة حساب المدرسة"><i class="fas fa-building-columns"></i></button><div class="avatar-menu" id="school-avatar-menu" data-avatar-menu><span class="avatar-menu__label">حساب المدرسة</span><a class="avatar-menu__link" href="school-profile.html"><i class="fas fa-id-card"></i><span>ملف المؤسسة</span></a><a class="avatar-menu__link" href="school-settings.html"><i class="fas fa-gear"></i><span>الإعدادات</span></a></div></div>
+        <a href="index.html" class="btn btn--school btn--sm"><i class="fas fa-right-from-bracket"></i><span>تسجيل الخروج</span></a>
+      </div>
+    </nav>
+    <main class="main">
+      <section class="card-block">
+        <h1>إدارة التوكنز</h1>
+        <p>إجمالي الرصيد الحالي: <strong id="total-balance">128,500</strong> توكن. تم استخدام <span id="usage-pct">64%</span> من الباقة الشهرية.</p>
+        <div class="token-track"><span id="usage-bar" style="width: 64%;"></span></div>
+      </section>
+      
+      <section class="card-block">
+        <h2>توزيع التوكنز</h2>
+        <div class="field"><label for="teacher-name">اسم المعلم / المعرف</label><input id="teacher-name" type="text" placeholder="مثال: أحمد ياسين"></div>
+        <div class="field"><label for="token-amount">عدد التوكنز</label><input id="token-amount" type="number" min="1000" step="1000" value="10000"></div>
+        <button class="btn btn--school" id="add-tokens-btn" type="button">إضافة الرصيد</button>
+      </section>
+
+      <section class="card-block">
+        <h2>سجل العمليات الأخير</h2>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>التاريخ</th>
+                <th>المستفيد</th>
+                <th>الكمية</th>
+                <th>التفاصيل</th>
+              </tr>
+            </thead>
+            <tbody id="txn-table">
+              <!-- JS Populated -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+  <script src="shared-layout.js"></script>
+  <script>
+    (function(){
+      var balanceEl = document.getElementById('total-balance');
+      var pctEl = document.getElementById('usage-pct');
+      var barEl = document.getElementById('usage-bar');
+      var tableBody = document.getElementById('txn-table');
+      var addBtn = document.getElementById('add-tokens-btn');
+      var teacherNameEl = document.getElementById('teacher-name');
+      var tokenAmountEl = document.getElementById('token-amount');
+
+      var schoolsKey = 'mitests-schools';
+      var activeCodeKey = 'mitests-active-school-code';
+      var activeSchoolCode = localStorage.getItem(activeCodeKey) || 'SRJ-RYD-01';
+      var historyKey = 'mitests-school-token-history:' + activeSchoolCode;
+
+      function loadSchools() {
+        try {
+          var raw = localStorage.getItem(schoolsKey);
+          if (!raw) return [];
+          var parsed = JSON.parse(raw);
+          if (Array.isArray(parsed)) return parsed;
+        } catch (e) {}
+        return [];
+      }
+
+      function saveSchools(list) {
+        try {
+          localStorage.setItem(schoolsKey, JSON.stringify(list));
+        } catch (e) {}
+      }
+
+      function getSchoolIndex(list, code) {
+        if (!Array.isArray(list) || !list.length) return -1;
+        for (var i = 0; i < list.length; i++) {
+          if (String(list[i].code || '').toLowerCase() === String(code || '').toLowerCase()) return i;
+        }
+        return -1;
+      }
+
+      var schools = loadSchools();
+      var schoolIndex = getSchoolIndex(schools, activeSchoolCode);
+      if (schoolIndex < 0) {
+        schoolIndex = 0;
+        schools = [{
+          code: activeSchoolCode,
+          name: 'مدرسة سراج الدولية',
+          email: 'admin@seraj.edu',
+          grades: ['الصف السابع', 'الصف الثامن', 'الصف التاسع'],
+          tokens: 128500,
+          tokenLimit: 200000,
+          tokenUsage: 71500
+        }];
+        saveSchools(schools);
+      }
+
+      var school = schools[schoolIndex];
+      var totalLimit = Number(school.tokenLimit) > 0 ? Number(school.tokenLimit) : 200000;
+      var currentUsage = Number(school.tokenUsage);
+      if (isNaN(currentUsage)) {
+        var currentTokens = Number(school.tokens);
+        currentUsage = isNaN(currentTokens) ? 127500 : Math.max(0, totalLimit - currentTokens);
+      }
+
+      // Initial history
+      var defaultHistory = [
+        {date: '2023-10-25 10:30', user: 'أحمد ياسين', amount: 5000, type: 'alloc', note: 'توزيع شهري'},
+        {date: '2023-10-24 09:15', user: 'نورة العلي', amount: 3000, type: 'alloc', note: 'مكافأة نشاط'},
+        {date: '2023-10-22 14:00', user: 'سامي الجابر', amount: 10000, type: 'alloc', note: 'رصيد قسم العلوم'}
+      ];
+      var history = defaultHistory.slice();
+
+      try {
+        var rawHistory = localStorage.getItem(historyKey);
+        if (rawHistory) {
+          var parsedHistory = JSON.parse(rawHistory);
+          if (Array.isArray(parsedHistory) && parsedHistory.length) {
+            history = parsedHistory;
+          }
+        }
+      } catch (e) {}
+
+      function persistState() {
+        school.tokenLimit = totalLimit;
+        school.tokenUsage = currentUsage;
+        school.tokens = Math.max(0, totalLimit - currentUsage);
+        schools[schoolIndex] = school;
+        saveSchools(schools);
+        try {
+          localStorage.setItem(historyKey, JSON.stringify(history));
+        } catch (e) {}
+      }
+
+      function updateUI() {
+        var balance = Math.max(0, totalLimit - currentUsage);
+        balanceEl.textContent = balance.toLocaleString();
+        var pct = totalLimit > 0 ? Math.round((currentUsage / totalLimit) * 100) : 0;
+        if (pct > 100) pct = 100;
+        pctEl.textContent = pct + '%';
+        barEl.style.width = pct + '%';
+        
+        tableBody.innerHTML = '';
+        history.forEach(function(txn){
+          var row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${txn.date}</td>
+            <td>${txn.user}</td>
+            <td class="txn-minus">-${txn.amount.toLocaleString()}</td>
+            <td>${txn.note}</td>
+          `;
+          tableBody.appendChild(row);
+        });
+      }
+
+      addBtn.addEventListener('click', function(){
+        var name = teacherNameEl.value.trim();
+        var amount = parseInt(tokenAmountEl.value, 10);
+        
+        if(!name) return alert('يرجى إدخال اسم المعلم');
+        if(!amount || amount <= 0) return alert('يرجى إدخال كمية صحيحة');
+        
+        if(amount > (totalLimit - currentUsage)) return alert('الرصيد المتاح غير كافي لهذه العملية');
+
+        currentUsage += amount;
+        
+        // Add to history top
+        var now = new Date();
+        var timeString = now.toISOString().slice(0,10) + ' ' + now.toTimeString().slice(0,5);
+        
+        history.unshift({
+          date: timeString,
+          user: name,
+          amount: amount,
+          type: 'alloc',
+          note: 'توزيع يدوي'
+        });
+
+        alert('تم إضافة ' + amount + ' توكن للمعلم ' + name + ' بنجاح');
+        teacherNameEl.value = '';
+        persistState();
+        updateUI();
+      });
+
+      persistState();
+      updateUI();
+    })();
+  </script>
+</body>
+</html>

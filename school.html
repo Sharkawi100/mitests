@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mitests - لوحة المدرسة</title>
+  <meta name="description" content="لوحة المدرسة لإدارة التوكنز والمستخدمين والهوية المؤسسية.">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="styles.css">
+
+  <style>
+    .school-navbar { border-bottom: 1px solid var(--color-gray-200); }
+    body.rtl .main-content .school-navbar { right: var(--sidebar-width); left: 0; }
+    body.ltr .main-content .school-navbar { left: var(--sidebar-width); right: 0; }
+    body.rtl .main-content.main-content--expanded .school-navbar { right: var(--sidebar-collapsed-width); }
+    body.ltr .main-content.main-content--expanded .school-navbar { left: var(--sidebar-collapsed-width); }
+
+    .school-navbar .navbar__brand-icon {
+      background: linear-gradient(135deg, var(--color-school), #fbbf24);
+    }
+
+    .sidebar__item:hover, .sidebar__item--active {
+      background: rgba(245, 158, 11, 0.24);
+      color: var(--color-white);
+    }
+
+    .sidebar__item--active {
+      border-inline-start: 3px solid var(--color-school);
+    }
+
+    .btn--school {
+      background: var(--color-school);
+      border-color: var(--color-school);
+      color: var(--color-white);
+    }
+
+    .btn--school:hover {
+      background: #d97706;
+      border-color: #d97706;
+      color: var(--color-white);
+    }
+
+    .school-main {
+      padding: calc(var(--navbar-height) + var(--space-6)) var(--space-6) var(--space-8);
+      display: grid;
+      gap: var(--space-5);
+    }
+
+    .header-card {
+      background: linear-gradient(145deg, rgba(245, 158, 11, 0.14), rgba(255, 255, 255, 1) 60%);
+      border: 1px solid #fde5ba;
+      border-top: 4px solid var(--color-school);
+      border-radius: var(--border-radius-lg);
+      box-shadow: var(--shadow-md);
+      padding: var(--space-6);
+      display: grid;
+      gap: var(--space-3);
+    }
+
+    .header-card h1 {
+      color: var(--color-gray-900);
+      font-size: var(--font-size-3xl);
+      line-height: 1.25;
+    }
+
+    .header-card p {
+      color: var(--color-gray-600);
+      font-size: var(--font-size-base);
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: var(--space-3);
+    }
+
+    .stat-card {
+      background: var(--color-white);
+      border: 1px solid var(--color-gray-200);
+      border-top: 4px solid var(--color-school);
+      border-radius: var(--border-radius-md);
+      box-shadow: var(--shadow-sm);
+      padding: var(--space-4);
+      display: grid;
+      gap: var(--space-2);
+    }
+
+    .stat-card__label {
+      color: var(--color-gray-600);
+      font-size: var(--font-size-sm);
+      font-weight: 600;
+    }
+
+    .stat-card__value {
+      color: var(--color-gray-900);
+      font-size: var(--font-size-2xl);
+      font-weight: 700;
+      line-height: 1.2;
+    }
+
+    .token-box {
+      background: var(--color-white);
+      border: 1px solid var(--color-gray-200);
+      border-radius: var(--border-radius-md);
+      padding: var(--space-4);
+      display: grid;
+      gap: var(--space-3);
+    }
+
+    .token-track {
+      height: 12px;
+      border-radius: var(--border-radius-full);
+      background: var(--color-amber-100);
+      overflow: hidden;
+    }
+
+    .token-track span {
+      display: block;
+      width: 64%;
+      height: 100%;
+      background: linear-gradient(90deg, var(--color-school), #f59e0b);
+    }
+
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--space-4);
+    }
+
+    .panel-card {
+      background: var(--color-white);
+      border: 1px solid var(--color-gray-200);
+      border-radius: var(--border-radius-md);
+      box-shadow: var(--shadow-sm);
+      padding: var(--space-4);
+      display: grid;
+      gap: var(--space-3);
+    }
+
+    .panel-card h2 {
+      color: var(--color-gray-900);
+      font-size: var(--font-size-xl);
+    }
+
+    .panel-card p {
+      color: var(--color-gray-600);
+      line-height: 1.7;
+      font-size: var(--font-size-sm);
+    }
+
+    .table-wrap { overflow-x: auto; }
+    .data-table { width: 100%; border-collapse: collapse; min-width: 620px; }
+    .data-table th, .data-table td {
+      padding: var(--space-3);
+      border-bottom: 1px solid var(--color-gray-200);
+      text-align: start;
+      font-size: var(--font-size-sm);
+    }
+    .data-table th {
+      background: var(--color-gray-50);
+      color: var(--color-gray-500);
+      font-weight: 600;
+    }
+
+    .profile-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--space-3);
+    }
+
+    .profile-item {
+      border: 1px solid var(--color-gray-200);
+      border-radius: var(--border-radius-sm);
+      background: var(--color-gray-50);
+      padding: var(--space-3);
+      display: grid;
+      gap: 2px;
+    }
+
+    .profile-item strong {
+      color: var(--color-gray-500);
+      font-size: var(--font-size-xs);
+    }
+
+    .settings-form {
+      display: grid;
+      grid-template-columns: 1fr 1fr auto;
+      gap: var(--space-3);
+      align-items: end;
+    }
+
+    .settings-field {
+      display: grid;
+      gap: var(--space-1);
+    }
+
+    .settings-field label {
+      color: var(--color-gray-700);
+      font-size: var(--font-size-sm);
+      font-weight: 600;
+    }
+
+    .settings-field select {
+      border: 1px solid var(--color-gray-300);
+      border-radius: var(--border-radius-sm);
+      padding: var(--space-2) var(--space-3);
+      font-family: inherit;
+      color: var(--color-gray-800);
+      background: var(--color-white);
+    }
+
+    .settings-field select:focus {
+      outline: none;
+      border-color: var(--color-school);
+      box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.16);
+    }
+
+    @media (max-width: 1023px) {
+      body.rtl .main-content .school-navbar { right: var(--sidebar-collapsed-width); }
+      body.ltr .main-content .school-navbar { left: var(--sidebar-collapsed-width); }
+      body.rtl .main-content { margin-right: var(--sidebar-collapsed-width); }
+      body.ltr .main-content { margin-left: var(--sidebar-collapsed-width); }
+      .sidebar { width: var(--sidebar-collapsed-width); }
+      .sidebar .sidebar__brand-text, .sidebar .sidebar__item span, .sidebar .sidebar__toggle span { display: none; }
+      .stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .cards-grid { grid-template-columns: 1fr; }
+      .profile-grid { grid-template-columns: 1fr; }
+      .settings-form { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 767px) {
+      .sidebar { display: none; }
+      body.rtl .main-content, body.ltr .main-content { margin: 0; }
+      body.rtl .main-content .school-navbar, body.ltr .main-content .school-navbar { right: 0; left: 0; }
+      .school-main { padding-inline: var(--space-4); }
+      .header-card h1 { font-size: var(--font-size-2xl); }
+      .stats-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+
+<body class="rtl">
+  <aside class="sidebar" id="sidebar" aria-label="Sidebar navigation">
+    <div class="sidebar__header">
+      <div class="sidebar__logo">M</div>
+      <span class="sidebar__brand-text">سراج - المدرسة</span>
+    </div>
+    <nav class="sidebar__nav">
+      <a class="sidebar__item sidebar__item--active" href="school.html"><i class="fas fa-gauge"></i><span data-i18n="navOverview">نظرة عامة</span></a>
+      <a class="sidebar__item" href="school-tokens.html"><i class="fas fa-coins"></i><span data-i18n="navTokens">إدارة التوكنز</span></a>
+      <a class="sidebar__item" href="school-users.html"><i class="fas fa-user-plus"></i><span data-i18n="navUsers">إدارة المستخدمين</span></a>
+      <a class="sidebar__item" href="school-whitelabel.html"><i class="fas fa-palette"></i><span data-i18n="navBranding">الهوية المؤسسية</span></a>
+      <a class="sidebar__item" href="school-profile.html"><i class="fas fa-id-card"></i><span data-i18n="navProfile">ملف المؤسسة</span></a>
+      <a class="sidebar__item" href="school-qa-review.html"><i class="fas fa-clipboard-check"></i><span data-i18n="navQa">آخر الاختبارات للمراجعة</span></a>
+      <a class="sidebar__item" href="school-approval.html"><i class="fas fa-badge-check"></i><span data-i18n="navApproval">اعتماد المحتوى</span></a>
+      <a class="sidebar__item" href="school-communications.html"><i class="fas fa-comments"></i><span data-i18n="navComms">التواصل والإشعارات</span></a>
+      <a class="sidebar__item" href="school-settings.html"><i class="fas fa-gear"></i><span data-i18n="navSettings">الإعدادات</span></a>
+    </nav>
+    <button class="sidebar__toggle" id="sidebar-toggle" aria-label="Toggle sidebar"><i class="fas fa-angles-right"></i><span>تصغير</span></button>
+  </aside>
+
+  <div class="main-content" id="main-content">
+    <nav class="navbar school-navbar" role="navigation" aria-label="School top navigation">
+      <a href="school.html" class="navbar__brand">
+        <div class="navbar__brand-icon"><i class="fas fa-building-columns"></i></div>
+        <span class="navbar__brand-text" data-i18n="brand">لوحة المدرسة</span>
+      </a>
+      <div class="navbar__actions">
+        <div class="lang-switcher" role="group" aria-label="Language selector">
+          <button class="lang-switcher__btn active" data-lang="ar" aria-label="Arabic">&#1593;</button>
+          <button class="lang-switcher__btn" data-lang="he" aria-label="Hebrew">&#1506;&#1489;</button>
+          <button class="lang-switcher__btn" data-lang="en" aria-label="English">En</button>
+        </div>
+        <div class="avatar-dropdown">
+          <button class="avatar-btn" type="button" data-avatar-toggle="school-avatar-menu" aria-label="قائمة حساب المدرسة">
+            <i class="fas fa-building-columns"></i>
+          </button>
+          <div class="avatar-menu" id="school-avatar-menu" data-avatar-menu>
+            <span class="avatar-menu__label">حساب المدرسة</span>
+            <a class="avatar-menu__link" href="school-profile.html"><i class="fas fa-id-card"></i><span>ملف المؤسسة</span></a>
+            <a class="avatar-menu__link" href="school-whitelabel.html"><i class="fas fa-palette"></i><span>الهوية المؤسسية</span></a>
+            <a class="avatar-menu__link" href="school-communications.html"><i class="fas fa-comments"></i><span>التواصل والإشعارات</span></a>
+          </div>
+        </div>
+        <a href="index.html" class="btn btn--school btn--sm"><i class="fas fa-right-from-bracket"></i><span data-i18n="logout">تسجيل الخروج</span></a>
+      </div>
+    </nav>
+
+    <main class="school-main">
+      <header class="header-card" id="overview">
+        <h1 data-i18n="headerTitle">أهلاً بكم في لوحة مدرسة سراج الدولية</h1>
+        <p data-i18n="headerText">إدارة التوكنز، المستخدمين، هوية المدرسة والموافقات من مكان واحد.</p>
+      </header>
+
+      <section class="stats-grid">
+        <article class="stat-card">
+          <p class="stat-card__label" data-i18n="statTokens">التوكنز المتاحة</p>
+          <p class="stat-card__value">128,500</p>
+        </article>
+        <article class="stat-card">
+          <p class="stat-card__label" data-i18n="statTeachers">المعلمون النشطون</p>
+          <p class="stat-card__value">42</p>
+        </article>
+        <article class="stat-card">
+          <p class="stat-card__label" data-i18n="statStudents">الطلاب</p>
+          <p class="stat-card__value">860</p>
+        </article>
+        <article class="stat-card">
+          <p class="stat-card__label" data-i18n="statPending">محتوى بانتظار الاعتماد</p>
+          <p class="stat-card__value">7</p>
+        </article>
+      </section>
+
+      <section id="tokens" class="token-box">
+        <h2 data-i18n="tokensTitle">إدارة التوكنز</h2>
+        <div class="token-track"><span></span></div>
+        <p data-i18n="tokensText">تم استخدام 64% من الحزمة الشهرية. يمكن إعادة التوزيع على المعلمين حسب الأولوية.</p>
+        <div>
+          <a class="btn btn--school btn--sm" href="school-tokens.html" data-i18n="tokensBtn">إدارة التوزيع</a>
+        </div>
+      </section>
+
+      <section class="panel-card" id="school-profile">
+        <h2 data-i18n="profileTitle">ملف المؤسسة</h2>
+        <div class="profile-grid">
+          <div class="profile-item"><strong data-i18n="profileCode">رمز المؤسسة</strong><span id="sp-code">-</span></div>
+          <div class="profile-item"><strong data-i18n="profileName">اسم المؤسسة</strong><span id="sp-name">-</span></div>
+          <div class="profile-item"><strong data-i18n="profileEmail">ايميل المؤسسة</strong><span id="sp-email">-</span></div>
+          <div class="profile-item"><strong data-i18n="profilePhone">الهاتف</strong><span id="sp-phone">-</span></div>
+          <div class="profile-item"><strong data-i18n="profileCountry">الدولة</strong><span id="sp-country">-</span></div>
+          <div class="profile-item"><strong data-i18n="profileAddress">العنوان</strong><span id="sp-address">-</span></div>
+          <div class="profile-item"><strong data-i18n="profileLanguage">اللغة الافتراضية</strong><span id="sp-language">-</span></div>
+          <div class="profile-item"><strong data-i18n="profileGrades">المراحل التعليمية</strong><span id="sp-grades">-</span></div>
+          <div class="profile-item"><strong data-i18n="profileSocial">روابط التواصل</strong><span id="sp-social">-</span></div>
+          <div class="profile-item"><strong data-i18n="profileTokens">رصيد التوكنز</strong><span id="sp-tokens">-</span></div>
+        </div>
+      </section>
+
+      <section class="cards-grid">
+        <article class="panel-card" id="users">
+          <h2 data-i18n="usersTitle">إدارة المستخدمين</h2>
+          <p data-i18n="usersText">استيراد المعلمين والطلاب عبر Excel أو رموز الصفوف، وتحديث الصلاحيات بسرعة.</p>
+          <a class="btn btn--school btn--sm" href="school-users.html" data-i18n="usersBtn">استيراد المستخدمين</a>
+        </article>
+        <article class="panel-card" id="branding">
+          <h2 data-i18n="brandingTitle">الهوية المؤسسية (White Label)</h2>
+          <p data-i18n="brandingText">تخصيص شعار المدرسة واسمها وألوانها من صفحة مستقلة تابعة للمدرسة.</p>
+          <a class="btn btn--school btn--sm" href="school-whitelabel.html" data-i18n="brandingBtn">فتح صفحة الهوية</a>
+        </article>
+        <article class="panel-card" id="comms">
+          <h2 data-i18n="commsTitle">التواصل والإشعارات</h2>
+          <p data-i18n="commsText">دردشة مع المعلمين والطلاب وإرسال تنبيهات رسمية من مركز تواصل المدرسة.</p>
+          <a class="btn btn--school btn--sm" href="school-communications.html" data-i18n="commsBtn">فتح مركز التواصل</a>
+        </article>
+      </section>
+
+      <section class="panel-card" id="qa-review">
+        <h2 data-i18n="qaTitle">آخر الاختبارات للمراجعة</h2>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th data-i18n="qaExam">عنوان الاختبار</th>
+                <th data-i18n="qaTeacher">المعلم</th>
+                <th data-i18n="qaSubject">المادة</th>
+                <th data-i18n="qaAction">الإجراء</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>اختبار الجبر - الصف التاسع</td>
+                <td>أحمد ياسين</td>
+                <td>الرياضيات</td>
+                <td><a class="btn btn--school btn--sm" href="exam-assessment.html" data-i18n="qaAuditBtn">تدقيق</a></td>
+              </tr>
+              <tr>
+                <td>فهم مقروء - الوحدة 3</td>
+                <td>سلمى هاشم</td>
+                <td>اللغة الإنجليزية</td>
+                <td><a class="btn btn--school btn--sm" href="exam-assessment.html" data-i18n="qaAuditBtn">تدقيق</a></td>
+              </tr>
+              <tr>
+                <td>اختبار المختبر - علوم</td>
+                <td>يوسف صالح</td>
+                <td>العلوم</td>
+                <td><a class="btn btn--school btn--sm" href="exam-assessment.html" data-i18n="qaAuditBtn">تدقيق</a></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="panel-card" id="approval">
+        <h2 data-i18n="approvalTitle">اعتماد المحتوى</h2>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th data-i18n="tblTeacher">المعلم</th>
+                <th data-i18n="tblContent">نوع المحتوى</th>
+                <th data-i18n="tblStatus">الحالة</th>
+                <th data-i18n="tblAction">الإجراء</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>أحمد ياسين</td>
+                <td data-i18n="contentExam">اختبار جديد</td>
+                <td data-i18n="statusPending">قيد المراجعة</td>
+                <td><a class="btn btn--school btn--sm" href="school-approval.html" data-i18n="approveBtn">اعتماد</a></td>
+              </tr>
+              <tr>
+                <td>سلمى هاشم</td>
+                <td data-i18n="contentPost">منشور مجتمعي</td>
+                <td data-i18n="statusPending">قيد المراجعة</td>
+                <td><a class="btn btn--school btn--sm" href="school-approval.html" data-i18n="approveBtn">اعتماد</a></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="panel-card" id="settings">
+        <h2 data-i18n="settingsTitle">إعدادات المدرسة</h2>
+        <p data-i18n="settingsText">إعدادات الأمان، الإشعارات، وسياسات النشر الخاصة بالمؤسسة.</p>
+        <div class="settings-form">
+          <div class="settings-field">
+            <label for="school-grade-select" data-i18n="settingsGradeLabel">الصف الافتراضي</label>
+            <select id="school-grade-select"></select>
+          </div>
+          <div class="settings-field">
+            <label for="school-subject-select" data-i18n="settingsSubjectLabel">المادة الأساسية</label>
+            <select id="school-subject-select"></select>
+          </div>
+          <button class="btn btn--school btn--sm" id="school-settings-save" data-i18n="settingsSaveBtn">حفظ تفضيلات المدرسة</button>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="shared-layout.js"></script>
+  <script>
+    (function () {
+      'use strict';
+
+      var I18N = {
+        ar: {
+          pageTitle: 'Mitests - لوحة المدرسة',
+          pageDescription: 'لوحة المدرسة لإدارة التوكنز والمستخدمين والهوية المؤسسية.',
+          brand: 'لوحة المدرسة',
+          logout: 'تسجيل الخروج',
+          navOverview: 'نظرة عامة',
+          navTokens: 'إدارة التوكنز',
+          navUsers: 'إدارة المستخدمين',
+          navBranding: 'الهوية المؤسسية',
+          navComms: 'التواصل والإشعارات',
+          navProfile: 'ملف المؤسسة',
+          navQa: 'آخر الاختبارات للمراجعة',
+          navApproval: 'اعتماد المحتوى',
+          navSettings: 'الإعدادات',
+          headerTitle: 'أهلاً بكم في لوحة مدرسة سراج الدولية',
+          headerText: 'إدارة التوكنز، المستخدمين، هوية المدرسة والموافقات من مكان واحد.',
+          statTokens: 'التوكنز المتاحة',
+          statTeachers: 'المعلمون النشطون',
+          statStudents: 'الطلاب',
+          statPending: 'محتوى بانتظار الاعتماد',
+          tokensTitle: 'إدارة التوكنز',
+          tokensText: 'تم استخدام 64% من الحزمة الشهرية. يمكن إعادة التوزيع على المعلمين حسب الأولوية.',
+          tokensBtn: 'إدارة التوزيع',
+          profileTitle: 'ملف المؤسسة',
+          profileCode: 'رمز المؤسسة',
+          profileName: 'اسم المؤسسة',
+          profileEmail: 'ايميل المؤسسة',
+          profilePhone: 'الهاتف',
+          profileCountry: 'الدولة',
+          profileAddress: 'العنوان',
+          profileLanguage: 'اللغة الافتراضية',
+          profileGrades: 'المراحل التعليمية',
+          profileSocial: 'روابط التواصل',
+          profileTokens: 'رصيد التوكنز',
+          usersTitle: 'إدارة المستخدمين',
+          usersText: 'استيراد المعلمين والطلاب عبر Excel أو رموز الصفوف، وتحديث الصلاحيات بسرعة.',
+          usersBtn: 'استيراد المستخدمين',
+          brandingTitle: 'الهوية المؤسسية (White Label)',
+          brandingText: 'تخصيص شعار المدرسة واسمها وألوانها من صفحة مستقلة تابعة للمدرسة.',
+          brandingBtn: 'فتح صفحة الهوية',
+          commsTitle: 'التواصل والإشعارات',
+          commsText: 'دردشة مع المعلمين والطلاب وإرسال تنبيهات رسمية من مركز تواصل المدرسة.',
+          commsBtn: 'فتح مركز التواصل',
+          qaTitle: 'آخر الاختبارات للمراجعة',
+          qaExam: 'عنوان الاختبار',
+          qaTeacher: 'المعلم',
+          qaSubject: 'المادة',
+          qaAction: 'الإجراء',
+          qaAuditBtn: 'تدقيق',
+          approvalTitle: 'اعتماد المحتوى',
+          tblTeacher: 'المعلم',
+          tblContent: 'نوع المحتوى',
+          tblStatus: 'الحالة',
+          tblAction: 'الإجراء',
+          contentExam: 'اختبار جديد',
+          contentPost: 'منشور مجتمعي',
+          statusPending: 'قيد المراجعة',
+          approveBtn: 'اعتماد',
+          settingsTitle: 'إعدادات المدرسة',
+          settingsText: 'إعدادات الأمان، الإشعارات، وسياسات النشر الخاصة بالمؤسسة.',
+          settingsGradeLabel: 'الصف الافتراضي',
+          settingsSubjectLabel: 'المادة الأساسية',
+          settingsSaveBtn: 'حفظ تفضيلات المدرسة'
+        },
+        he: {
+          pageTitle: 'Mitests - לוח מוסד',
+          pageDescription: 'לוח מוסד לניהול טוקנים, משתמשים ומיתוג.',
+          brand: 'לוח מוסד',
+          logout: 'יציאה',
+          navOverview: 'סקירה',
+          navTokens: 'ניהול טוקנים',
+          navUsers: 'ניהול משתמשים',
+          navBranding: 'מיתוג',
+          navComms: 'תקשורת והתראות',
+          navProfile: 'פרופיל מוסד',
+          navQa: 'מבחנים לביקורת',
+          navApproval: 'אישור תוכן',
+          navSettings: 'הגדרות',
+          headerTitle: 'ברוכים הבאים ללוח בית הספר',
+          headerText: 'ניהול טוקנים, משתמשים, מיתוג ואישורים ממסך אחד.',
+          statTokens: 'טוקנים זמינים',
+          statTeachers: 'מורים פעילים',
+          statStudents: 'תלמידים',
+          statPending: 'תוכן ממתין לאישור',
+          tokensTitle: 'ניהול טוקנים',
+          tokensText: '64% מהחבילה החודשית נוצלו. ניתן לחלק מחדש לפי צורך.',
+          tokensBtn: 'ניהול הקצאה',
+          profileTitle: 'פרופיל מוסד',
+          profileCode: 'קוד מוסד',
+          profileName: 'שם מוסד',
+          profileEmail: 'אימייל מוסד',
+          profilePhone: 'טלפון',
+          profileCountry: 'מדינה',
+          profileAddress: 'כתובת',
+          profileLanguage: 'שפת ברירת מחדל',
+          profileGrades: 'שכבות לימוד',
+          profileSocial: 'קישורי רשת',
+          profileTokens: 'יתרת טוקנים',
+          usersTitle: 'ניהול משתמשים',
+          usersText: 'ייבוא מורים ותלמידים דרך Excel או קודי כיתה.',
+          usersBtn: 'ייבוא משתמשים',
+          brandingTitle: 'מיתוג מוסדי (White Label)',
+          brandingText: 'התאמת לוגו, שם וצבעים של בית הספר מעמוד מיתוג ייעודי למוסד.',
+          brandingBtn: 'פתיחת עמוד מיתוג',
+          commsTitle: 'תקשורת והתראות',
+          commsText: 'צ׳אט עם מורים ותלמידים ושליחת התראות רשמיות ממרכז התקשורת של בית הספר.',
+          commsBtn: 'פתיחת מרכז התקשורת',
+          qaTitle: 'מבחנים אחרונים לביקורת',
+          qaExam: 'כותרת מבחן',
+          qaTeacher: 'מורה',
+          qaSubject: 'מקצוע',
+          qaAction: 'פעולה',
+          qaAuditBtn: 'ביקורת',
+          approvalTitle: 'אישור תוכן',
+          tblTeacher: 'מורה',
+          tblContent: 'סוג תוכן',
+          tblStatus: 'סטטוס',
+          tblAction: 'פעולה',
+          contentExam: 'מבחן חדש',
+          contentPost: 'פוסט קהילה',
+          statusPending: 'ממתין לבדיקה',
+          approveBtn: 'אישור',
+          settingsTitle: 'הגדרות מוסד',
+          settingsText: 'הגדרות אבטחה, התראות ומדיניות פרסום.',
+          settingsGradeLabel: 'שכבה ברירת מחדל',
+          settingsSubjectLabel: 'מקצוע ראשי',
+          settingsSaveBtn: 'שמירת העדפות'
+        },
+        en: {
+          pageTitle: 'Mitests - School Dashboard',
+          pageDescription: 'School dashboard for tokens, users, branding, and approvals.',
+          brand: 'School Dashboard',
+          logout: 'Logout',
+          navOverview: 'Overview',
+          navTokens: 'Token Management',
+          navUsers: 'User Management',
+          navBranding: 'Branding',
+          navComms: 'Communications',
+          navProfile: 'School Profile',
+          navQa: 'QA Review',
+          navApproval: 'Content Approval',
+          navSettings: 'Settings',
+          headerTitle: 'Welcome to Seraj International School Dashboard',
+          headerText: 'Manage tokens, users, branding, and approvals from one place.',
+          statTokens: 'Available Tokens',
+          statTeachers: 'Active Teachers',
+          statStudents: 'Students',
+          statPending: 'Pending Content',
+          tokensTitle: 'Token Management',
+          tokensText: '64% of the monthly package is used. You can redistribute by priority.',
+          tokensBtn: 'Manage Allocation',
+          profileTitle: 'School Profile',
+          profileCode: 'Institution Code',
+          profileName: 'Institution Name',
+          profileEmail: 'Institution Email',
+          profilePhone: 'Telephone',
+          profileCountry: 'Country',
+          profileAddress: 'Address',
+          profileLanguage: 'Default Language',
+          profileGrades: 'Academic Grades',
+          profileSocial: 'Social Links',
+          profileTokens: 'Token Balance',
+          usersTitle: 'User Management',
+          usersText: 'Import teachers and students via Excel or class codes.',
+          usersBtn: 'Import Users',
+          brandingTitle: 'Institution Branding (White Label)',
+          brandingText: 'Customize school logo, name, and colors from the dedicated school branding page.',
+          brandingBtn: 'Open Branding Page',
+          commsTitle: 'Communications & Alerts',
+          commsText: 'Chat with teachers and students and send official notifications from the school communication center.',
+          commsBtn: 'Open Communications Center',
+          qaTitle: 'Recent Exams for QA',
+          qaExam: 'Exam Title',
+          qaTeacher: 'Teacher',
+          qaSubject: 'Subject',
+          qaAction: 'Action',
+          qaAuditBtn: 'Audit',
+          approvalTitle: 'Content Approval',
+          tblTeacher: 'Teacher',
+          tblContent: 'Content Type',
+          tblStatus: 'Status',
+          tblAction: 'Action',
+          contentExam: 'New Exam',
+          contentPost: 'Community Post',
+          statusPending: 'Under Review',
+          approveBtn: 'Approve',
+          settingsTitle: 'School Settings',
+          settingsText: 'Security, notifications, and publishing policy settings.',
+          settingsGradeLabel: 'Default Grade',
+          settingsSubjectLabel: 'Primary Subject',
+          settingsSaveBtn: 'Save School Preferences'
+        }
+      };
+
+      function applyLanguage(lang) {
+        var t = I18N[lang] || I18N.ar;
+        var nodes = document.querySelectorAll('[data-i18n]');
+        var metaDesc = document.querySelector('meta[name="description"]');
+
+        document.title = t.pageTitle;
+        if (metaDesc) metaDesc.setAttribute('content', t.pageDescription);
+
+        for (var i = 0; i < nodes.length; i++) {
+          var key = nodes[i].getAttribute('data-i18n');
+          if (t[key]) nodes[i].textContent = t[key];
+        }
+      }
+
+      function getLanguageLabel(code) {
+        var lang = document.documentElement.getAttribute('lang') || 'ar';
+        var labels = {
+          ar: { ar: 'العربية', he: 'العبرية', en: 'الإنجليزية' },
+          he: { ar: 'ערבית', he: 'עברית', en: 'אנגלית' },
+          en: { ar: 'Arabic', he: 'Hebrew', en: 'English' }
+        };
+        var table = labels[lang] || labels.ar;
+        return table[code] || table.ar;
+      }
+
+      function loadSchoolProfileCard() {
+        var defaults = {
+          code: 'SRJ-RYD-01',
+          name: 'مدرسة سراج الدولية',
+          email: 'admin@seraj.edu',
+          grades: ['الصف السابع', 'الصف الثامن', 'الصف التاسع'],
+          tokens: 128500,
+          profile: {
+            country: 'السعودية',
+            address: 'الرياض',
+            phone: '+966 11 555 7788',
+            socialLinks: 'https://x.com/serajschool',
+            defaultLanguage: 'ar'
+          }
+        };
+
+        var selected = defaults;
+        try {
+          var raw = localStorage.getItem('mitests-schools');
+          var code = localStorage.getItem('mitests-active-school-code');
+          if (raw) {
+            var list = JSON.parse(raw);
+            if (Array.isArray(list) && list.length) {
+              selected = list[0];
+              if (code) {
+                for (var i = 0; i < list.length; i++) {
+                  if (String(list[i].code || '').toLowerCase() === String(code).toLowerCase()) {
+                    selected = list[i];
+                    break;
+                  }
+                }
+              }
+            }
+          }
+        } catch (e) {}
+
+        var profile = selected.profile || {};
+        var map = {
+          'sp-code': selected.code || '-',
+          'sp-name': selected.name || '-',
+          'sp-email': selected.email || '-',
+          'sp-phone': profile.phone || selected.phone || '-',
+          'sp-country': profile.country || selected.country || '-',
+          'sp-address': profile.address || selected.address || '-',
+          'sp-language': getLanguageLabel(profile.defaultLanguage || selected.defaultLanguage || 'ar'),
+          'sp-grades': (selected.grades || []).join('، ') || '-',
+          'sp-social': profile.socialLinks || selected.socialLinks || '-',
+          'sp-tokens': (Number(selected.tokens) || 0).toLocaleString()
+        };
+
+        for (var key in map) {
+          if (!Object.prototype.hasOwnProperty.call(map, key)) continue;
+          var el = document.getElementById(key);
+          if (el) el.textContent = map[key];
+        }
+
+        return selected;
+      }
+
+      function loadCatalog(key, fallback) {
+        try {
+          var raw = localStorage.getItem(key);
+          if (!raw) return fallback.slice();
+          var parsed = JSON.parse(raw);
+          if (Array.isArray(parsed) && parsed.length) return parsed;
+        } catch (e) {}
+        return fallback.slice();
+      }
+
+      function renderOptions(selectEl, items, selectedValue) {
+        if (!selectEl) return;
+        selectEl.innerHTML = '';
+
+        for (var i = 0; i < items.length; i++) {
+          var opt = document.createElement('option');
+          opt.value = items[i];
+          opt.textContent = items[i];
+          selectEl.appendChild(opt);
+        }
+
+        if (selectedValue) selectEl.value = selectedValue;
+        if (!selectEl.value && items.length) selectEl.value = items[0];
+      }
+
+      function fillSchoolDropdowns(selectedSchool) {
+        var gradeSelect = document.getElementById('school-grade-select');
+        var subjectSelect = document.getElementById('school-subject-select');
+        if (!gradeSelect || !subjectSelect) return;
+
+        var grades = loadCatalog('mitests-admin-grades', ['الصف السابع', 'الصف الثامن', 'الصف التاسع']);
+        var subjects = loadCatalog('mitests-admin-subjects', ['اللغة العربية', 'اللغة الإنجليزية', 'الرياضيات', 'العلوم']);
+
+        var schoolGrades = (selectedSchool && selectedSchool.grades) || [];
+        var gradePref = localStorage.getItem('mitests-school-default-grade') || schoolGrades[0] || grades[0] || '';
+        var subjectPref = localStorage.getItem('mitests-school-default-subject') || subjects[0] || '';
+
+        renderOptions(gradeSelect, grades, gradePref);
+        renderOptions(subjectSelect, subjects, subjectPref);
+      }
+
+      document.addEventListener('mitests:languagechange', function (e) {
+        var lang = (e.detail && e.detail.lang) || document.documentElement.getAttribute('lang') || 'ar';
+        applyLanguage(lang);
+        var current = loadSchoolProfileCard();
+        fillSchoolDropdowns(current);
+      });
+
+      document.addEventListener('DOMContentLoaded', function () {
+        var lang = document.documentElement.getAttribute('lang') || 'ar';
+        applyLanguage(lang);
+        var current = loadSchoolProfileCard();
+        fillSchoolDropdowns(current);
+
+        var saveBtn = document.getElementById('school-settings-save');
+        if (saveBtn) {
+          saveBtn.addEventListener('click', function () {
+            var gradeSelect = document.getElementById('school-grade-select');
+            var subjectSelect = document.getElementById('school-subject-select');
+            if (!gradeSelect || !subjectSelect) return;
+
+            try {
+              localStorage.setItem('mitests-school-default-grade', gradeSelect.value);
+              localStorage.setItem('mitests-school-default-subject', subjectSelect.value);
+            } catch (e) {}
+
+            alert('تم حفظ تفضيلات المدرسة.');
+          });
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
+
+

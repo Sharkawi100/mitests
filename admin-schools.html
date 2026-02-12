@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mitests - إدارة المدارس</title>
+  <meta name="description" content="صفحة إدارة المدارس: عرض المدارس، إضافة مدرسة، وإدارة الملف المؤسسي والتوكنز.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .admin-navbar { border-bottom: 1px solid var(--color-gray-200); }
+    body.rtl .main-content .admin-navbar { right: var(--sidebar-width); left: 0; }
+    body.ltr .main-content .admin-navbar { left: var(--sidebar-width); right: 0; }
+    body.rtl .main-content.main-content--expanded .admin-navbar { right: var(--sidebar-collapsed-width); }
+    body.ltr .main-content.main-content--expanded .admin-navbar { left: var(--sidebar-collapsed-width); }
+    .admin-navbar .navbar__brand-icon { background: linear-gradient(135deg, var(--color-admin), #f38a8d); }
+    .sidebar__item:hover, .sidebar__item--active { background: rgba(239, 93, 96, 0.2); color: var(--color-white); }
+    .sidebar__item--active { border-inline-start: 3px solid var(--color-admin); }
+    .btn--admin { background: var(--color-admin); border-color: var(--color-admin); color: var(--color-white); }
+    .btn--admin:hover { background: #db4f53; border-color: #db4f53; color: var(--color-white); }
+    .main { padding: calc(var(--navbar-height) + var(--space-6)) var(--space-6) var(--space-8); display: grid; gap: var(--space-4); }
+    .head { background: var(--color-white); border-top: 4px solid var(--color-admin); border-radius: var(--border-radius-lg); box-shadow: var(--shadow-md); padding: var(--space-5); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--space-3); }
+    .head h1 { color: var(--color-gray-900); font-size: var(--font-size-3xl); margin-bottom: var(--space-1); }
+    .head p { color: var(--color-gray-600); }
+    .counter-chip { border-radius: var(--border-radius-full); background: var(--color-coral-100); border: 1px solid var(--color-coral-500); color: var(--color-admin); font-weight: 700; font-size: var(--font-size-sm); padding: var(--space-2) var(--space-4); display: inline-flex; gap: var(--space-2); align-items: center; }
+    .card-block { background: var(--color-white); border: 1px solid var(--color-gray-200); border-top: 4px solid var(--color-admin); border-radius: var(--border-radius-md); box-shadow: var(--shadow-sm); padding: var(--space-4); display: grid; gap: var(--space-3); }
+    .tools-grid { display: grid; grid-template-columns: 1.7fr 1fr auto; gap: var(--space-3); align-items: end; }
+    .field { display: grid; gap: var(--space-1); }
+    .field label { color: var(--color-gray-700); font-size: var(--font-size-sm); font-weight: 600; }
+    .field input, .field select, .field textarea { border: 1px solid var(--color-gray-300); border-radius: var(--border-radius-sm); padding: var(--space-2) var(--space-3); font-family: inherit; color: var(--color-gray-800); background: var(--color-white); }
+    .field input:focus, .field select:focus, .field textarea:focus { outline: none; border-color: var(--color-admin); box-shadow: 0 0 0 3px rgba(239, 93, 96, 0.16); }
+    .field textarea { min-height: 78px; resize: vertical; }
+    .helper { color: var(--color-gray-500); font-size: var(--font-size-xs); line-height: 1.6; }
+    .required-star { color: #dc2626; font-weight: 700; }
+    .table-wrap { overflow-x: auto; }
+    .data-table { width: 100%; border-collapse: collapse; min-width: 980px; }
+    .data-table th, .data-table td { padding: var(--space-3); border-bottom: 1px solid var(--color-gray-200); text-align: start; font-size: var(--font-size-sm); vertical-align: top; }
+    .data-table th { background: var(--color-gray-50); color: var(--color-gray-500); font-weight: 600; }
+    .school-logo { width: 38px; height: 38px; border-radius: 50%; object-fit: cover; border: 1px solid var(--color-gray-200); background: var(--color-gray-100); }
+    .school-logo--fallback { display: inline-flex; align-items: center; justify-content: center; color: var(--color-gray-500); }
+    .grades-chip { display: inline-flex; align-items: center; border-radius: var(--border-radius-full); background: var(--color-coral-100); color: var(--color-admin); font-size: var(--font-size-xs); font-weight: 700; padding: var(--space-1) var(--space-3); margin-inline-end: var(--space-1); margin-block-end: var(--space-1); white-space: nowrap; }
+    .contact-block { display: grid; gap: 2px; color: var(--color-gray-700); min-width: 170px; }
+    .contact-block small { color: var(--color-gray-500); font-size: var(--font-size-xs); }
+    .token-add { display: inline-flex; align-items: center; gap: var(--space-2); }
+    .token-add input { width: 110px; border: 1px solid var(--color-gray-300); border-radius: var(--border-radius-sm); padding: var(--space-2); font-family: inherit; }
+    .actions-cell { display: grid; gap: var(--space-2); min-width: 160px; }
+    .pagination { display: flex; justify-content: space-between; align-items: center; gap: var(--space-3); flex-wrap: wrap; }
+    .pagination-info { color: var(--color-gray-600); font-size: var(--font-size-sm); }
+    .pagination-controls { display: inline-flex; align-items: center; gap: var(--space-2); }
+    .logo-picker { display: flex; align-items: center; gap: var(--space-3); flex-wrap: wrap; }
+    .logo-preview { width: 58px; height: 58px; border-radius: 50%; background: var(--color-gray-100); border: 1px dashed var(--color-gray-300); display: flex; align-items: center; justify-content: center; color: var(--color-gray-500); overflow: hidden; }
+    .logo-preview img { width: 100%; height: 100%; object-fit: cover; }
+    .modal--wide { max-width: 840px; }
+    .modal-body { padding: var(--space-4) var(--space-6) var(--space-6); display: grid; gap: var(--space-4); }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3); }
+    .field--full { grid-column: 1 / -1; }
+    .grade-list { border: 1px solid var(--color-gray-200); border-radius: var(--border-radius-sm); padding: var(--space-3); display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-2); max-height: 200px; overflow: auto; background: var(--color-gray-50); }
+    .grade-item { display: flex; align-items: center; gap: var(--space-2); font-size: var(--font-size-sm); color: var(--color-gray-800); }
+    .grade-item input { accent-color: var(--color-admin); }
+    .modal-actions { display: flex; justify-content: space-between; gap: var(--space-2); flex-wrap: wrap; padding-top: var(--space-2); border-top: 1px solid var(--color-gray-200); }
+    .profile-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3); font-size: var(--font-size-sm); color: var(--color-gray-800); }
+    .profile-item { border: 1px solid var(--color-gray-200); border-radius: var(--border-radius-sm); background: var(--color-gray-50); padding: var(--space-3); display: grid; gap: var(--space-1); }
+    .profile-item strong { color: var(--color-gray-500); font-size: var(--font-size-xs); }
+    .profile-links { display: grid; gap: var(--space-1); }
+    .profile-links a { color: var(--color-teacher); text-decoration: none; word-break: break-all; }
+    .profile-links a:hover { text-decoration: underline; }
+    @media (max-width: 1023px) {
+      body.rtl .main-content .admin-navbar { right: var(--sidebar-collapsed-width); }
+      body.ltr .main-content .admin-navbar { left: var(--sidebar-collapsed-width); }
+      body.rtl .main-content { margin-right: var(--sidebar-collapsed-width); }
+      body.ltr .main-content { margin-left: var(--sidebar-collapsed-width); }
+      .sidebar { width: var(--sidebar-collapsed-width); }
+      .sidebar .sidebar__brand-text, .sidebar .sidebar__item span, .sidebar .sidebar__toggle span { display: none; }
+      .tools-grid, .form-grid, .profile-grid, .grade-list { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 767px) {
+      .sidebar { display: none; }
+      body.rtl .main-content, body.ltr .main-content { margin: 0; }
+      body.rtl .main-content .admin-navbar, body.ltr .main-content .admin-navbar { right: 0; left: 0; }
+      .main { padding-inline: var(--space-4); }
+      .actions-cell .btn, .token-add, .token-add input, .modal-actions .btn, .tools-grid .btn { width: 100%; }
+      .token-add { flex-wrap: wrap; }
+      .modal__header, .modal-body { padding-inline: var(--space-4); }
+    }
+  </style>
+</head>
+<body class="rtl">
+  <aside class="sidebar" id="sidebar" aria-label="Sidebar navigation">
+    <div class="sidebar__header"><div class="sidebar__logo">M</div><span class="sidebar__brand-text">سراج - الإدارة</span></div>
+    <nav class="sidebar__nav">
+      <a class="sidebar__item" href="admin-dashboard.html"><i class="fas fa-gauge"></i><span>نظرة عامة</span></a>
+      <a class="sidebar__item" href="admin-ai-config.html"><i class="fas fa-robot"></i><span>إعدادات AI</span></a>
+      <a class="sidebar__item" href="admin-prompt-library.html"><i class="fas fa-book-open"></i><span>مكتبة البرومبت</span></a>
+      <a class="sidebar__item" href="admin-plans.html"><i class="fas fa-layer-group"></i><span>الخطط والاشتراكات</span></a>
+      <a class="sidebar__item sidebar__item--active" href="admin-schools.html"><i class="fas fa-school"></i><span>إدارة المدارس</span></a>
+    </nav>
+    <button class="sidebar__toggle" id="sidebar-toggle" aria-label="Toggle sidebar"><i class="fas fa-angles-right"></i><span>تصغير</span></button>
+  </aside>
+
+  <div class="main-content" id="main-content">
+    <nav class="navbar admin-navbar" role="navigation" aria-label="Admin top navigation">
+      <a href="admin-schools.html" class="navbar__brand"><div class="navbar__brand-icon"><i class="fas fa-school"></i></div><span class="navbar__brand-text">إدارة المدارس</span></a>
+      <div class="navbar__actions">
+        <div class="lang-switcher" role="group" aria-label="Language selector">
+          <button class="lang-switcher__btn active" data-lang="ar" aria-label="Arabic">&#1593;</button>
+          <button class="lang-switcher__btn" data-lang="he" aria-label="Hebrew">&#1506;&#1489;</button>
+          <button class="lang-switcher__btn" data-lang="en" aria-label="English">En</button>
+        </div>
+        <div class="avatar-dropdown">
+          <button class="avatar-btn" type="button" data-avatar-toggle="admin-avatar-menu" aria-label="قائمة الحساب">
+            <i class="fas fa-user-shield"></i>
+          </button>
+          <div class="avatar-menu" id="admin-avatar-menu" data-avatar-menu>
+            <span class="avatar-menu__label">حساب المدير</span>
+            <a class="avatar-menu__link" href="admin-profile.html"><i class="fas fa-id-card"></i><span>ملفي الشخصي</span></a>
+            <a class="avatar-menu__link" href="admin-dashboard.html"><i class="fas fa-gauge"></i><span>لوحة الإدارة</span></a>
+          </div>
+        </div>
+        <a href="index.html" class="btn btn--admin btn--sm"><i class="fas fa-right-from-bracket"></i><span>تسجيل الخروج</span></a>
+      </div>
+    </nav>
+
+    <main class="main">
+      <header class="head">
+        <div><h1>إدارة المؤسسات التعليمية</h1><p>عرض المدارس، إضافة مدرسة عبر نافذة منبثقة، وإدارة الملف المؤسسي والتوكنز.</p></div>
+        <div class="counter-chip"><i class="fas fa-building-columns"></i><span id="school-count">0 مؤسسة</span></div>
+      </header>
+
+      <section class="card-block">
+        <div class="tools-grid">
+          <div class="field"><label for="schools-search">بحث عن مدرسة</label><input id="schools-search" type="text" placeholder="ابحث باسم المؤسسة، رمزها، أو البريد"></div>
+          <div class="field"><label for="page-size">عدد العناصر لكل صفحة</label><select id="page-size"><option value="10" selected>10</option><option value="20">20</option><option value="50">50</option></select></div>
+          <button class="btn btn--admin" data-modal-open="add-school-modal"><i class="fas fa-plus"></i><span>إضافة مدرسة</span></button>
+        </div>
+        <p class="helper">لدعم 300 مدرسة وأكثر: استخدم البحث وتقسيم الصفحات للوصول السريع.</p>
+      </section>
+
+      <section class="card-block">
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr><th>الشعار</th><th>رمز المؤسسة</th><th>اسم المؤسسة</th><th>المراحل التعليمية</th><th>بيانات التواصل</th><th>اللغة الافتراضية</th><th>الرصيد</th><th>إجراءات</th></tr>
+            </thead>
+            <tbody id="schools-body"></tbody>
+          </table>
+        </div>
+        <div class="pagination">
+          <p class="pagination-info" id="pagination-info">0 - 0 من 0</p>
+          <div class="pagination-controls">
+            <button id="page-prev" class="btn btn--outline btn--sm" type="button">السابق</button>
+            <span id="page-status" class="pagination-info">صفحة 1 من 1</span>
+            <button id="page-next" class="btn btn--outline btn--sm" type="button">التالي</button>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+  <div class="modal-overlay" id="add-school-modal" aria-hidden="true">
+    <div class="modal modal--wide" role="dialog" aria-labelledby="add-school-title" aria-modal="true">
+      <div class="modal__header">
+        <h2 id="add-school-title">إضافة مدرسة جديدة</h2>
+        <button class="modal__close" data-modal-close aria-label="Close"><i class="fas fa-xmark"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="form-grid">
+          <div class="field field--full">
+            <label>ايقونة المؤسسة (اختياري)</label>
+            <div class="logo-picker"><div class="logo-preview" id="logo-preview"><i class="fas fa-image"></i></div><input id="school-logo" type="file" accept="image/*"></div>
+          </div>
+          <div class="field"><label for="school-code">رمز المؤسسة التعليمية<span class="required-star">*</span></label><input id="school-code" type="text" placeholder="مثال: SRJ-RYD-01"></div>
+          <div class="field"><label for="school-name">اسم المؤسسة<span class="required-star">*</span></label><input id="school-name" type="text" placeholder="مثال: مؤسسة سراج الدولية"></div>
+          <div class="field field--full">
+            <label>المراحل التعليمية</label>
+            <div id="grade-list" class="grade-list" aria-label="المراحل التعليمية"></div>
+            <p class="helper">المراحل المعروضة هنا يتم جلبها من كتالوج الإدارة.</p>
+          </div>
+          <div class="field"><label for="school-email">ايميل المؤسسة التعليمية<span class="required-star">*</span></label><input id="school-email" type="email" placeholder="school@domain.edu"></div>
+          <div class="field"><label for="school-country">الدولة</label><input id="school-country" type="text" placeholder="مثال: السعودية"></div>
+          <div class="field field--full"><label for="school-address">العنوان</label><input id="school-address" type="text" placeholder="الحي، الشارع، المدينة"></div>
+          <div class="field"><label for="school-phone">رقم الهاتف</label><input id="school-phone" type="text" placeholder="+966 5X XXX XXXX"></div>
+          <div class="field"><label for="school-language">اللغة الافتراضية</label><select id="school-language"><option value="ar">العربية</option><option value="he">עברית</option><option value="en">English</option></select></div>
+          <div class="field field--full"><label for="school-social">روابط التواصل الاجتماعي</label><textarea id="school-social" placeholder="أدخل رابطًا في كل سطر (Facebook, X, Instagram, LinkedIn...)"></textarea></div>
+        </div>
+        <div class="modal-actions">
+          <button class="btn btn--outline" id="reset-school-form" type="button">تفريغ الحقول</button>
+          <div><button class="btn btn--outline" data-modal-close type="button">إلغاء</button><button class="btn btn--admin" id="add-school-btn" type="button">حفظ المدرسة</button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="school-profile-modal" aria-hidden="true">
+    <div class="modal modal--wide" role="dialog" aria-labelledby="school-profile-title" aria-modal="true">
+      <div class="modal__header">
+        <h2 id="school-profile-title">الملف المؤسسي</h2>
+        <button class="modal__close" data-modal-close aria-label="Close"><i class="fas fa-xmark"></i></button>
+      </div>
+      <div class="modal-body" id="school-profile-content"></div>
+    </div>
+  </div>
+
+  <script src="shared-layout.js"></script>
+  <script>
+    (function () {
+      'use strict';
+
+      var schoolsKey = 'mitests-schools';
+      var gradesKey = 'mitests-admin-grades';
+
+      var gradeListEl = document.getElementById('grade-list');
+      var schoolsBodyEl = document.getElementById('schools-body');
+      var schoolCountEl = document.getElementById('school-count');
+      var searchEl = document.getElementById('schools-search');
+      var pageSizeEl = document.getElementById('page-size');
+      var pagePrevEl = document.getElementById('page-prev');
+      var pageNextEl = document.getElementById('page-next');
+      var pageStatusEl = document.getElementById('page-status');
+      var paginationInfoEl = document.getElementById('pagination-info');
+
+      var logoInput = document.getElementById('school-logo');
+      var logoPreview = document.getElementById('logo-preview');
+
+      var codeEl = document.getElementById('school-code');
+      var nameEl = document.getElementById('school-name');
+      var emailEl = document.getElementById('school-email');
+      var countryEl = document.getElementById('school-country');
+      var addressEl = document.getElementById('school-address');
+      var phoneEl = document.getElementById('school-phone');
+      var languageEl = document.getElementById('school-language');
+      var socialEl = document.getElementById('school-social');
+
+      var addBtn = document.getElementById('add-school-btn');
+      var resetBtn = document.getElementById('reset-school-form');
+      var addSchoolModalEl = document.getElementById('add-school-modal');
+      var profileModalEl = document.getElementById('school-profile-modal');
+      var profileContentEl = document.getElementById('school-profile-content');
+
+      var selectedLogoData = '';
+      var currentPage = 1;
+
+      var defaultGrades = ['الصف الأول','الصف الثاني','الصف الثالث','الصف الرابع','الصف الخامس','الصف السادس','الصف السابع','الصف الثامن','الصف التاسع','الصف العاشر','الصف الحادي عشر','الصف الثاني عشر'];
+
+      var defaultSchools = [
+        {id:'school-1',code:'SRJ-RYD-01',name:'مدرسة سراج الدولية',email:'admin@seraj.edu',grades:['الصف السابع','الصف الثامن','الصف التاسع'],tokens:180000,logo:'',profile:{country:'السعودية',address:'الرياض - حي النخيل - شارع الملك فهد',phone:'+966 11 555 7788',socialLinks:'https://x.com/serajschool\nhttps://instagram.com/serajschool',defaultLanguage:'ar'}},
+        {id:'school-2',code:'NR-ACD-02',name:'أكاديمية النور',email:'info@alnoor.edu',grades:['الصف الأول','الصف الثاني','الصف الثالث','الصف الرابع','الصف الخامس','الصف السادس'],tokens:92000,logo:'',profile:{country:'الأردن',address:'عمّان - الدوار الخامس - شارع زهران',phone:'+962 6 555 1020',socialLinks:'https://facebook.com/alnooracademy',defaultLanguage:'ar'}}
+      ];
+
+      function escapeHtml(value) { return String(value || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+      function languageLabel(code) { if (code === 'he') return 'עברית'; if (code === 'en') return 'English'; return 'العربية'; }
+      function generateId() { return 'school-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 7); }
+      function normalizeSchool(raw) {
+        var base = raw || {};
+        var profile = base.profile || {};
+        return {
+          id: base.id || generateId(),
+          code: String(base.code || '').trim(),
+          name: String(base.name || '').trim(),
+          email: String(base.email || '').trim(),
+          grades: Array.isArray(base.grades) ? base.grades : [],
+          tokens: Number(base.tokens) || 0,
+          logo: String(base.logo || ''),
+          profile: {
+            country: String(profile.country || base.country || '').trim(),
+            address: String(profile.address || base.address || '').trim(),
+            phone: String(profile.phone || base.phone || base.telephone || '').trim(),
+            socialLinks: String(profile.socialLinks || base.socialLinks || '').trim(),
+            defaultLanguage: String(profile.defaultLanguage || base.defaultLanguage || 'ar').trim() || 'ar'
+          }
+        };
+      }
+
+      function loadGradesCatalog() {
+        try {
+          var raw = localStorage.getItem(gradesKey);
+          if (!raw) return defaultGrades.slice();
+          var parsed = JSON.parse(raw);
+          if (Array.isArray(parsed) && parsed.length) return parsed;
+        } catch (e) {}
+        return defaultGrades.slice();
+      }
+
+      function renderGradeOptions() {
+        var grades = loadGradesCatalog();
+        gradeListEl.innerHTML = '';
+        for (var i = 0; i < grades.length; i++) {
+          var label = document.createElement('label');
+          label.className = 'grade-item';
+          var input = document.createElement('input');
+          input.type = 'checkbox';
+          input.value = grades[i];
+          var span = document.createElement('span');
+          span.textContent = grades[i];
+          label.appendChild(input);
+          label.appendChild(span);
+          gradeListEl.appendChild(label);
+        }
+      }
+
+      function getCheckedGrades() {
+        var checked = gradeListEl.querySelectorAll('input[type="checkbox"]:checked');
+        var out = [];
+        for (var i = 0; i < checked.length; i++) out.push(checked[i].value);
+        return out;
+      }
+
+      function resetForm() {
+        codeEl.value = '';
+        nameEl.value = '';
+        emailEl.value = '';
+        countryEl.value = '';
+        addressEl.value = '';
+        phoneEl.value = '';
+        socialEl.value = '';
+        languageEl.value = 'ar';
+        selectedLogoData = '';
+        logoInput.value = '';
+        logoPreview.innerHTML = '<i class="fas fa-image"></i>';
+        var checks = gradeListEl.querySelectorAll('input[type="checkbox"]');
+        for (var i = 0; i < checks.length; i++) checks[i].checked = false;
+      }
+
+      function loadSchools() {
+        try {
+          var raw = localStorage.getItem(schoolsKey);
+          if (!raw) {
+            var seeded = [];
+            for (var i = 0; i < defaultSchools.length; i++) seeded.push(normalizeSchool(defaultSchools[i]));
+            localStorage.setItem(schoolsKey, JSON.stringify(seeded));
+            return seeded;
+          }
+          var parsed = JSON.parse(raw);
+          if (Array.isArray(parsed)) {
+            var out = [];
+            for (var j = 0; j < parsed.length; j++) out.push(normalizeSchool(parsed[j]));
+            return out;
+          }
+        } catch (e) {}
+        var fallback = [];
+        for (var k = 0; k < defaultSchools.length; k++) fallback.push(normalizeSchool(defaultSchools[k]));
+        return fallback;
+      }
+
+      function saveSchools(list) { try { localStorage.setItem(schoolsKey, JSON.stringify(list)); } catch (e) {} }
+      function createLogoCell(school) { return school.logo ? '<img class="school-logo" src="' + school.logo + '" alt="' + escapeHtml(school.name) + '">' : '<span class="school-logo school-logo--fallback"><i class="fas fa-school"></i></span>'; }
+
+      function findSchoolIndexById(list, schoolId) {
+        for (var i = 0; i < list.length; i++) if (String(list[i].id) === String(schoolId)) return i;
+        return -1;
+      }
+
+      function getFilteredSchools(list) {
+        var q = String(searchEl.value || '').trim().toLowerCase();
+        if (!q) return list.slice();
+        var out = [];
+        for (var i = 0; i < list.length; i++) {
+          var school = list[i];
+          var hay = [school.code, school.name, school.email, school.profile.country, school.profile.phone, school.profile.address].join(' ').toLowerCase();
+          if (hay.indexOf(q) !== -1) out.push(school);
+        }
+        return out;
+      }
+
+      function renderPagination(total, visibleCount, totalPages) {
+        var pageSize = Number(pageSizeEl.value) || 10;
+        var start = total ? ((currentPage - 1) * pageSize) + 1 : 0;
+        var end = total ? (start + visibleCount - 1) : 0;
+        paginationInfoEl.textContent = start + ' - ' + end + ' من ' + total;
+        pageStatusEl.textContent = 'صفحة ' + currentPage + ' من ' + totalPages;
+        pagePrevEl.disabled = currentPage <= 1;
+        pageNextEl.disabled = currentPage >= totalPages;
+      }
+
+      function renderSchools() {
+        var schools = loadSchools();
+        var filtered = getFilteredSchools(schools);
+        var pageSize = Number(pageSizeEl.value) || 10;
+        var totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+        if (currentPage > totalPages) currentPage = totalPages;
+        var start = (currentPage - 1) * pageSize;
+        var visible = filtered.slice(start, start + pageSize);
+
+        schoolsBodyEl.innerHTML = '';
+        for (var i = 0; i < visible.length; i++) {
+          var school = visible[i];
+          var tr = document.createElement('tr');
+          var contactHtml = '<div class="contact-block"><strong>' + escapeHtml(school.email || '-') + '</strong><small>' + escapeHtml(school.profile.phone || '-') + '</small><small>' + escapeHtml(school.profile.country || '-') + '</small></div>';
+          tr.innerHTML = '' +
+            '<td>' + createLogoCell(school) + '</td>' +
+            '<td><strong>' + escapeHtml(school.code || '-') + '</strong></td>' +
+            '<td>' + escapeHtml(school.name || '-') + '</td>' +
+            '<td>' + (school.grades || []).map(function (g) { return '<span class="grades-chip">' + escapeHtml(g) + '</span>'; }).join('') + '</td>' +
+            '<td>' + contactHtml + '</td>' +
+            '<td>' + escapeHtml(languageLabel(school.profile.defaultLanguage)) + '</td>' +
+            '<td><strong>' + (Number(school.tokens) || 0).toLocaleString() + '</strong></td>' +
+            '<td><div class="actions-cell"><button class="btn btn--outline btn--sm" data-view-profile="' + escapeHtml(school.id) + '">عرض الملف</button><div class="token-add"><input type="number" min="1000" step="1000" value="10000" data-token-input="' + escapeHtml(school.id) + '"><button class="btn btn--admin btn--sm" data-add-token="' + escapeHtml(school.id) + '">إضافة</button></div></div></td>';
+          schoolsBodyEl.appendChild(tr);
+        }
+
+        schoolCountEl.textContent = schools.length + ' مؤسسة';
+        renderPagination(filtered.length, visible.length, totalPages);
+      }
+      function openSchoolProfile(schoolId) {
+        var schools = loadSchools();
+        var idx = findSchoolIndexById(schools, schoolId);
+        if (idx === -1) return;
+
+        var school = schools[idx];
+        var linksRaw = String(school.profile.socialLinks || '').split(/\n|,/);
+        var links = [];
+        for (var i = 0; i < linksRaw.length; i++) {
+          var item = linksRaw[i].trim();
+          if (item) links.push(item);
+        }
+
+        var linksHtml = '<span>-</span>';
+        if (links.length) {
+          linksHtml = '<div class="profile-links">' + links.map(function (link) {
+            var href = link;
+            if (!/^https?:\/\//i.test(href)) href = 'https://' + href;
+            return '<a href="' + escapeHtml(href) + '" target="_blank" rel="noopener noreferrer">' + escapeHtml(link) + '</a>';
+          }).join('') + '</div>';
+        }
+
+        profileContentEl.innerHTML = '' +
+          '<div class="profile-grid">' +
+            '<div class="profile-item"><strong>رمز المؤسسة</strong><span>' + escapeHtml(school.code || '-') + '</span></div>' +
+            '<div class="profile-item"><strong>اسم المؤسسة</strong><span>' + escapeHtml(school.name || '-') + '</span></div>' +
+            '<div class="profile-item"><strong>ايميل المؤسسة</strong><span>' + escapeHtml(school.email || '-') + '</span></div>' +
+            '<div class="profile-item"><strong>الهاتف</strong><span>' + escapeHtml(school.profile.phone || '-') + '</span></div>' +
+            '<div class="profile-item"><strong>الدولة</strong><span>' + escapeHtml(school.profile.country || '-') + '</span></div>' +
+            '<div class="profile-item"><strong>العنوان</strong><span>' + escapeHtml(school.profile.address || '-') + '</span></div>' +
+            '<div class="profile-item"><strong>اللغة الافتراضية</strong><span>' + escapeHtml(languageLabel(school.profile.defaultLanguage)) + '</span></div>' +
+            '<div class="profile-item"><strong>رصيد التوكنز</strong><span>' + (Number(school.tokens) || 0).toLocaleString() + '</span></div>' +
+            '<div class="profile-item" style="grid-column:1/-1;"><strong>المراحل التعليمية</strong><span>' + ((school.grades || []).map(function (g) { return '<span class="grades-chip">' + escapeHtml(g) + '</span>'; }).join('') || '-') + '</span></div>' +
+            '<div class="profile-item" style="grid-column:1/-1;"><strong>روابط التواصل الاجتماعي</strong>' + linksHtml + '</div>' +
+          '</div>';
+
+        profileModalEl.classList.add('modal-overlay--active');
+        profileModalEl.setAttribute('aria-hidden', 'false');
+        document.body.style.overflow = 'hidden';
+      }
+
+      function addSchool() {
+        var code = codeEl.value.trim();
+        var name = nameEl.value.trim();
+        var email = emailEl.value.trim();
+        var grades = getCheckedGrades();
+
+        if (!code) return alert('يرجى إدخال رمز المؤسسة التعليمية.');
+        if (!name) return alert('يرجى إدخال اسم المؤسسة.');
+        if (!email) return alert('ايميل المؤسسة التعليمية مطلوب.');
+        if (!grades.length) return alert('يرجى اختيار مرحلة تعليمية واحدة على الأقل.');
+
+        var schools = loadSchools();
+        for (var i = 0; i < schools.length; i++) {
+          if ((schools[i].code || '').toLowerCase() === code.toLowerCase()) return alert('رمز المؤسسة موجود مسبقًا. الرجاء استخدام رمز آخر.');
+        }
+
+        schools.push(normalizeSchool({
+          id: generateId(),
+          code: code,
+          name: name,
+          email: email,
+          grades: grades,
+          tokens: 0,
+          logo: selectedLogoData || '',
+          profile: {
+            country: countryEl.value.trim(),
+            address: addressEl.value.trim(),
+            phone: phoneEl.value.trim(),
+            socialLinks: socialEl.value.trim(),
+            defaultLanguage: languageEl.value
+          }
+        }));
+
+        saveSchools(schools);
+        currentPage = 1;
+        renderSchools();
+        resetForm();
+        addSchoolModalEl.classList.remove('modal-overlay--active');
+        addSchoolModalEl.setAttribute('aria-hidden', 'true');
+        document.body.style.overflow = '';
+        alert('تمت إضافة المؤسسة بنجاح.');
+      }
+
+      function addTokens(schoolId, amount) {
+        var schools = loadSchools();
+        var idx = findSchoolIndexById(schools, schoolId);
+        if (idx === -1) return;
+        var numeric = Number(amount);
+        if (!numeric || numeric <= 0) return alert('أدخل عدد توكنز صحيح أكبر من صفر.');
+        schools[idx].tokens = (Number(schools[idx].tokens) || 0) + numeric;
+        saveSchools(schools);
+        renderSchools();
+      }
+
+      logoInput.addEventListener('change', function () {
+        var file = logoInput.files && logoInput.files[0];
+        if (!file) { selectedLogoData = ''; logoPreview.innerHTML = '<i class="fas fa-image"></i>'; return; }
+        var reader = new FileReader();
+        reader.onload = function (e) {
+          selectedLogoData = String((e.target && e.target.result) || '');
+          if (selectedLogoData) logoPreview.innerHTML = '<img src="' + selectedLogoData + '" alt="شعار المؤسسة">';
+        };
+        reader.readAsDataURL(file);
+      });
+
+      addBtn.addEventListener('click', addSchool);
+      resetBtn.addEventListener('click', resetForm);
+
+      searchEl.addEventListener('input', function () { currentPage = 1; renderSchools(); });
+      pageSizeEl.addEventListener('change', function () { currentPage = 1; renderSchools(); });
+      pagePrevEl.addEventListener('click', function () { currentPage = Math.max(1, currentPage - 1); renderSchools(); });
+      pageNextEl.addEventListener('click', function () { currentPage += 1; renderSchools(); });
+
+      schoolsBodyEl.addEventListener('click', function (e) {
+        var profileBtn = e.target.closest('[data-view-profile]');
+        if (profileBtn) return openSchoolProfile(profileBtn.getAttribute('data-view-profile'));
+        var tokenBtn = e.target.closest('[data-add-token]');
+        if (!tokenBtn) return;
+        var schoolId = tokenBtn.getAttribute('data-add-token');
+        var input = schoolsBodyEl.querySelector('input[data-token-input="' + schoolId + '"]');
+        if (!input) return;
+        addTokens(schoolId, input.value);
+      });
+
+      document.addEventListener('click', function (e) {
+        var openBtn = e.target.closest('[data-modal-open="add-school-modal"]');
+        if (openBtn) { renderGradeOptions(); resetForm(); }
+      });
+
+      renderGradeOptions();
+      renderSchools();
+    })();
+  </script>
+</body>
+</html>
+
+
+

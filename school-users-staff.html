@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mitests - الموظفون والصلاحيات</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Cairo', sans-serif; }
+    h1, h2, h3, h4, h5, h6 { font-family: 'Cairo', sans-serif; }
+    .school-navbar { border-bottom: 1px solid var(--color-gray-200); }
+    body.rtl .main-content .school-navbar { right: var(--sidebar-width); left: 0; }
+    body.ltr .main-content .school-navbar { left: var(--sidebar-width); right: 0; }
+    body.rtl .main-content.main-content--expanded .school-navbar { right: var(--sidebar-collapsed-width); }
+    body.ltr .main-content.main-content--expanded .school-navbar { left: var(--sidebar-collapsed-width); }
+    .school-navbar .navbar__brand-icon { background: linear-gradient(135deg, var(--color-school), #fbbf24); }
+    .sidebar__item:hover, .sidebar__item--active { background: rgba(245, 158, 11, 0.24); color: var(--color-white); }
+    .sidebar__item--active { border-inline-start: 3px solid var(--color-school); }
+    .btn--school { background: var(--color-school); border-color: var(--color-school); color: var(--color-white); }
+
+    .main { padding: calc(var(--navbar-height) + 1px) 0 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+    
+    .page-header { background: var(--color-white); padding: var(--space-4) var(--space-6); border-bottom: 1px solid var(--color-gray-200); }
+    .page-header h1 { font-size: var(--font-size-2xl); color: var(--color-gray-900); }
+    .page-header p { color: var(--color-gray-500); margin-top: var(--space-1); }
+
+    .tabs-nav { display: flex; gap: var(--space-4); margin-top: var(--space-4); border-bottom: 1px solid var(--color-gray-200); }
+    .tab-link {
+      padding: var(--space-2) var(--space-4); color: var(--color-gray-500); text-decoration: none; font-weight: 500;
+      border-bottom: 2px solid transparent; transition: all 0.2s;
+    }
+    .tab-link:hover { color: var(--color-school); background: var(--color-gray-50); }
+    .tab-link.active { color: var(--color-school); border-bottom-color: var(--color-school); font-weight: 700; }
+
+    .content-area { flex: 1; padding: var(--space-6); overflow-y: auto; display: grid; gap: var(--space-4); }
+
+    .card { background: var(--color-white); border: 1px solid var(--color-gray-200); border-radius: var(--border-radius-md); box-shadow: var(--shadow-sm); padding: var(--space-4); }
+    
+    .toolbar { display: flex; justify-content: space-between; gap: var(--space-4); flex-wrap: wrap; margin-bottom: var(--space-4); }
+    .search-box { flex: 1; max-width: 400px; position: relative; }
+    .search-box input { width: 100%; padding: var(--space-2) var(--space-3) var(--space-2) var(--space-7); border: 1px solid var(--color-gray-300); border-radius: var(--border-radius-sm); }
+    .search-box i { position: absolute; right: var(--space-3); top: 50%; transform: translateY(-50%); color: var(--color-gray-400); }
+
+    .table-wrap { overflow-x: auto; }
+    .data-table { width: 100%; border-collapse: collapse; white-space: nowrap; }
+    .data-table th { background: var(--color-gray-50); padding: var(--space-3); text-align: start; font-size: var(--font-size-xs); font-weight: 700; color: var(--color-gray-500); text-transform: uppercase; }
+    .data-table td { padding: var(--space-3); border-bottom: 1px solid var(--color-gray-100); font-size: var(--font-size-sm); color: var(--color-gray-700); }
+    .data-table tr:hover { background: var(--color-gray-50); }
+    
+    .status-badge { padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 600; }
+    .status-active { background: #dcfce7; color: #166534; }
+    .status-inactive { background: #f3f4f6; color: #374151; }
+
+    .btn-icon { width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; border-radius: 4px; border: 1px solid transparent; color: var(--color-gray-500); cursor: pointer; transition: all 0.2s; }
+    .btn-icon:hover { background: var(--color-gray-100); color: var(--color-gray-900); }
+    .btn-icon.edit:hover { background: #eff6ff; color: #1d4ed8; }
+    .btn-icon.delete:hover { background: #fef2f2; color: #b91c1c; }
+    
+    .permission-tags { display: flex; gap: 4px; flex-wrap: wrap; }
+    .perm-tag { background: #f3f4f6; color: #4b5563; font-size: 10px; padding: 2px 6px; border-radius: 4px; border: 1px solid #e5e7eb; }
+
+    /* Modal Styles */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000;
+      display: none; align-items: center; justify-content: center; backdrop-filter: blur(2px);
+    }
+    .modal-overlay[aria-hidden="false"] { display: flex; animation: fadeIn 0.2s ease-out; }
+    .modal {
+      background: var(--color-white); width: 100%; max-width: 500px;
+      border-radius: var(--border-radius-lg); box-shadow: var(--shadow-xl); overflow: hidden;
+      display: flex; flex-direction: column; max-height: 90vh; /* Fix overflow */
+      animation: slideUp 0.3s ease-out;
+    }
+    .modal__header {
+      padding: var(--space-4); border-bottom: 1px solid var(--color-gray-200);
+      display: flex; justify-content: space-between; align-items: center; background: var(--color-gray-50);
+    }
+    .modal__header h2 { font-size: var(--font-size-lg); margin: 0; color: var(--color-gray-800); }
+    .modal__close { background: none; border: none; font-size: var(--font-size-xl); cursor: pointer; color: var(--color-gray-500); }
+    .modal__body { padding: var(--space-5); display: grid; gap: var(--space-4); overflow-y: auto; }
+    
+    .form-group { display: grid; gap: var(--space-1); }
+    .form-group label { font-size: var(--font-size-sm); font-weight: 600; color: var(--color-gray-700); }
+    .form-group input, .form-group select {
+      padding: var(--space-2) var(--space-3); border: 1px solid var(--color-gray-300);
+      border-radius: var(--border-radius-sm); font-family: inherit;
+    }
+    .modal__footer {
+      padding: var(--space-4); border-top: 1px solid var(--color-gray-200);
+      display: flex; justify-content: flex-end; gap: var(--space-3); background: var(--color-gray-50);
+    }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+    @media (max-width:1023px){ body.rtl .main-content .school-navbar{right:var(--sidebar-collapsed-width)} body.ltr .main-content .school-navbar{left:var(--sidebar-collapsed-width)} body.rtl .main-content{margin-right:var(--sidebar-collapsed-width)} body.ltr .main-content{margin-left:var(--sidebar-collapsed-width)} .sidebar{width:var(--sidebar-collapsed-width)} .sidebar .sidebar__brand-text,.sidebar .sidebar__item span,.sidebar .sidebar__toggle span{display:none} }
+    @media (max-width:767px){ .sidebar{display:none} body.rtl .main-content,body.ltr .main-content{margin:0} body.rtl .main-content .school-navbar,body.ltr .main-content .school-navbar{right:0;left:0} .tabs-nav { overflow-x: auto; } }
+  </style>
+</head>
+<body class="rtl">
+  <aside class="sidebar" id="sidebar" aria-label="Sidebar navigation">
+    <div class="sidebar__header"><div class="sidebar__logo">M</div><span class="sidebar__brand-text">سراج - المدرسة</span></div>
+    <nav class="sidebar__nav">
+      <a class="sidebar__item" href="school.html"><i class="fas fa-gauge"></i><span>نظرة عامة</span></a>
+      <a class="sidebar__item" href="school-tokens.html"><i class="fas fa-coins"></i><span>إدارة التوكنز</span></a>
+      <a class="sidebar__item sidebar__item--active" href="school-users-teachers.html"><i class="fas fa-user-plus"></i><span>إدارة المستخدمين</span></a>
+      <a class="sidebar__item" href="school-profile.html"><i class="fas fa-id-card"></i><span>ملف المؤسسة</span></a>
+      <a class="sidebar__item" href="school-whitelabel.html"><i class="fas fa-palette"></i><span>الهوية المؤسسية</span></a>
+      <a class="sidebar__item" href="school-qa-review.html"><i class="fas fa-clipboard-check"></i><span>تدقيق الاختبارات</span></a>
+      <a class="sidebar__item" href="school-approval.html"><i class="fas fa-badge-check"></i><span>اعتماد المحتوى</span></a>
+      <a class="sidebar__item" href="school-communications.html"><i class="fas fa-comments"></i><span>التواصل والإشعارات</span></a>
+      <a class="sidebar__item" href="school-settings.html"><i class="fas fa-gear"></i><span>الإعدادات</span></a>
+    </nav>
+    <button class="sidebar__toggle" id="sidebar-toggle" aria-label="Toggle sidebar"><i class="fas fa-angles-right"></i><span>تصغير</span></button>
+  </aside>
+
+  <div class="main-content" id="main-content">
+    <nav class="navbar school-navbar" role="navigation" aria-label="School top navigation">
+      <a href="school-users-staff.html" class="navbar__brand"><div class="navbar__brand-icon"><i class="fas fa-id-badge"></i></div><span class="navbar__brand-text">إدارة الموظفين</span></a>
+      <div class="navbar__actions">
+        <div class="lang-switcher" role="group" aria-label="Language selector"><button class="lang-switcher__btn active" data-lang="ar" aria-label="Arabic">&#1593;</button><button class="lang-switcher__btn" data-lang="he" aria-label="Hebrew">&#1506;&#1489;</button><button class="lang-switcher__btn" data-lang="en" aria-label="English">En</button></div>
+        <div class="avatar-dropdown"><button class="avatar-btn" type="button" data-avatar-toggle="school-avatar-menu" aria-label="قائمة حساب المدرسة"><i class="fas fa-building-columns"></i></button><div class="avatar-menu" id="school-avatar-menu" data-avatar-menu><span class="avatar-menu__label">حساب المدرسة</span><a class="avatar-menu__link" href="school-profile.html"><i class="fas fa-id-card"></i><span>ملف المؤسسة</span></a><a class="avatar-menu__link" href="school-settings.html"><i class="fas fa-gear"></i><span>الإعدادات</span></a></div></div>
+        <a href="index.html" class="btn btn--school btn--sm"><i class="fas fa-right-from-bracket"></i><span>تسجيل الخروج</span></a>
+      </div>
+    </nav>
+
+    <main class="main">
+      <header class="page-header">
+        <h1>إدارة المستخدمين</h1>
+        <div class="tabs-nav">
+          <a href="school-users-teachers.html" class="tab-link">المعلمون</a>
+          <a href="school-users-students.html" class="tab-link">الطلاب</a>
+          <a href="school-users-staff.html" class="tab-link active">الموظفون والإداريون</a>
+        </div>
+      </header>
+      
+      <div class="content-area">
+        <div class="card">
+          <div class="toolbar">
+            <div class="search-box">
+              <i class="fas fa-search"></i>
+              <input type="text" placeholder="بحث...">
+            </div>
+            <div style="display:flex;gap:8px;">
+              <button class="btn btn--school" id="add-staff-btn" data-modal-open="staff-modal"><i class="fas fa-plus"></i> إضافة موظف</button>
+            </div>
+          </div>
+          
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>الاسم</th>
+                  <th>الدور الوظيفي</th>
+                  <th>البريد الإلكتروني</th>
+                  <th>الصلاحيات</th>
+                  <th>الحالة</th>
+                  <th>الإجراءات</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><div style="font-weight:600">سامي الجابر</div></td>
+                  <td>مدير النظام (Admin)</td>
+                  <td>sami.admin@school.edu</td>
+                  <td><div class="permission-tags"><span class="perm-tag">وصول كامل</span></div></td>
+                  <td><span class="status-badge status-active">نشط</span></td>
+                  <td>
+                    <button class="btn-icon edit" title="تعديل" onclick="openEditModal('سامي الجابر', 'Admin', 'sami.admin@school.edu')"><i class="fas fa-pen"></i></button>
+                    <button class="btn-icon" title="صلاحيات"><i class="fas fa-key"></i></button>
+                  </td>
+                </tr>
+                <tr>
+                  <td><div style="font-weight:600">منال العتيبي</div></td>
+                  <td>سكرتارية</td>
+                  <td>manal.sec@school.edu</td>
+                  <td><div class="permission-tags"><span class="perm-tag">إدارة الطلاب</span><span class="perm-tag">الإشعارات</span><span class="perm-tag">التوكنز</span></div></td>
+                  <td><span class="status-badge status-active">نشط</span></td>
+                  <td>
+                    <button class="btn-icon edit" title="تعديل" onclick="openEditModal('منال العتيبي', 'Secretary', 'manal.sec@school.edu')"><i class="fas fa-pen"></i></button>
+                    <button class="btn-icon" title="صلاحيات"><i class="fas fa-key"></i></button>
+                    <button class="btn-icon delete" title="حذف"><i class="fas fa-trash"></i></button>
+                  </td>
+                </tr>
+                <tr>
+                  <td><div style="font-weight:600">خالد المحمود</div></td>
+                  <td>مشرف تربوي</td>
+                  <td>khaled.sup@school.edu</td>
+                  <td><div class="permission-tags"><span class="perm-tag">مراجعة الاختبارات</span><span class="perm-tag">التقارير</span></div></td>
+                  <td><span class="status-badge status-inactive">إجازة</span></td>
+                  <td>
+                    <button class="btn-icon edit" title="تعديل" onclick="openEditModal('خالد المحمود', 'Supervisor', 'khaled.sup@school.edu')"><i class="fas fa-pen"></i></button>
+                    <button class="btn-icon" title="صلاحيات"><i class="fas fa-key"></i></button>
+                    <button class="btn-icon delete" title="حذف"><i class="fas fa-trash"></i></button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Add Staff Modal -->
+  <div class="modal-overlay" id="staff-modal" aria-hidden="true">
+    <div class="modal">
+      <div class="modal__header">
+        <h2>إضافة موظف جديد</h2>
+        <button class="modal__close" id="modal-close" data-modal-close>&times;</button>
+      </div>
+      <div class="modal__body">
+        <div class="form-group">
+          <label>الاسم الكامل</label>
+          <input type="text" id="staff-name" placeholder="مثال: منال العتيبي">
+        </div>
+        <div class="form-group">
+          <label>الدور الوظيفي</label>
+          <select id="staff-role">
+            <option value="">اختر الدور...</option>
+            <option value="Admin">مدير النظام (Admin)</option>
+            <option value="Secretary">سكرتارية</option>
+            <option value="Supervisor">مشرف تربوي</option>
+            <option value="Accountant">محاسب</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>البريد الإلكتروني</label>
+          <input type="email" id="staff-email" placeholder="email@school.edu">
+        </div>
+        <div class="form-group">
+          <label>الصلاحيات الممنوحة</label>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <label style="font-weight:400; font-size:12px;"><input type="checkbox" name="perms" value="students"> إدارة الطلاب</label>
+            <label style="font-weight:400; font-size:12px;"><input type="checkbox" name="perms" value="exams"> الاختبارات</label>
+            <label style="font-weight:400; font-size:12px;"><input type="checkbox" name="perms" value="reports"> التقارير</label>
+            <label style="font-weight:400; font-size:12px;"><input type="checkbox" name="perms" value="settings"> الإعدادات</label>
+          </div>
+        </div>
+      </div>
+      <div class="modal__footer">
+        <button class="btn btn--outline" id="modal-cancel" data-modal-close>إلغاء</button>
+        <button class="btn btn--school" id="modal-save">حفظ</button>
+      </div>
+    </div>
+    </div>
+  </div>
+
+  <!-- Edit Staff Modal -->
+  <div class="modal-overlay" id="edit-staff-modal" aria-hidden="true">
+    <div class="modal">
+      <div class="modal__header">
+        <h2>تعديل بيانات الموظف</h2>
+        <button class="modal__close" data-modal-close>&times;</button>
+      </div>
+      <div class="modal__body">
+        <div class="form-group">
+          <label>الاسم الكامل</label>
+          <input type="text" id="edit-staff-name">
+        </div>
+        <div class="form-group">
+          <label>الدور الوظيفي</label>
+          <select id="edit-staff-role">
+            <option value="Admin">مدير النظام (Admin)</option>
+            <option value="Secretary">سكرتارية</option>
+            <option value="Supervisor">مشرف تربوي</option>
+            <option value="Accountant">محاسب</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>البريد الإلكتروني</label>
+          <input type="email" id="edit-staff-email">
+        </div>
+      </div>
+      <div class="modal__footer">
+        <button class="btn btn--outline" data-modal-close>إلغاء</button>
+        <button class="btn btn--school" onclick="saveEditStaff()">حفظ التغييرات</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="shared-layout.js"></script>
+  <script>
+    (function(){
+      // Shared layout handles opening/closing via data attributes
+      var modal = document.getElementById('staff-modal');
+      var saveBtn = document.getElementById('modal-save');
+      var closeBtn = document.getElementById('modal-close'); // For manual close if needed
+
+      // We still need to handle the specific Save logic
+      saveBtn.addEventListener('click', function() {
+        var name = document.getElementById('staff-name').value;
+        var role = document.getElementById('staff-role').value;
+        if(name && role) {
+          alert('تم إضافة الموظف: ' + name);
+          // Manually close using shared layout class/attr logic or click the close button mock
+          closeBtn.click();
+        } else {
+          alert('يرجى ملء كافة الحقول المطلوبة');
+        }
+      });
+    })();
+
+    // Functions for Edit Staff Modal
+    function openEditModal(name, role, email) {
+      document.getElementById('edit-staff-name').value = name;
+      document.getElementById('edit-staff-role').value = role;
+      document.getElementById('edit-staff-email').value = email;
+      
+      var modal = document.getElementById('edit-staff-modal');
+      modal.classList.add('modal-overlay--active');
+      modal.setAttribute('aria-hidden', 'false');
+    }
+
+    function saveEditStaff() {
+      alert('تم حفظ بيانات الموظف بنجاح');
+      var modal = document.getElementById('edit-staff-modal');
+      modal.classList.remove('modal-overlay--active');
+      modal.setAttribute('aria-hidden', 'true');
+    }
+    (function(){
+       // Re-init modals for dynamically added ones if needed
+    })();
+  </script>
+</body>
+</html>
