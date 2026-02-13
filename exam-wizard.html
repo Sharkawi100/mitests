@@ -32,6 +32,7 @@
     <nav class="sidebar__nav">
       <a class="sidebar__item" href="teacher-dashboard.html"><i class="fas fa-gauge"></i><span>نظرة عامة</span></a>
       <a class="sidebar__item sidebar__item--active" href="exam-wizard.html"><i class="fas fa-file-lines"></i><span>إنشاء اختبار</span></a>
+      <a class="sidebar__item" href="teacher-tasks.html"><i class="fas fa-list-check"></i><span>مهام المعلم</span></a>
       <a class="sidebar__item" href="teacher-group.html"><i class="fas fa-users"></i><span>المجموعات</span></a>
       <a class="sidebar__item" href="teacher-question-bank.html"><i class="fas fa-database"></i><span>بنك الأسئلة</span></a>
       <a class="sidebar__item" href="teacher-community.html"><i class="fas fa-comments"></i><span>المجتمع</span></a>
@@ -191,6 +192,27 @@
       var subjectsKey = 'mitests-admin-subjects';
       var defaultGrades = ['الصف السابع', 'الصف الثامن', 'الصف التاسع', 'الصف العاشر'];
       var defaultSubjects = ['اللغة العربية', 'اللغة الإنجليزية', 'الرياضيات', 'العلوم'];
+
+      function readInitialKind() {
+        var kind = '';
+        try {
+          kind = new URLSearchParams(window.location.search).get('kind') || '';
+        } catch (e) {}
+        if (kind !== 'exam' && kind !== 'assignment') {
+          try {
+            var storedKind = localStorage.getItem('mitests-create-item-kind') || '';
+            if (storedKind === 'exam' || storedKind === 'assignment') kind = storedKind;
+          } catch (e2) {}
+        }
+        return (kind === 'assignment') ? 'assignment' : 'exam';
+      }
+
+      function hydrateInitialKind() {
+        if (!kindSelect) return;
+        var initialKind = readInitialKind();
+        kindSelect.value = initialKind;
+        try { localStorage.setItem('mitests-create-item-kind', initialKind); } catch (e) {}
+      }
 
       function loadCatalog(key, fallback) {
         try {
@@ -380,6 +402,9 @@
 
       if (kindSelect) {
         kindSelect.addEventListener('change', function () {
+          try {
+            localStorage.setItem('mitests-create-item-kind', kindSelect.value || 'exam');
+          } catch (e) {}
           updateGenerateButtonText();
           if (kindSelect.value) {
             kindSelect.closest('.field').classList.remove('error');
@@ -468,6 +493,7 @@
       }
 
       hydrateCatalogs();
+      hydrateInitialKind();
       renderSeedQuestions();
       updateGenerateButtonText();
       updateStepper();

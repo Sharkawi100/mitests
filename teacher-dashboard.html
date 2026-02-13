@@ -513,6 +513,10 @@
         <i class="fas fa-file-lines"></i>
         <span>اختباراتي</span>
       </a>
+      <a class="sidebar__item" href="teacher-tasks.html">
+        <i class="fas fa-list-check"></i>
+        <span>مهام المعلم</span>
+      </a>
       <a class="sidebar__item" href="teacher-group.html">
         <i class="fas fa-users"></i>
         <span>المجموعات</span>
@@ -584,10 +588,10 @@
           <h1>مرحبًا، نورة العلي</h1>
           <p>يوم ممتاز لإدارة الاختبارات، المجموعات، وتغذية راجعة أفضل للطلاب.</p>
         </div>
-        <a href="exam-wizard.html" class="btn btn--new-exam btn--lg" aria-label="إنشاء اختبار جديد">
+        <button type="button" class="btn btn--new-exam btn--lg" id="create-item-btn" data-modal-open="create-item-modal" aria-label="إنشاء اختبار أو واجب">
           <i class="fas fa-plus"></i>
-          <span>إنشاء اختبار جديد +</span>
-        </a>
+          <span>إنشاء اختبار/واجب جديد +</span>
+        </button>
       </header>
 
       <section aria-label="نظرة البيانات">
@@ -609,61 +613,6 @@
             <p class="stat-card__label">اختبارات بانتظار التصحيح</p>
             <p class="stat-card__value">14</p>
             <p class="stat-card__label">4 تحتاج مراجعة يدوية</p>
-          </article>
-        </div>
-      </section>
-
-      <section id="teacher-tasks" aria-label="مهام المعلم">
-        <h2 class="section-title-inline">مهام المعلم</h2>
-        <div class="tasks-kpi-grid">
-          <article class="task-kpi">
-            <p class="task-kpi__label">أعضاء جدد في المجموعات</p>
-            <p class="task-kpi__value" id="task-new-group-members">0</p>
-          </article>
-          <article class="task-kpi">
-            <p class="task-kpi__label">مشاركات جديدة</p>
-            <p class="task-kpi__value" id="task-new-shares">0</p>
-          </article>
-          <article class="task-kpi">
-            <p class="task-kpi__label">طلاب جدد مُسندون</p>
-            <p class="task-kpi__value" id="task-new-assigned-students">0</p>
-          </article>
-        </div>
-
-        <div class="task-board">
-          <article class="card">
-            <h3 class="sub-title">ما الذي يحتاج مراجعة؟ أي اختبار؟ أي طالب؟</h3>
-            <div class="table-wrap">
-              <table class="data-table">
-                <thead>
-                  <tr>
-                    <th>النوع</th>
-                    <th>العنوان</th>
-                    <th>المجموعة</th>
-                    <th>الطالب</th>
-                    <th>الحالة</th>
-                    <th>الإجراء</th>
-                  </tr>
-                </thead>
-                <tbody id="review-queue-body"></tbody>
-              </table>
-            </div>
-            <p class="task-hint">هذه القائمة تجيب مباشرة: ما الذي يحتاج مراجعة الآن، ولأي طالب.</p>
-          </article>
-
-          <article class="card">
-            <h3 class="sub-title">اعتماد الطلاب</h3>
-            <div class="approvals-grid">
-              <section class="approval-panel">
-                <h4>طلاب بانتظار الاعتماد</h4>
-                <ul class="approval-list" id="pending-approval-list"></ul>
-              </section>
-              <section class="approval-panel">
-                <h4>طلاب تمت الموافقة عليهم</h4>
-                <ul class="approval-list" id="approved-students-list"></ul>
-              </section>
-            </div>
-            <p class="task-hint">تعتمد على طلبات الانضمام للمجموعة: Pending مقابل Approved.</p>
           </article>
         </div>
       </section>
@@ -765,6 +714,10 @@
       </section>
 
       <section class="utility-grid">
+        <a class="utility-card" href="teacher-tasks.html">
+          <h3>مهام المعلم</h3>
+          <p>عرض ما يحتاج مراجعة الآن، الطلاب المعتمدين، والطلبات المعلقة في صفحة مستقلة.</p>
+        </a>
         <a class="utility-card" href="teacher-question-bank.html">
           <h3>بنك الأسئلة</h3>
           <p>إدارة الأسئلة المفضلة وإعادة استخدامها لبناء الاختبارات بسرعة.</p>
@@ -781,8 +734,64 @@
     </main>
   </div>
 
+  <div class="modal-overlay" id="create-item-modal" aria-hidden="true">
+    <div class="modal">
+      <div class="modal__header">
+        <h2>اختر نوع العنصر</h2>
+        <button class="modal__close" type="button" data-modal-close aria-label="إغلاق">&times;</button>
+      </div>
+      <div class="modal__body">
+        <p style="color:var(--color-gray-600);font-size:var(--font-size-sm);">هل تريد إنشاء <strong>اختبار</strong> أم <strong>واجب</strong>؟</p>
+        <div class="dashboard-selector">
+          <button class="dashboard-selector__item dashboard-selector__item--teacher" type="button" data-create-kind="exam">
+            <i class="fas fa-file-lines"></i>
+            <span class="dashboard-selector__name">اختبار</span>
+            <small class="dashboard-selector__meta">مناسبة التقييم الرسمي والاختبارات الزمنية.</small>
+          </button>
+          <button class="dashboard-selector__item dashboard-selector__item--teacher-personal" type="button" data-create-kind="assignment">
+            <i class="fas fa-clipboard-check"></i>
+            <span class="dashboard-selector__name">واجب</span>
+            <small class="dashboard-selector__meta">نشاط تدريبي بنفس التدفق مع تصنيف Assignment.</small>
+          </button>
+        </div>
+      </div>
+      <div class="modal__footer" style="padding:var(--space-4);border-top:1px solid var(--color-gray-200);display:flex;justify-content:flex-end;">
+        <button class="btn btn--outline" type="button" data-modal-close>إلغاء</button>
+      </div>
+    </div>
+  </div>
+
   <script src="shared-layout.js"></script>
   <script src="tenant-mode.js"></script>
+  <script>
+  (function(){
+    'use strict';
+
+    function closeCreateModal() {
+      var overlay = document.getElementById('create-item-modal');
+      if (!overlay) return;
+      overlay.classList.remove('modal-overlay--active');
+      overlay.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+    }
+
+    function goToWizard(kind) {
+      var safeKind = (kind === 'assignment') ? 'assignment' : 'exam';
+      try {
+        localStorage.setItem('mitests-create-item-kind', safeKind);
+      } catch (e) {}
+      closeCreateModal();
+      window.location.href = 'exam-wizard.html?kind=' + encodeURIComponent(safeKind);
+    }
+
+    var buttons = document.querySelectorAll('[data-create-kind]');
+    for (var i = 0; i < buttons.length; i++) {
+      buttons[i].addEventListener('click', function () {
+        goToWizard(this.getAttribute('data-create-kind'));
+      });
+    }
+  })();
+  </script>
   <script>
   (function(){
     'use strict';
