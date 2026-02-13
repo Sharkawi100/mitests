@@ -32,6 +32,7 @@
   var requestsKey = 'mitests-group-join-requests:' + scope;
   var membersKey = 'mitests-group-memberships:' + scope;
   var historyKey = 'mitests-group-join-history:' + scope;
+  var resourcesKey = 'mitests-group-resources:' + scope;
   var schoolStudentsKey = 'mitests-school-students:' + scope;
 
   function migrateLegacy(primaryKey, legacyKey) {
@@ -46,6 +47,7 @@
   migrateLegacy(requestsKey, 'mitests-group-join-requests:' + tenantType);
   migrateLegacy(membersKey, 'mitests-group-memberships:' + tenantType);
   migrateLegacy(historyKey, 'mitests-group-join-history:' + tenantType);
+  migrateLegacy(resourcesKey, 'mitests-group-resources:' + tenantType);
 
   var defaultGroups = [
     { id: 1, code: 'grade9-eng', name: 'الصف تاسع 1', grade: 'الصف التاسع', section: '1 (أ)', subject: 'اللغة الإنجليزية', studentsCount: 0, examsMonth: 5, avgScore: 84, inviteCode: 'ENG9-1001' },
@@ -72,6 +74,7 @@
   var requests = loadArray(requestsKey, []);
   var members = loadArray(membersKey, []);
   var history = loadArray(historyKey, []);
+  var resources = loadArray(resourcesKey, []);
   var selectedCode = '';
   var editCode = null;
 
@@ -85,6 +88,12 @@
   var statExams = document.getElementById('stat-exams');
   var statScore = document.getElementById('stat-score');
   var inviteCodeValue = document.getElementById('invite-code-value');
+  var resourcesBody = document.getElementById('resources-body');
+  var resourceTitleInput = document.getElementById('resource-title');
+  var resourceTypeInput = document.getElementById('resource-type');
+  var resourceLinkInput = document.getElementById('resource-link');
+  var resourceSizeInput = document.getElementById('resource-size');
+  var addResourceBtn = document.getElementById('add-resource-btn');
 
   var addGroupBtn = document.getElementById('add-group-btn');
   var modalOverlay = document.getElementById('group-modal-overlay');
@@ -104,6 +113,7 @@
       localStorage.setItem(requestsKey, JSON.stringify(requests));
       localStorage.setItem(membersKey, JSON.stringify(members));
       localStorage.setItem(historyKey, JSON.stringify(history));
+      localStorage.setItem(resourcesKey, JSON.stringify(resources));
     } catch (e) {}
   }
 
@@ -148,6 +158,10 @@
 
   function requestsOf(code) {
     return requests.filter(function (r) { return r.groupCode === code; });
+  }
+
+  function resourcesOf(code) {
+    return resources.filter(function (r) { return r.groupCode === code; });
   }
 
   function inviteExists(code) {
@@ -231,6 +245,7 @@
     groups.forEach(function (g) { valid[g.code] = true; });
     members = members.filter(function (m) { return !!valid[m.groupCode]; });
     requests = requests.filter(function (r) { return !!valid[r.groupCode]; });
+    resources = resources.filter(function (r) { return !!valid[r.groupCode]; });
   }
 
   function subjectShort(s) {
@@ -348,6 +363,42 @@
     requestsBody.innerHTML = rows;
   }
 
+  function resourceTypeLabel(type) {
+    if (type === 'pdf') return 'PDF';
+    if (type === 'docx') return 'DOCX';
+    if (type === 'link') return 'رابط';
+    if (type === 'video') return 'فيديو';
+    return 'ملف';
+  }
+
+  function renderResources(group) {
+    if (!resourcesBody) return;
+    var list = resourcesOf(group.code);
+
+    if (!list.length) {
+      resourcesBody.innerHTML = '<tr><td colspan="4">لا يوجد محتوى مضاف بعد. يمكنك إضافة PDF أو DOCX أو رابط.</td></tr>';
+      return;
+    }
+
+    var rows = '';
+    for (var i = 0; i < list.length; i++) {
+      var item = list[i];
+      var linkText = item.link || '-';
+      var isWebLink = /^https?:\/\//i.test(linkText);
+      var linkHtml = linkText === '-' ? '-' : (isWebLink
+        ? '<a href="' + esc(linkText) + '" target="_blank" rel="noopener">' + esc(linkText) + '</a>'
+        : esc(linkText));
+      rows += '' +
+        '<tr>' +
+          '<td>' + esc(item.title || 'محتوى') + (item.size ? ' <small style="color:#6b7280;">(' + esc(item.size) + ')</small>' : '') + '</td>' +
+          '<td>' + resourceTypeLabel(item.type) + '</td>' +
+          '<td>' + linkHtml + '</td>' +
+          '<td><button type="button" class="btn btn--outline btn--sm" data-resource-action="delete" data-resource-id="' + esc(item.id) + '">حذف</button></td>' +
+        '</tr>';
+    }
+    resourcesBody.innerHTML = rows;
+  }
+
   function renderDetails() {
     var g = getGroup(selectedCode);
     if (!g) {
@@ -359,6 +410,7 @@
       inviteCodeValue.textContent = '-';
       studentsBody.innerHTML = '<tr><td colspan="4">لا توجد بيانات طلاب.</td></tr>';
       requestsBody.innerHTML = '<tr><td colspan="4">لا توجد طلبات.</td></tr>';
+      if (resourcesBody) resourcesBody.innerHTML = '<tr><td colspan="4">لا توجد مجموعة محددة.</td></tr>';
       return;
     }
 
@@ -373,6 +425,7 @@
 
     renderStudents(g);
     renderRequests(g);
+    renderResources(g);
     setGroupInUrl(g.code);
   }
 
@@ -543,6 +596,42 @@
     }
     document.body.removeChild(area);
   }
+
+  function addResource() {
+    var group = getGroup(selectedCode);
+    if (!group) {
+      alert('اختر مجموعة أولاً لإضافة المحتوى.');
+      return;
+    }
+
+    var title = String(resourceTitleInput && resourceTitleInput.value || '').trim();
+    var type = String(resourceTypeInput && resourceTypeInput.value || 'pdf').trim();
+    var link = String(resourceLinkInput && resourceLinkInput.value || '').trim();
+    var size = String(resourceSizeInput && resourceSizeInput.value || '').trim();
+
+    if (!title) {
+      alert('يرجى إدخال عنوان المحتوى.');
+      return;
+    }
+
+    resources.unshift({
+      id: 'res-' + Date.now() + '-' + Math.floor(Math.random() * 1000),
+      groupCode: group.code,
+      title: title,
+      type: type || 'pdf',
+      link: link,
+      size: size,
+      createdAt: new Date().toISOString()
+    });
+
+    saveAll();
+    renderResources(group);
+
+    if (resourceTitleInput) resourceTitleInput.value = '';
+    if (resourceLinkInput) resourceLinkInput.value = '';
+    if (resourceSizeInput) resourceSizeInput.value = '';
+    if (resourceTypeInput) resourceTypeInput.value = 'pdf';
+  }
   groupsGrid.addEventListener('click', function (e) {
     var btn = e.target.closest('button[data-action]');
     if (!btn) return;
@@ -574,6 +663,7 @@
       groups = groups.filter(function (g) { return g.code !== code; });
       members = members.filter(function (m) { return m.groupCode !== code; });
       requests = requests.filter(function (r) { return r.groupCode !== code; });
+      resources = resources.filter(function (r) { return r.groupCode !== code; });
       if (selectedCode === code && groups.length) selectedCode = groups[0].code;
       saveAll();
       renderGroups();
@@ -607,6 +697,35 @@
     renderGroups();
     renderDetails();
   });
+
+  if (addResourceBtn) {
+    addResourceBtn.addEventListener('click', addResource);
+  }
+
+  if (resourceLinkInput) {
+    resourceLinkInput.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        addResource();
+      }
+    });
+  }
+
+  if (resourcesBody) {
+    resourcesBody.addEventListener('click', function (e) {
+      var btn = e.target.closest('button[data-resource-action]');
+      if (!btn) return;
+
+      var action = btn.getAttribute('data-resource-action');
+      var resourceId = btn.getAttribute('data-resource-id');
+      if (action !== 'delete' || !resourceId) return;
+
+      resources = resources.filter(function (item) { return item.id !== resourceId; });
+      saveAll();
+      var current = getGroup(selectedCode);
+      if (current) renderResources(current);
+    });
+  }
 
   addGroupBtn.addEventListener('click', function () { openModal(false); });
   modalClose.addEventListener('click', closeModal);

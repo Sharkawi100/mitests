@@ -410,7 +410,7 @@
       <!-- ══ STUDY MATERIALS ══ -->
       <section class="card">
         <h2 class="section-head"><i class="fas fa-folder-open"></i> <span data-i18n="materialsTitle">مواد دراسية</span></h2>
-        <div class="materials-grid">
+        <div class="materials-grid" id="materials-grid">
           <a href="student-group-detail.html" class="material-card">
             <div class="material-icon material-icon--pdf"><i class="fas fa-file-pdf"></i></div>
             <div class="material-info">
@@ -583,12 +583,117 @@
         }
       }
 
+      function getTenantType() {
+        try { return localStorage.getItem('mitests-tenant-type') || 'school_teacher'; } catch (e) { return 'school_teacher'; }
+      }
+
+      function getScope(tenantType) {
+        if (tenantType === 'personal_teacher') {
+          try {
+            var wsRaw = localStorage.getItem('mitests-personal-workspace');
+            if (wsRaw) {
+              var ws = JSON.parse(wsRaw);
+              if (ws && ws.workspaceId) return 'personal:' + String(ws.workspaceId);
+            }
+          } catch (e) {}
+          return 'personal:default';
+        }
+
+        try {
+          var schoolId = localStorage.getItem('mitests-school-id');
+          if (schoolId) return 'school:' + schoolId;
+          localStorage.setItem('mitests-school-id', 'SCH-001');
+        } catch (e2) {}
+        return 'school:SCH-001';
+      }
+
+      function loadArray(key, fallback) {
+        try {
+          var raw = localStorage.getItem(key);
+          if (!raw) return fallback.slice();
+          var parsed = JSON.parse(raw);
+          if (Array.isArray(parsed)) return parsed;
+        } catch (e) {}
+        return fallback.slice();
+      }
+
+      function esc(value) {
+        return String(value || '')
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
+      }
+
+      function resourceMeta(type, lang) {
+        var isAr = lang === 'ar';
+        var isHe = lang === 'he';
+
+        if (type === 'pdf') return { cls: 'pdf', icon: 'file-pdf', label: 'PDF' };
+        if (type === 'docx') return { cls: 'doc', icon: 'file-word', label: 'DOCX' };
+        if (type === 'video') return { cls: 'video', icon: 'video', label: isHe ? 'וידאו' : (isAr ? 'فيديو' : 'Video') };
+        return { cls: 'link', icon: 'link', label: isHe ? 'קישור חיצוני' : (isAr ? 'رابط خارجي' : 'External Link') };
+      }
+
+      function renderTeacherMaterials(lang) {
+        var grid = document.getElementById('materials-grid');
+        if (!grid) return;
+
+        var params = new URLSearchParams(window.location.search);
+        var groupCode = params.get('group') || 'grade9-eng';
+        var tenantType = getTenantType();
+        var scope = getScope(tenantType);
+        var resourcesKey = 'mitests-group-resources:' + scope;
+        var groupsKey = 'mitests-teacher-groups:' + scope;
+
+        var resources = loadArray(resourcesKey, []);
+        var groupResources = resources.filter(function (item) { return item.groupCode === groupCode; });
+
+        if (!groupResources.length) return;
+
+        var groups = loadArray(groupsKey, []);
+        for (var g = 0; g < groups.length; g++) {
+          if (groups[g].code === groupCode) {
+            var titleNode = document.querySelector('.group-header__title');
+            if (titleNode) titleNode.textContent = groups[g].name + ' - ' + (groups[g].subject || '');
+            break;
+          }
+        }
+
+        var html = '';
+        for (var i = 0; i < groupResources.length; i++) {
+          var item = groupResources[i];
+          var meta = resourceMeta(item.type, lang);
+          var linkValue = String(item.link || '').trim();
+          var isWebLink = /^https?:\/\//i.test(linkValue);
+          var href = isWebLink ? esc(linkValue) : '#';
+          var openAttr = isWebLink ? ' target="_blank" rel="noopener"' : '';
+          var sizeText = item.size ? esc(item.size) : meta.label;
+
+          html += ''
+            + '<a href="' + href + '" class="material-card"' + openAttr + '>'
+            + '<div class="material-icon material-icon--' + meta.cls + '"><i class="fas fa-' + meta.icon + '"></i></div>'
+            + '<div class="material-info">'
+            + '<div class="material-info__name">' + esc(item.title || 'محتوى تعليمي') + '</div>'
+            + '<div class="material-info__size">' + meta.label + ' · ' + sizeText + '</div>'
+            + '</div>'
+            + '</a>';
+        }
+
+        grid.innerHTML = html;
+      }
+
       document.addEventListener('mitests:languagechange', function (e) {
-        applyLanguage((e.detail && e.detail.lang) || document.documentElement.getAttribute('lang') || 'ar');
+        var lang = (e.detail && e.detail.lang) || document.documentElement.getAttribute('lang') || 'ar';
+        applyLanguage(lang);
+        renderTeacherMaterials(lang);
       });
 
       document.addEventListener('DOMContentLoaded', function () {
-        applyLanguage(document.documentElement.getAttribute('lang') || 'ar');
+        var lang = document.documentElement.getAttribute('lang') || 'ar';
+        applyLanguage(lang);
+        renderTeacherMaterials(lang);
       });
     })();
   </script>

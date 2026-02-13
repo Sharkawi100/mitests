@@ -324,23 +324,12 @@
         </div>
       </section>
 
-      <section class="panel-card" id="school-profile">
-        <h2 data-i18n="profileTitle">ملف المؤسسة</h2>
-        <div class="profile-grid">
-          <div class="profile-item"><strong data-i18n="profileCode">رمز المؤسسة</strong><span id="sp-code">-</span></div>
-          <div class="profile-item"><strong data-i18n="profileName">اسم المؤسسة</strong><span id="sp-name">-</span></div>
-          <div class="profile-item"><strong data-i18n="profileEmail">ايميل المؤسسة</strong><span id="sp-email">-</span></div>
-          <div class="profile-item"><strong data-i18n="profilePhone">الهاتف</strong><span id="sp-phone">-</span></div>
-          <div class="profile-item"><strong data-i18n="profileCountry">الدولة</strong><span id="sp-country">-</span></div>
-          <div class="profile-item"><strong data-i18n="profileAddress">العنوان</strong><span id="sp-address">-</span></div>
-          <div class="profile-item"><strong data-i18n="profileLanguage">اللغة الافتراضية</strong><span id="sp-language">-</span></div>
-          <div class="profile-item"><strong data-i18n="profileGrades">المراحل التعليمية</strong><span id="sp-grades">-</span></div>
-          <div class="profile-item"><strong data-i18n="profileSocial">روابط التواصل</strong><span id="sp-social">-</span></div>
-          <div class="profile-item"><strong data-i18n="profileTokens">رصيد التوكنز</strong><span id="sp-tokens">-</span></div>
-        </div>
-      </section>
-
       <section class="cards-grid">
+        <article class="panel-card" id="profile-shortcut">
+          <h2 data-i18n="profileTitle">ملف المؤسسة</h2>
+          <p data-i18n="profileShortcutText">تم نقل بيانات ملف المؤسسة بالكامل إلى صفحة الملف المخصصة.</p>
+          <a class="btn btn--school btn--sm" href="school-profile.html" data-i18n="profileShortcutBtn">فتح ملف المؤسسة</a>
+        </article>
         <article class="panel-card" id="users">
           <h2 data-i18n="usersTitle">إدارة المستخدمين</h2>
           <p data-i18n="usersText">استيراد المعلمين والطلاب عبر Excel أو رموز الصفوف، وتحديث الصلاحيات بسرعة.</p>
@@ -360,6 +349,7 @@
 
       <section class="panel-card" id="qa-review">
         <h2 data-i18n="qaTitle">آخر الاختبارات للمراجعة</h2>
+        <p data-i18n="qaHint">المراجعة الفردية للطلاب موجودة في مهام المعلم. هذه القائمة للمتابعة المدرسية فقط.</p>
         <div class="table-wrap">
           <table class="data-table">
             <thead>
@@ -367,7 +357,7 @@
                 <th data-i18n="qaExam">عنوان الاختبار</th>
                 <th data-i18n="qaTeacher">المعلم</th>
                 <th data-i18n="qaSubject">المادة</th>
-                <th data-i18n="qaAction">الإجراء</th>
+                <th data-i18n="qaAction">الحالة</th>
               </tr>
             </thead>
             <tbody>
@@ -375,23 +365,24 @@
                 <td>اختبار الجبر - الصف التاسع</td>
                 <td>أحمد ياسين</td>
                 <td>الرياضيات</td>
-                <td><a class="btn btn--school btn--sm" href="exam-assessment.html" data-i18n="qaAuditBtn">تدقيق</a></td>
+                <td data-i18n="qaStatusTeacherTasks">تحوّل إلى مهام المعلم</td>
               </tr>
               <tr>
                 <td>فهم مقروء - الوحدة 3</td>
                 <td>سلمى هاشم</td>
                 <td>اللغة الإنجليزية</td>
-                <td><a class="btn btn--school btn--sm" href="exam-assessment.html" data-i18n="qaAuditBtn">تدقيق</a></td>
+                <td data-i18n="qaStatusTeacherTasks">تحوّل إلى مهام المعلم</td>
               </tr>
               <tr>
                 <td>اختبار المختبر - علوم</td>
                 <td>يوسف صالح</td>
                 <td>العلوم</td>
-                <td><a class="btn btn--school btn--sm" href="exam-assessment.html" data-i18n="qaAuditBtn">تدقيق</a></td>
+                <td data-i18n="qaStatusTeacherTasks">تحوّل إلى مهام المعلم</td>
               </tr>
             </tbody>
           </table>
         </div>
+        <a class="btn btn--school btn--sm" href="school-qa-review.html" style="width:max-content;" data-i18n="qaOpenPageBtn">فتح صفحة المتابعة</a>
       </section>
 
       <section class="panel-card" id="approval">
@@ -482,6 +473,8 @@
           profileGrades: 'المراحل التعليمية',
           profileSocial: 'روابط التواصل',
           profileTokens: 'رصيد التوكنز',
+          profileShortcutText: 'تم نقل بيانات ملف المؤسسة بالكامل إلى صفحة الملف المخصصة.',
+          profileShortcutBtn: 'فتح ملف المؤسسة',
           usersTitle: 'إدارة المستخدمين',
           usersText: 'استيراد المعلمين والطلاب عبر Excel أو رموز الصفوف، وتحديث الصلاحيات بسرعة.',
           usersBtn: 'استيراد المستخدمين',
@@ -495,7 +488,10 @@
           qaExam: 'عنوان الاختبار',
           qaTeacher: 'المعلم',
           qaSubject: 'المادة',
-          qaAction: 'الإجراء',
+          qaAction: 'الحالة',
+          qaHint: 'المراجعة الفردية للطلاب موجودة في مهام المعلم. هذه القائمة للمتابعة المدرسية فقط.',
+          qaStatusTeacherTasks: 'تحوّل إلى مهام المعلم',
+          qaOpenPageBtn: 'فتح صفحة المتابعة',
           qaAuditBtn: 'تدقيق',
           approvalTitle: 'اعتماد المحتوى',
           tblTeacher: 'المعلم',
@@ -546,6 +542,8 @@
           profileGrades: 'שכבות לימוד',
           profileSocial: 'קישורי רשת',
           profileTokens: 'יתרת טוקנים',
+          profileShortcutText: 'פרטי הפרופיל המלאים הועברו לעמוד הפרופיל הייעודי.',
+          profileShortcutBtn: 'פתיחת פרופיל המוסד',
           usersTitle: 'ניהול משתמשים',
           usersText: 'ייבוא מורים ותלמידים דרך Excel או קודי כיתה.',
           usersBtn: 'ייבוא משתמשים',
@@ -559,7 +557,10 @@
           qaExam: 'כותרת מבחן',
           qaTeacher: 'מורה',
           qaSubject: 'מקצוע',
-          qaAction: 'פעולה',
+          qaAction: 'סטטוס',
+          qaHint: 'הבדיקה הפרטנית של תלמידים נמצאת במשימות המורה. רשימה זו למעקב מוסדי בלבד.',
+          qaStatusTeacherTasks: 'הועבר למשימות המורה',
+          qaOpenPageBtn: 'פתיחת עמוד המעקב',
           qaAuditBtn: 'ביקורת',
           approvalTitle: 'אישור תוכן',
           tblTeacher: 'מורה',
@@ -610,6 +611,8 @@
           profileGrades: 'Academic Grades',
           profileSocial: 'Social Links',
           profileTokens: 'Token Balance',
+          profileShortcutText: 'Full school profile details were moved to the dedicated profile page.',
+          profileShortcutBtn: 'Open School Profile',
           usersTitle: 'User Management',
           usersText: 'Import teachers and students via Excel or class codes.',
           usersBtn: 'Import Users',
@@ -623,7 +626,10 @@
           qaExam: 'Exam Title',
           qaTeacher: 'Teacher',
           qaSubject: 'Subject',
-          qaAction: 'Action',
+          qaAction: 'Status',
+          qaHint: 'Student-level review is handled in teacher tasks. This list is school-level monitoring only.',
+          qaStatusTeacherTasks: 'Moved to teacher tasks',
+          qaOpenPageBtn: 'Open Monitoring Page',
           qaAuditBtn: 'Audit',
           approvalTitle: 'Content Approval',
           tblTeacher: 'Teacher',

@@ -217,6 +217,41 @@
     .page-card h3 { color: var(--color-gray-900); font-size: var(--font-size-lg); }
     .page-card p { color: var(--color-gray-600); font-size: var(--font-size-sm); }
 
+    button.avatar-menu__link {
+      border: 0;
+      background: transparent;
+      width: 100%;
+      cursor: pointer;
+      font-family: inherit;
+      text-align: start;
+    }
+
+    .impersonation-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--space-3);
+    }
+
+    .impersonation-card {
+      border: 1px solid var(--color-gray-200);
+      border-top: 4px solid var(--color-admin);
+      border-radius: var(--border-radius-md);
+      padding: var(--space-4);
+      background: var(--color-white);
+      display: grid;
+      gap: var(--space-2);
+    }
+
+    .impersonation-card h3 {
+      color: var(--color-gray-900);
+      font-size: var(--font-size-lg);
+    }
+
+    .impersonation-card p {
+      color: var(--color-gray-600);
+      font-size: var(--font-size-sm);
+    }
+
     @media (max-width: 1023px) {
       body.rtl .main-content .admin-navbar { right: var(--sidebar-collapsed-width); }
       body.ltr .main-content .admin-navbar { left: var(--sidebar-collapsed-width); }
@@ -224,7 +259,7 @@
       body.ltr .main-content { margin-left: var(--sidebar-collapsed-width); }
       .sidebar { width: var(--sidebar-collapsed-width); }
       .sidebar .sidebar__brand-text, .sidebar .sidebar__item span, .sidebar .sidebar__toggle span { display: none; }
-      .stats-grid, .pages-grid, .actions-grid, .catalog-grid { grid-template-columns: 1fr; }
+      .stats-grid, .pages-grid, .actions-grid, .catalog-grid, .impersonation-grid { grid-template-columns: 1fr; }
     }
 
     @media (max-width: 767px) {
@@ -287,6 +322,8 @@
             <span class="avatar-menu__label">حساب المدير</span>
             <a class="avatar-menu__link" href="admin-profile.html"><i class="fas fa-id-card"></i><span>ملفي الشخصي</span></a>
             <a class="avatar-menu__link" href="admin-dashboard.html"><i class="fas fa-gauge"></i><span>لوحة الإدارة</span></a>
+            <button class="avatar-menu__link" type="button" data-impersonate="school"><i class="fas fa-building-columns"></i><span>الدخول كمدرسة</span></button>
+            <button class="avatar-menu__link" type="button" data-impersonate="teacher"><i class="fas fa-chalkboard-user"></i><span>الدخول كمعلم</span></button>
           </div>
         </div>
         <a href="index.html" class="btn btn--admin btn--sm"><i class="fas fa-right-from-bracket"></i><span>تسجيل الخروج</span></a>
@@ -372,10 +409,74 @@
         </div>
       </section>
 
+      <section class="card">
+        <h2>الدخول بانتحال الصلاحية (Impersonation)</h2>
+        <div class="impersonation-grid">
+          <article class="impersonation-card">
+            <h3>الدخول كمدرسة</h3>
+            <p>لفحص تجربة المدرسة كما تظهر للمؤسسة التعليمية.</p>
+            <button class="btn btn--admin btn--sm" type="button" data-impersonate="school">
+              <i class="fas fa-building-columns"></i><span>فتح لوحة المدرسة</span>
+            </button>
+          </article>
+          <article class="impersonation-card">
+            <h3>الدخول كمعلم</h3>
+            <p>لفحص مهام المراجعة واعتماد الطلاب وتجربة المعلم اليومية.</p>
+            <button class="btn btn--admin btn--sm" type="button" data-impersonate="teacher">
+              <i class="fas fa-chalkboard-user"></i><span>فتح لوحة المعلم</span>
+            </button>
+          </article>
+        </div>
+      </section>
+
     </main>
   </div>
 
   <script src="shared-layout.js"></script>
+  <script>
+  (function(){
+    'use strict';
+
+    function setDefaultSchoolContext() {
+      try {
+        if (!localStorage.getItem('mitests-school-id')) {
+          localStorage.setItem('mitests-school-id', 'SCH-001');
+        }
+
+        if (!localStorage.getItem('mitests-active-school-code')) {
+          localStorage.setItem('mitests-active-school-code', 'SRJ-RYD-01');
+        }
+      } catch (e) {}
+    }
+
+    function impersonate(role) {
+      setDefaultSchoolContext();
+
+      try {
+        localStorage.setItem('mitests-admin-impersonation', role);
+      } catch (e2) {}
+
+      if (role === 'teacher') {
+        try { localStorage.setItem('mitests-tenant-type', 'school_teacher'); } catch (e3) {}
+        window.location.href = 'teacher-dashboard.html';
+        return;
+      }
+
+      if (role === 'school') {
+        window.location.href = 'school.html';
+      }
+    }
+
+    var buttons = document.querySelectorAll('[data-impersonate]');
+    for (var i = 0; i < buttons.length; i++) {
+      buttons[i].addEventListener('click', function () {
+        var role = this.getAttribute('data-impersonate');
+        if (!role) return;
+        impersonate(role);
+      });
+    }
+  })();
+  </script>
   <script>
   (function(){
     var bell=document.querySelector('#admin-notif-bell .notification-bell__btn'),panel=document.getElementById('admin-notif-panel'),badge=document.getElementById('admin-notif-badge'),body=document.getElementById('admin-notif-body'),markBtn=document.getElementById('admin-mark-read');
@@ -429,6 +530,3 @@
   </script>
 </body>
 </html>
-
-
-
