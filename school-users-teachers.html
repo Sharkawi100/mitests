@@ -154,7 +154,7 @@
                 <tr>
                   <th>الاسم</th>
                   <th>البريد الإلكتروني</th>
-                  <th>التخصص</th>
+                  <th>التخصصات</th>
                   <th>عدد المجموعات</th>
                   <th>آخر نشاط</th>
                   <th>الحالة</th>
@@ -165,12 +165,12 @@
                 <tr>
                   <td><div style="display:flex;align-items:center;gap:8px;"><div style="width:32px;height:32px;background:#e0f2fe;color:#0369a1;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;">ن</div><div><div style="font-weight:600">نورة العلي</div><div style="font-size:11px;color:#6b7280">EMP-1023</div></div></div></td>
                   <td>nora.ali@school.edu</td>
-                  <td>الرياضيات</td>
+                  <td>الرياضيات، الفيزياء</td>
                   <td>4</td>
                   <td>منذ ساعتين</td>
                   <td><span class="status-badge status-active">نشط</span></td>
                   <td>
-                    <button class="btn-icon edit" title="تعديل" onclick="openEditModal('نورة العلي', 'nora.ali@school.edu', 'الرياضيات')"><i class="fas fa-pen"></i></button>
+                    <button class="btn-icon edit" title="تعديل" onclick="openEditModal('نورة العلي', 'nora.ali@school.edu', 'الرياضيات|الفيزياء')"><i class="fas fa-pen"></i></button>
                     <button class="btn-icon" title="صلاحيات" onclick="openPermissionsModal('نورة العلي')"><i class="fas fa-key"></i></button>
                     <button class="btn-icon delete" title="حذف"><i class="fas fa-trash"></i></button>
                   </td>
@@ -178,12 +178,12 @@
                 <tr>
                   <td><div style="display:flex;align-items:center;gap:8px;"><div style="width:32px;height:32px;background:#fef3c7;color:#b45309;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;">أ</div><div><div style="font-weight:600">أحمد ياسين</div><div style="font-size:11px;color:#6b7280">EMP-1045</div></div></div></td>
                   <td>ahmed.yasin@school.edu</td>
-                  <td>العلوم</td>
+                  <td>العلوم، الأحياء</td>
                   <td>3</td>
                   <td>أمس</td>
                   <td><span class="status-badge status-active">نشط</span></td>
                   <td>
-                    <button class="btn-icon edit" title="تعديل" onclick="openEditModal('أحمد ياسين', 'ahmed.yasin@school.edu', 'العلوم')"><i class="fas fa-pen"></i></button>
+                    <button class="btn-icon edit" title="تعديل" onclick="openEditModal('أحمد ياسين', 'ahmed.yasin@school.edu', 'العلوم|الأحياء')"><i class="fas fa-pen"></i></button>
                     <button class="btn-icon" title="صلاحيات" onclick="openPermissionsModal('أحمد ياسين')"><i class="fas fa-key"></i></button>
                     <button class="btn-icon delete" title="حذف"><i class="fas fa-trash"></i></button>
                   </td>
@@ -213,15 +213,30 @@
           <input type="email" id="teacher-email" placeholder="email@school.edu">
         </div>
         <div class="form-group">
-          <label>التخصص</label>
-          <select id="teacher-subject">
-            <option value="">ختر التخصص...</option>
-            <option value="الرياضيات">الرياضيات</option>
-            <option value="العلوم">العلوم</option>
-            <option value="اللغة الإنجليزية">اللغة الإنجليزية</option>
-            <option value="اللغة العربية">اللغة العربية</option>
-            <option value="التاريخ">التاريخ</option>
-          </select>
+          <label>التخصصات (يمكن اختيار أكثر من مادة)</label>
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-top:4px;">
+            <label style="font-weight:400; font-size:13px; display:flex; align-items:center; gap:6px; cursor:pointer;">
+              <input type="checkbox" name="teacher-subjects" value="الرياضيات"> الرياضيات
+            </label>
+            <label style="font-weight:400; font-size:13px; display:flex; align-items:center; gap:6px; cursor:pointer;">
+              <input type="checkbox" name="teacher-subjects" value="الفيزياء"> الفيزياء
+            </label>
+            <label style="font-weight:400; font-size:13px; display:flex; align-items:center; gap:6px; cursor:pointer;">
+              <input type="checkbox" name="teacher-subjects" value="العلوم"> العلوم
+            </label>
+            <label style="font-weight:400; font-size:13px; display:flex; align-items:center; gap:6px; cursor:pointer;">
+              <input type="checkbox" name="teacher-subjects" value="الأحياء"> الأحياء
+            </label>
+            <label style="font-weight:400; font-size:13px; display:flex; align-items:center; gap:6px; cursor:pointer;">
+              <input type="checkbox" name="teacher-subjects" value="اللغة الإنجليزية"> اللغة الإنجليزية
+            </label>
+            <label style="font-weight:400; font-size:13px; display:flex; align-items:center; gap:6px; cursor:pointer;">
+              <input type="checkbox" name="teacher-subjects" value="اللغة العربية"> اللغة العربية
+            </label>
+            <label style="font-weight:400; font-size:13px; display:flex; align-items:center; gap:6px; cursor:pointer;">
+              <input type="checkbox" name="teacher-subjects" value="التاريخ"> التاريخ
+            </label>
+          </div>
         </div>
         <div class="form-group">
           <label>الصفوف التي يدرسها</label>
@@ -271,14 +286,30 @@
           <input type="email" id="edit-teacher-email">
         </div>
         <div class="form-group">
-          <label>التخصص</label>
-          <select id="edit-teacher-subject">
-            <option value="الرياضيات">الرياضيات</option>
-            <option value="العلوم">العلوم</option>
-            <option value="اللغة الإنجليزية">اللغة الإنجليزية</option>
-            <option value="اللغة العربية">اللغة العربية</option>
-            <option value="التاريخ">التاريخ</option>
-          </select>
+          <label>التخصصات (يمكن اختيار أكثر من مادة)</label>
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-top:4px;">
+            <label style="font-weight:400; font-size:13px; display:flex; align-items:center; gap:6px; cursor:pointer;">
+              <input type="checkbox" name="edit-teacher-subjects" value="الرياضيات"> الرياضيات
+            </label>
+            <label style="font-weight:400; font-size:13px; display:flex; align-items:center; gap:6px; cursor:pointer;">
+              <input type="checkbox" name="edit-teacher-subjects" value="الفيزياء"> الفيزياء
+            </label>
+            <label style="font-weight:400; font-size:13px; display:flex; align-items:center; gap:6px; cursor:pointer;">
+              <input type="checkbox" name="edit-teacher-subjects" value="العلوم"> العلوم
+            </label>
+            <label style="font-weight:400; font-size:13px; display:flex; align-items:center; gap:6px; cursor:pointer;">
+              <input type="checkbox" name="edit-teacher-subjects" value="الأحياء"> الأحياء
+            </label>
+            <label style="font-weight:400; font-size:13px; display:flex; align-items:center; gap:6px; cursor:pointer;">
+              <input type="checkbox" name="edit-teacher-subjects" value="اللغة الإنجليزية"> اللغة الإنجليزية
+            </label>
+            <label style="font-weight:400; font-size:13px; display:flex; align-items:center; gap:6px; cursor:pointer;">
+              <input type="checkbox" name="edit-teacher-subjects" value="اللغة العربية"> اللغة العربية
+            </label>
+            <label style="font-weight:400; font-size:13px; display:flex; align-items:center; gap:6px; cursor:pointer;">
+              <input type="checkbox" name="edit-teacher-subjects" value="التاريخ"> التاريخ
+            </label>
+          </div>
         </div>
       </div>
       <div class="modal__footer">
@@ -326,6 +357,30 @@
 
   <script src="shared-layout.js"></script>
   <script>
+    function collectCheckedValues(selector) {
+      var values = [];
+      var items = document.querySelectorAll(selector);
+      items.forEach(function (item) {
+        if (item.checked) values.push(item.value);
+      });
+      return values;
+    }
+
+    function setCheckedValues(selector, values) {
+      var normalized = values || [];
+      var items = document.querySelectorAll(selector);
+      items.forEach(function (item) {
+        item.checked = normalized.indexOf(item.value) !== -1;
+      });
+    }
+
+    function clearCheckedValues(selector) {
+      var items = document.querySelectorAll(selector);
+      items.forEach(function (item) {
+        item.checked = false;
+      });
+    }
+
     (function(){
       // Shared layout handles opening/closing via data attributes
       var modal = document.getElementById('teacher-modal');
@@ -334,31 +389,39 @@
 
       // We still need to handle the specific Save logic
       saveBtn.addEventListener('click', function() {
-        var name = document.getElementById('teacher-name').value;
-        var subject = document.getElementById('teacher-subject').value;
+        var name = document.getElementById('teacher-name').value.trim();
+        var selectedSubjects = collectCheckedValues('input[name="teacher-subjects"]');
         
         // Collect selected grades
-        var selectedGrades = [];
-        var checkboxes = document.querySelectorAll('input[name="teacher-grades"]:checked');
-        checkboxes.forEach(function(checkbox){
-          selectedGrades.push(checkbox.value);
-        });
+        var selectedGrades = collectCheckedValues('input[name="teacher-grades"]');
 
-        if(name && subject && selectedGrades.length > 0) {
-          alert('تم إضافة المعلم: ' + name + '\nالصفوف: ' + selectedGrades.join(', '));
+        if(name && selectedSubjects.length > 0 && selectedGrades.length > 0) {
+          alert(
+            'تم إضافة المعلم: ' + name
+            + '\nالتخصصات: ' + selectedSubjects.join(', ')
+            + '\nالصفوف: ' + selectedGrades.join(', ')
+          );
+          document.getElementById('teacher-name').value = '';
+          document.getElementById('teacher-email').value = '';
+          clearCheckedValues('input[name="teacher-subjects"]');
+          clearCheckedValues('input[name="teacher-grades"]');
           // Manually close using shared layout class/attr logic or click the close button mock
           closeBtn.click();
         } else {
-          alert('يرجى ملء كافة الحقول واختيار صف واحد على الأقل');
+          alert('يرجى إدخال الاسم واختيار مادة واحدة على الأقل وصف واحد على الأقل');
         }
       });
     })();
 
     // Functions for Edit/Permissions Modals
-    function openEditModal(name, email, subject) {
+    function openEditModal(name, email, subjects) {
       document.getElementById('edit-teacher-name').value = name;
       document.getElementById('edit-teacher-email').value = email;
-      document.getElementById('edit-teacher-subject').value = subject;
+      var subjectList = String(subjects || '')
+        .split('|')
+        .map(function (item) { return item.trim(); })
+        .filter(function (item) { return item.length > 0; });
+      setCheckedValues('input[name="edit-teacher-subjects"]', subjectList);
       
       var modal = document.getElementById('edit-teacher-modal');
       modal.classList.add('modal-overlay--active');
@@ -366,7 +429,13 @@
     }
 
     function saveEditTeacher() {
-      alert('تم حفظ التغييرات بنجاح');
+      var selectedSubjects = collectCheckedValues('input[name="edit-teacher-subjects"]');
+      if (!selectedSubjects.length) {
+        alert('يرجى اختيار مادة واحدة على الأقل للمعلم');
+        return;
+      }
+
+      alert('تم حفظ التغييرات بنجاح\nالتخصصات: ' + selectedSubjects.join(', '));
       var modal = document.getElementById('edit-teacher-modal');
       modal.classList.remove('modal-overlay--active');
       modal.setAttribute('aria-hidden', 'true');

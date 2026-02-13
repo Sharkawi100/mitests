@@ -47,6 +47,16 @@
       font-size: var(--font-size-sm); font-weight: 600;
     }
     .preview-actions { display: flex; gap: var(--space-3); flex-wrap: wrap; margin-top: var(--space-2); }
+    .readonly-banner {
+      border: 1px solid var(--color-primary-300);
+      background: rgba(53, 86, 178, 0.08);
+      border-radius: var(--border-radius-md);
+      padding: var(--space-3);
+      color: var(--color-primary-700);
+      font-weight: 600;
+      display: none;
+    }
+    .readonly-banner.on { display: block; }
 
     /* Question Card */
     .question-list { display: grid; gap: var(--space-4); }
@@ -233,6 +243,7 @@
           <button class="btn btn--outline btn--sm" id="export-btn"><i class="fas fa-file-export"></i> تصدير PDF</button>
         </div>
       </header>
+      <div class="readonly-banner" id="shared-readonly-banner"></div>
 
       <section class="question-list" id="question-list" aria-label="Question list"></section>
 
@@ -240,6 +251,7 @@
         <span class="preview-footer__info"><i class="fas fa-circle-info"></i> تأكد من مراجعة جميع الأسئلة قبل الاعتماد النهائي</span>
         <div class="preview-footer__actions">
           <a href="exam-wizard.html" class="btn btn--outline"><i class="fas fa-arrow-right"></i> العودة للمعالج</a>
+          <button class="btn btn--teacher btn--lg hidden" id="duplicate-shared-btn"><i class="fas fa-clone"></i> نسخ الاختبار إلى اختباراتي</button>
           <button class="btn btn--approve btn--lg" id="approve-btn"><i class="fas fa-check-double"></i> اعتماد ونشر الاختبار</button>
         </div>
       </footer>
@@ -253,6 +265,46 @@
   <script>
   (function(){
     'use strict';
+
+    var params = new URLSearchParams(window.location.search);
+    var isSharedReadonly = params.get('readonly') === '1' || params.get('shared') === '1' || params.get('mode') === 'shared';
+    var sharedFrom = params.get('from') || '';
+    var sharedTitle = params.get('title') || '';
+    var sharedKind = params.get('kind') || '';
+    var sharedId = params.get('shareId') || '';
+
+    function getCurrentScope() {
+      var tenantType = 'school_teacher';
+      try { tenantType = localStorage.getItem('mitests-tenant-type') || 'school_teacher'; } catch (e) {}
+      if (tenantType === 'personal_teacher') {
+        var wsRaw = '';
+        try { wsRaw = localStorage.getItem('mitests-personal-workspace') || ''; } catch (e2) {}
+        if (!wsRaw) return 'personal:default';
+        try {
+          var ws = JSON.parse(wsRaw);
+          return 'personal:' + (ws.workspaceId || 'default');
+        } catch (e3) {
+          return 'personal:default';
+        }
+      }
+      var schoolId = 'SCH-001';
+      try { schoolId = localStorage.getItem('mitests-school-id') || 'SCH-001'; } catch (e4) {}
+      return 'school:' + schoolId;
+    }
+
+    function readStoredArray(key) {
+      try {
+        var raw = localStorage.getItem(key);
+        if (!raw) return [];
+        var parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) return parsed;
+      } catch (e) {}
+      return [];
+    }
+
+    function saveStoredArray(key, items) {
+      try { localStorage.setItem(key, JSON.stringify(items)); } catch (e) {}
+    }
 
     /* ── Sample questions data ── */
     var questions = [
@@ -327,6 +379,10 @@
 
     var listEl = document.getElementById('question-list');
     var toast = document.getElementById('toast');
+    var duplicateBtn = document.getElementById('duplicate-shared-btn');
+    var sharedBanner = document.getElementById('shared-readonly-banner');
+    var regenerateAllBtn = document.getElementById('regenerate-all-btn');
+    var approveBtn = document.getElementById('approve-btn');
 
     function showToast(msg) {
       toast.textContent = msg;
@@ -354,6 +410,32 @@
           optionsHtml += '</div>';
         }
 
+        var editAreaHtml = '';
+        var actionsHtml = '';
+        if (!isSharedReadonly) {
+          editAreaHtml =
+            '<div class="q-edit-area">' +
+              '<label style="font-weight:600;font-size:var(--font-size-sm);">تعديل نص السؤال:</label>' +
+              '<textarea class="edit-text">' + q.text + '</textarea>' +
+              '<div class="q-edit-actions">' +
+                '<button class="btn btn--teacher btn--sm save-edit-btn"><i class="fas fa-check"></i> حفظ التعديل</button>' +
+                '<button class="btn btn--outline btn--sm cancel-edit-btn"><i class="fas fa-xmark"></i> إلغاء</button>' +
+              '</div>' +
+            '</div>';
+          actionsHtml =
+            '<div class="q-actions">' +
+              '<button class="btn btn--outline btn--sm edit-btn"><i class="fas fa-pen"></i> تعديل</button>' +
+              '<button class="btn btn--outline btn--sm regen-btn"><i class="fas fa-rotate"></i> إعادة توليد</button>' +
+              '<button class="btn btn--outline btn--sm delete-btn" style="color:var(--color-admin);border-color:var(--color-admin);"><i class="fas fa-trash"></i> حذف</button>' +
+            '</div>';
+        } else {
+          editAreaHtml = '';
+          actionsHtml =
+            '<div class="q-actions">' +
+              '<span class="badge badge--type"><i class="fas fa-eye"></i> معاينة فقط (لا تعديل)</span>' +
+            '</div>';
+        }
+
         card.innerHTML =
           '<div class="q-header">' +
             '<h3>السؤال ' + q.id + '</h3>' +
@@ -367,19 +449,8 @@
           '<div class="q-body">' + q.text.replace(/\n/g, '<br>') + '</div>' +
           optionsHtml +
           '<div class="q-answer"><strong><i class="fas fa-key"></i> المفتاح:</strong> ' + q.answer + '</div>' +
-          '<div class="q-edit-area">' +
-            '<label style="font-weight:600;font-size:var(--font-size-sm);">تعديل نص السؤال:</label>' +
-            '<textarea class="edit-text">' + q.text + '</textarea>' +
-            '<div class="q-edit-actions">' +
-              '<button class="btn btn--teacher btn--sm save-edit-btn"><i class="fas fa-check"></i> حفظ التعديل</button>' +
-              '<button class="btn btn--outline btn--sm cancel-edit-btn"><i class="fas fa-xmark"></i> إلغاء</button>' +
-            '</div>' +
-          '</div>' +
-          '<div class="q-actions">' +
-            '<button class="btn btn--outline btn--sm edit-btn"><i class="fas fa-pen"></i> تعديل</button>' +
-            '<button class="btn btn--outline btn--sm regen-btn"><i class="fas fa-rotate"></i> إعادة توليد</button>' +
-            '<button class="btn btn--outline btn--sm delete-btn" style="color:var(--color-admin);border-color:var(--color-admin);"><i class="fas fa-trash"></i> حذف</button>' +
-          '</div>';
+          editAreaHtml +
+          actionsHtml;
 
         listEl.appendChild(card);
       }
@@ -387,6 +458,7 @@
 
     /* Delegated events */
     listEl.addEventListener('click', function(e) {
+      if (isSharedReadonly) return;
       var btn = e.target.closest('button');
       if (!btn) return;
       var card = btn.closest('.q-card');
@@ -426,29 +498,97 @@
     });
 
     /* Regenerate all */
-    document.getElementById('regenerate-all-btn').addEventListener('click', function() {
-      var cards = listEl.querySelectorAll('.q-card');
-      for (var i = 0; i < cards.length; i++) cards[i].classList.add('q-card--regenerating');
-      setTimeout(function() {
-        for (var i = 0; i < cards.length; i++) cards[i].classList.remove('q-card--regenerating');
-        showToast('✨ تم إعادة توليد جميع الأسئلة');
-      }, 2400);
-    });
+    if (regenerateAllBtn) {
+      regenerateAllBtn.addEventListener('click', function() {
+        if (isSharedReadonly) return;
+        var cards = listEl.querySelectorAll('.q-card');
+        for (var i = 0; i < cards.length; i++) cards[i].classList.add('q-card--regenerating');
+        setTimeout(function() {
+          for (var i = 0; i < cards.length; i++) cards[i].classList.remove('q-card--regenerating');
+          showToast('تم إعادة توليد جميع الأسئلة');
+        }, 2400);
+      });
+    }
 
     /* Print */
     document.getElementById('print-btn').addEventListener('click', function() { window.print(); });
 
     /* Export PDF */
     document.getElementById('export-btn').addEventListener('click', function() {
-      showToast('📄 جاري تصدير PDF...');
+      showToast('جاري تصدير PDF...');
     });
 
     /* Approve */
-    document.getElementById('approve-btn').addEventListener('click', function() {
-      showToast('✅ تم اعتماد الاختبار ونشره بنجاح!');
-      setTimeout(function() { window.location.href = 'teacher-exams.html'; }, 2000);
-    });
+    if (approveBtn) {
+      approveBtn.addEventListener('click', function() {
+        if (isSharedReadonly) return;
+        showToast('تم اعتماد الاختبار ونشره بنجاح');
+        setTimeout(function() { window.location.href = 'teacher-exams.html'; }, 2000);
+      });
+    }
 
+    function duplicateSharedExam() {
+      var scope = getCurrentScope();
+      var sharesKey = 'mitests-teacher-shares:' + scope;
+      var examsKey = 'mitests-teacher-exams:' + scope;
+      var shares = readStoredArray(sharesKey);
+      var exams = readStoredArray(examsKey);
+
+      var sourceShare = null;
+      for (var i = 0; i < shares.length; i++) {
+        if (String(shares[i].id) === String(sharedId)) {
+          sourceShare = shares[i];
+          break;
+        }
+      }
+
+      var sourceExam = sourceShare && sourceShare.examSnapshot ? sourceShare.examSnapshot : {};
+      var copyTitle = (sourceExam.title || sharedTitle || 'اختبار مشترك') + ' (نسخة)';
+      exams.unshift({
+        id: 'ex-' + Date.now(),
+        kind: sourceExam.kind || (sharedKind === 'assignment' ? 'assignment' : 'exam'),
+        title: copyTitle,
+        grade: sourceExam.grade || '',
+        subject: sourceExam.subject || '',
+        durationMinutes: sourceExam.durationMinutes || 45,
+        scheduledAt: sourceExam.scheduledAt || '',
+        sourceType: sourceExam.sourceType || 'shared_copy',
+        sourcePlan: 'نسخة من اختبار مشترك',
+        status: 'draft',
+        createdAt: new Date().toISOString()
+      });
+      saveStoredArray(examsKey, exams);
+      showToast('تم نسخ الاختبار إلى اختباراتك');
+      setTimeout(function () { window.location.href = 'teacher-exams.html'; }, 1200);
+    }
+
+    function applySharedReadonlyMode() {
+      if (!isSharedReadonly) return;
+
+      var titleEl = document.getElementById('exam-title');
+      if (titleEl && sharedTitle) titleEl.textContent = sharedTitle;
+
+      var backLink = document.querySelector('.preview-footer__actions a.btn');
+      if (backLink) {
+        backLink.setAttribute('href', 'teacher-exams.html');
+        backLink.innerHTML = '<i class="fas fa-arrow-right"></i> العودة لاختباراتي';
+      }
+
+      if (regenerateAllBtn) regenerateAllBtn.classList.add('hidden');
+      if (approveBtn) approveBtn.classList.add('hidden');
+
+      if (sharedBanner) {
+        sharedBanner.classList.add('on');
+        sharedBanner.innerHTML = '<i class="fas fa-share-nodes"></i> تم فتح هذا الاختبار كمعاينة مشتركة' + (sharedFrom ? ' من المعلم: ' + sharedFrom : '') + '. يمكنك المعاينة أو النسخ فقط.';
+      }
+
+      if (duplicateBtn) {
+        duplicateBtn.classList.remove('hidden');
+        duplicateBtn.addEventListener('click', duplicateSharedExam);
+      }
+    }
+
+    applySharedReadonlyMode();
     renderQuestions();
   })();
   </script>

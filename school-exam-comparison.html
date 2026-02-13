@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mitests - مقارنة الاختبارات والمجموعات</title>
+  <meta name="description" content="صفحة مستقلة لمقارنة اختبارين أو مجموعتين أو أكثر على مستوى المدرسة.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .school-navbar { border-bottom: 1px solid var(--color-gray-200); }
+    body.rtl .main-content .school-navbar { right: var(--sidebar-width); left: 0; }
+    body.ltr .main-content .school-navbar { left: var(--sidebar-width); right: 0; }
+    body.rtl .main-content.main-content--expanded .school-navbar { right: var(--sidebar-collapsed-width); }
+    body.ltr .main-content.main-content--expanded .school-navbar { left: var(--sidebar-collapsed-width); }
+    .school-navbar .navbar__brand-icon { background: linear-gradient(135deg, var(--color-school), #fbbf24); }
+    .sidebar__item:hover, .sidebar__item--active { background: rgba(245, 158, 11, 0.24); color: var(--color-white); }
+    .sidebar__item--active { border-inline-start: 3px solid var(--color-school); }
+    .btn--school { background: var(--color-school); border-color: var(--color-school); color: var(--color-white); }
+    .btn--school:hover { background: #d97706; border-color: #d97706; color: var(--color-white); }
+
+    .main {
+      padding: calc(var(--navbar-height) + var(--space-6)) var(--space-6) var(--space-8);
+      display: grid;
+      gap: var(--space-4);
+    }
+
+    .card-block {
+      background: var(--color-white);
+      border: 1px solid var(--color-gray-200);
+      border-top: 4px solid var(--color-school);
+      border-radius: var(--border-radius-md);
+      box-shadow: var(--shadow-sm);
+      padding: var(--space-4);
+      display: grid;
+      gap: var(--space-3);
+    }
+
+    .controls-grid {
+      display: grid;
+      grid-template-columns: 1.1fr 1.9fr;
+      gap: var(--space-3);
+      align-items: start;
+    }
+
+    .field {
+      display: grid;
+      gap: var(--space-1);
+    }
+
+    .field label {
+      font-size: var(--font-size-sm);
+      font-weight: 700;
+      color: var(--color-gray-700);
+    }
+
+    .field select {
+      border: 1px solid var(--color-gray-300);
+      border-radius: var(--border-radius-sm);
+      padding: var(--space-2) var(--space-3);
+      font-family: inherit;
+      color: var(--color-gray-800);
+      background: var(--color-white);
+    }
+
+    .field select:focus {
+      outline: none;
+      border-color: var(--color-school);
+      box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.16);
+    }
+
+    .multi-select {
+      min-height: 260px;
+    }
+
+    .helper {
+      margin: 0;
+      color: var(--color-gray-500);
+      font-size: var(--font-size-xs);
+      line-height: 1.6;
+    }
+
+    .actions-row {
+      display: flex;
+      gap: var(--space-2);
+      flex-wrap: wrap;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: var(--space-3);
+    }
+
+    .summary-item {
+      border: 1px solid var(--color-gray-200);
+      border-radius: var(--border-radius-sm);
+      background: var(--color-gray-50);
+      padding: var(--space-3);
+      display: grid;
+      gap: 4px;
+    }
+
+    .summary-item strong {
+      color: var(--color-gray-500);
+      font-size: var(--font-size-xs);
+    }
+
+    .summary-item span {
+      color: var(--color-gray-900);
+      font-size: var(--font-size-lg);
+      font-weight: 700;
+      line-height: 1.3;
+    }
+
+    .table-wrap { overflow-x: auto; }
+    .data-table { width: 100%; border-collapse: collapse; min-width: 960px; }
+    .data-table th, .data-table td {
+      padding: var(--space-3);
+      border-bottom: 1px solid var(--color-gray-200);
+      text-align: start;
+      font-size: var(--font-size-sm);
+      vertical-align: top;
+    }
+    .data-table th {
+      background: var(--color-gray-50);
+      color: var(--color-gray-500);
+      font-weight: 600;
+    }
+
+    .metric {
+      display: inline-block;
+      border-radius: var(--border-radius-full);
+      padding: 2px 10px;
+      font-weight: 700;
+      font-size: var(--font-size-xs);
+      background: var(--color-gray-100);
+      color: var(--color-gray-700);
+    }
+
+    .metric--best {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .metric--worst {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .type-chip {
+      display: inline-block;
+      border-radius: var(--border-radius-full);
+      padding: 2px 10px;
+      font-size: var(--font-size-xs);
+      font-weight: 700;
+      background: rgba(245, 158, 11, 0.18);
+      color: #92400e;
+    }
+
+    @media (max-width: 1023px) {
+      body.rtl .main-content .school-navbar { right: var(--sidebar-collapsed-width); }
+      body.ltr .main-content .school-navbar { left: var(--sidebar-collapsed-width); }
+      body.rtl .main-content { margin-right: var(--sidebar-collapsed-width); }
+      body.ltr .main-content { margin-left: var(--sidebar-collapsed-width); }
+      .sidebar { width: var(--sidebar-collapsed-width); }
+      .sidebar .sidebar__brand-text, .sidebar .sidebar__item span, .sidebar .sidebar__toggle span { display: none; }
+      .controls-grid { grid-template-columns: 1fr; }
+      .summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 767px) {
+      .sidebar { display: none; }
+      body.rtl .main-content, body.ltr .main-content { margin: 0; }
+      body.rtl .main-content .school-navbar, body.ltr .main-content .school-navbar { right: 0; left: 0; }
+      .main { padding-inline: var(--space-4); }
+      .summary-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body class="rtl">
+  <aside class="sidebar" id="sidebar" aria-label="Sidebar navigation">
+    <div class="sidebar__header"><div class="sidebar__logo">M</div><span class="sidebar__brand-text">سراج - المدرسة</span></div>
+    <nav class="sidebar__nav">
+      <a class="sidebar__item" href="school.html"><i class="fas fa-gauge"></i><span>نظرة عامة</span></a>
+      <a class="sidebar__item" href="school-tokens.html"><i class="fas fa-coins"></i><span>إدارة التوكنز</span></a>
+      <a class="sidebar__item" href="school-users.html"><i class="fas fa-user-plus"></i><span>إدارة المستخدمين</span></a>
+      <a class="sidebar__item" href="school-whitelabel.html"><i class="fas fa-palette"></i><span>الهوية المؤسسية</span></a>
+      <a class="sidebar__item" href="school-profile.html"><i class="fas fa-id-card"></i><span>ملف المؤسسة</span></a>
+      <a class="sidebar__item" href="school-qa-review.html"><i class="fas fa-clipboard-check"></i><span>آخر الاختبارات للمراجعة</span></a>
+      <a class="sidebar__item sidebar__item--active" href="school-exam-comparison.html"><i class="fas fa-chart-column"></i><span>مقارنة الاختبارات/المجموعات</span></a>
+      <a class="sidebar__item" href="school-approval.html"><i class="fas fa-badge-check"></i><span>اعتماد المحتوى</span></a>
+      <a class="sidebar__item" href="school-communications.html"><i class="fas fa-comments"></i><span>التواصل والإشعارات</span></a>
+      <a class="sidebar__item" href="school-settings.html"><i class="fas fa-gear"></i><span>الإعدادات</span></a>
+    </nav>
+    <button class="sidebar__toggle" id="sidebar-toggle" aria-label="Toggle sidebar"><i class="fas fa-angles-right"></i><span>تصغير</span></button>
+  </aside>
+
+  <div class="main-content" id="main-content">
+    <nav class="navbar school-navbar" role="navigation" aria-label="School top navigation">
+      <a href="school-exam-comparison.html" class="navbar__brand">
+        <div class="navbar__brand-icon"><i class="fas fa-chart-column"></i></div>
+        <span class="navbar__brand-text">مقارنة الاختبارات/المجموعات</span>
+      </a>
+      <div class="navbar__actions">
+        <div class="lang-switcher" role="group" aria-label="Language selector">
+          <button class="lang-switcher__btn active" data-lang="ar" aria-label="Arabic">&#1593;</button>
+          <button class="lang-switcher__btn" data-lang="he" aria-label="Hebrew">&#1506;&#1489;</button>
+          <button class="lang-switcher__btn" data-lang="en" aria-label="English">En</button>
+        </div>
+        <div class="avatar-dropdown">
+          <button class="avatar-btn" type="button" data-avatar-toggle="school-avatar-menu" aria-label="قائمة حساب المدرسة"><i class="fas fa-building-columns"></i></button>
+          <div class="avatar-menu" id="school-avatar-menu" data-avatar-menu>
+            <span class="avatar-menu__label">حساب المدرسة</span>
+            <a class="avatar-menu__link" href="school-profile.html"><i class="fas fa-id-card"></i><span>ملف المؤسسة</span></a>
+            <a class="avatar-menu__link" href="school-settings.html"><i class="fas fa-gear"></i><span>الإعدادات</span></a>
+          </div>
+        </div>
+        <a href="index.html" class="btn btn--school btn--sm"><i class="fas fa-right-from-bracket"></i><span>تسجيل الخروج</span></a>
+      </div>
+    </nav>
+
+    <main class="main">
+      <section class="card-block">
+        <h1>مقارنة الاختبارات والمجموعات</h1>
+        <p>اختر عنصرين أو أكثر للمقارنة من صفحة مستقلة. يمكنك المقارنة بين اختبارات، مجموعات، أو أزواج اختبار-مجموعة.</p>
+      </section>
+
+      <section class="card-block">
+        <div class="controls-grid">
+          <div class="field">
+            <label for="compare-mode">نمط المقارنة</label>
+            <select id="compare-mode">
+              <option value="exam">مقارنة اختبارات</option>
+              <option value="group">مقارنة مجموعات</option>
+              <option value="pair">مقارنة اختبار × مجموعة</option>
+            </select>
+            <p class="helper">في جميع الأنماط يجب اختيار عنصرين على الأقل.</p>
+          </div>
+
+          <div class="field">
+            <label for="compare-pool">اختر عناصر المقارنة (متعدد)</label>
+            <select id="compare-pool" class="multi-select" multiple></select>
+            <p class="helper">يمكنك الضغط مع Ctrl لاختيار أكثر من عنصر. زر "اختيار أول 3" يفيد للمقارنة السريعة.</p>
+          </div>
+        </div>
+        <div class="actions-row">
+          <button type="button" class="btn btn--school btn--sm" id="compare-btn"><i class="fas fa-chart-line"></i> عرض المقارنة</button>
+          <button type="button" class="btn btn--outline btn--sm" id="pick-three-btn"><i class="fas fa-wand-magic-sparkles"></i> اختيار أول 3</button>
+          <button type="button" class="btn btn--outline btn--sm" id="clear-btn"><i class="fas fa-eraser"></i> مسح الاختيار</button>
+        </div>
+      </section>
+
+      <section class="card-block hidden" id="summary-section">
+        <h2>ملخص المقارنة</h2>
+        <div class="summary-grid">
+          <article class="summary-item"><strong>عدد العناصر المقارنة</strong><span id="sum-count">0</span></article>
+          <article class="summary-item"><strong>أفضل متوسط درجات</strong><span id="sum-best">-</span></article>
+          <article class="summary-item"><strong>أعلى نسبة نجاح</strong><span id="sum-pass">-</span></article>
+          <article class="summary-item"><strong>فجوة متوسط الدرجات</strong><span id="sum-gap">-</span></article>
+        </div>
+      </section>
+
+      <section class="card-block hidden" id="table-section">
+        <h2>جدول المقارنة التفصيلي</h2>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>العنصر</th>
+                <th>النوع</th>
+                <th>المادة</th>
+                <th>المعلم</th>
+                <th>متوسط الدرجات</th>
+                <th>نسبة النجاح</th>
+                <th>نسبة الإكمال</th>
+                <th>التسليمات</th>
+              </tr>
+            </thead>
+            <tbody id="compare-body"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="shared-layout.js"></script>
+  <script src="tenant-mode.js"></script>
+  <script>
+    (function () {
+      'use strict';
+
+      var modeSelect = document.getElementById('compare-mode');
+      var poolSelect = document.getElementById('compare-pool');
+      var compareBtn = document.getElementById('compare-btn');
+      var pickThreeBtn = document.getElementById('pick-three-btn');
+      var clearBtn = document.getElementById('clear-btn');
+
+      var summarySection = document.getElementById('summary-section');
+      var tableSection = document.getElementById('table-section');
+      var compareBody = document.getElementById('compare-body');
+
+      var sumCount = document.getElementById('sum-count');
+      var sumBest = document.getElementById('sum-best');
+      var sumPass = document.getElementById('sum-pass');
+      var sumGap = document.getElementById('sum-gap');
+
+      var currentPool = [];
+
+      function getCurrentScope() {
+        var tenantType = 'school_teacher';
+        try { tenantType = localStorage.getItem('mitests-tenant-type') || 'school_teacher'; } catch (e) {}
+        if (tenantType === 'personal_teacher') {
+          var wsRaw = '';
+          try { wsRaw = localStorage.getItem('mitests-personal-workspace') || ''; } catch (e2) {}
+          if (!wsRaw) return 'personal:default';
+          try {
+            var ws = JSON.parse(wsRaw);
+            return 'personal:' + (ws.workspaceId || 'default');
+          } catch (e3) {
+            return 'personal:default';
+          }
+        }
+        var schoolId = 'SCH-001';
+        try { schoolId = localStorage.getItem('mitests-school-id') || 'SCH-001'; } catch (e4) {}
+        return 'school:' + schoolId;
+      }
+
+      function readStoredArray(key) {
+        try {
+          var raw = localStorage.getItem(key);
+          if (!raw) return [];
+          var parsed = JSON.parse(raw);
+          if (Array.isArray(parsed)) return parsed;
+        } catch (e) {}
+        return [];
+      }
+
+      function saveStoredArray(key, items) {
+        try { localStorage.setItem(key, JSON.stringify(items)); } catch (e) {}
+      }
+
+      function escapeHtml(value) {
+        return String(value || '')
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
+      }
+
+      function round1(value) {
+        var num = Number(value || 0);
+        return Math.round(num * 10) / 10;
+      }
+
+      function seedComparisonDataIfNeeded(key) {
+        try {
+          if (localStorage.getItem(key) !== null) return;
+        } catch (e) {
+          return;
+        }
+
+        var sample = [
+          { id: 'cmp-1', examTitle: 'اختبار الجبر - الوحدة 4', groupName: 'الصف التاسع - أ', subject: 'الرياضيات', teacher: 'أحمد ياسين', avgScore: 78, passRate: 86, completionRate: 94, submissions: 28 },
+          { id: 'cmp-2', examTitle: 'اختبار الجبر - الوحدة 4', groupName: 'الصف التاسع - ب', subject: 'الرياضيات', teacher: 'أحمد ياسين', avgScore: 71, passRate: 79, completionRate: 90, submissions: 27 },
+          { id: 'cmp-3', examTitle: 'فهم مقروء - الوحدة 3', groupName: 'الصف الثامن - أ', subject: 'اللغة الإنجليزية', teacher: 'سلمى هاشم', avgScore: 82, passRate: 91, completionRate: 96, submissions: 29 },
+          { id: 'cmp-4', examTitle: 'فهم مقروء - الوحدة 3', groupName: 'الصف الثامن - ب', subject: 'اللغة الإنجليزية', teacher: 'سلمى هاشم', avgScore: 75, passRate: 84, completionRate: 92, submissions: 30 },
+          { id: 'cmp-5', examTitle: 'اختبار العلوم - الطاقة', groupName: 'الصف العاشر - أ', subject: 'العلوم', teacher: 'يوسف صالح', avgScore: 80, passRate: 88, completionRate: 93, submissions: 25 },
+          { id: 'cmp-6', examTitle: 'اختبار العلوم - الطاقة', groupName: 'الصف العاشر - ب', subject: 'العلوم', teacher: 'يوسف صالح', avgScore: 69, passRate: 74, completionRate: 87, submissions: 26 },
+          { id: 'cmp-7', examTitle: 'اختبار الهندسة - منتصف الفصل', groupName: 'الصف التاسع - أ', subject: 'الرياضيات', teacher: 'ليلى خضر', avgScore: 84, passRate: 92, completionRate: 97, submissions: 28 },
+          { id: 'cmp-8', examTitle: 'اختبار الهندسة - منتصف الفصل', groupName: 'الصف التاسع - ب', subject: 'الرياضيات', teacher: 'ليلى خضر', avgScore: 73, passRate: 81, completionRate: 89, submissions: 27 }
+        ];
+        saveStoredArray(key, sample);
+      }
+
+      function normalizeRecord(record) {
+        return {
+          id: String(record.id || ''),
+          examTitle: String(record.examTitle || ''),
+          groupName: String(record.groupName || ''),
+          subject: String(record.subject || ''),
+          teacher: String(record.teacher || ''),
+          avgScore: round1(record.avgScore),
+          passRate: round1(record.passRate),
+          completionRate: round1(record.completionRate),
+          submissions: Math.max(0, Number(record.submissions || 0))
+        };
+      }
+
+      function aggregateByExam(records) {
+        var buckets = {};
+        for (var i = 0; i < records.length; i++) {
+          var rec = records[i];
+          var key = rec.examTitle;
+          if (!buckets[key]) {
+            buckets[key] = {
+              id: 'exam::' + key,
+              label: rec.examTitle,
+              typeLabel: 'اختبار',
+              teacherMap: {},
+              subjectMap: {},
+              weightedScore: 0,
+              weightedPass: 0,
+              weightedCompletion: 0,
+              submissions: 0
+            };
+          }
+
+          var bucket = buckets[key];
+          bucket.teacherMap[rec.teacher] = true;
+          bucket.subjectMap[rec.subject] = true;
+          bucket.weightedScore += rec.avgScore * rec.submissions;
+          bucket.weightedPass += rec.passRate * rec.submissions;
+          bucket.weightedCompletion += rec.completionRate * rec.submissions;
+          bucket.submissions += rec.submissions;
+        }
+
+        var result = [];
+        for (var examKey in buckets) {
+          if (!Object.prototype.hasOwnProperty.call(buckets, examKey)) continue;
+          var b = buckets[examKey];
+          var sub = b.submissions || 1;
+          result.push({
+            id: b.id,
+            label: b.label,
+            typeLabel: b.typeLabel,
+            subject: Object.keys(b.subjectMap).join('، '),
+            teacher: Object.keys(b.teacherMap).join('، '),
+            avgScore: round1(b.weightedScore / sub),
+            passRate: round1(b.weightedPass / sub),
+            completionRate: round1(b.weightedCompletion / sub),
+            submissions: b.submissions
+          });
+        }
+        return result;
+      }
+
+      function aggregateByGroup(records) {
+        var buckets = {};
+        for (var i = 0; i < records.length; i++) {
+          var rec = records[i];
+          var key = rec.groupName;
+          if (!buckets[key]) {
+            buckets[key] = {
+              id: 'group::' + key,
+              label: rec.groupName,
+              typeLabel: 'مجموعة',
+              teacherMap: {},
+              subjectMap: {},
+              weightedScore: 0,
+              weightedPass: 0,
+              weightedCompletion: 0,
+              submissions: 0
+            };
+          }
+
+          var bucket = buckets[key];
+          bucket.teacherMap[rec.teacher] = true;
+          bucket.subjectMap[rec.subject] = true;
+          bucket.weightedScore += rec.avgScore * rec.submissions;
+          bucket.weightedPass += rec.passRate * rec.submissions;
+          bucket.weightedCompletion += rec.completionRate * rec.submissions;
+          bucket.submissions += rec.submissions;
+        }
+
+        var result = [];
+        for (var groupKey in buckets) {
+          if (!Object.prototype.hasOwnProperty.call(buckets, groupKey)) continue;
+          var b = buckets[groupKey];
+          var sub = b.submissions || 1;
+          result.push({
+            id: b.id,
+            label: b.label,
+            typeLabel: b.typeLabel,
+            subject: Object.keys(b.subjectMap).join('، '),
+            teacher: Object.keys(b.teacherMap).join('، '),
+            avgScore: round1(b.weightedScore / sub),
+            passRate: round1(b.weightedPass / sub),
+            completionRate: round1(b.weightedCompletion / sub),
+            submissions: b.submissions
+          });
+        }
+        return result;
+      }
+
+      function mapPairs(records) {
+        var result = [];
+        for (var i = 0; i < records.length; i++) {
+          var rec = records[i];
+          result.push({
+            id: rec.id,
+            label: rec.examTitle + ' — ' + rec.groupName,
+            typeLabel: 'اختبار × مجموعة',
+            subject: rec.subject,
+            teacher: rec.teacher,
+            avgScore: rec.avgScore,
+            passRate: rec.passRate,
+            completionRate: rec.completionRate,
+            submissions: rec.submissions
+          });
+        }
+        return result;
+      }
+
+      function buildPool(records, mode) {
+        if (mode === 'group') return aggregateByGroup(records);
+        if (mode === 'pair') return mapPairs(records);
+        return aggregateByExam(records);
+      }
+
+      function sortPool(items) {
+        return items.sort(function (a, b) {
+          return (b.avgScore - a.avgScore) || a.label.localeCompare(b.label);
+        });
+      }
+
+      function renderPool() {
+        var scope = getCurrentScope();
+        var key = 'mitests-school-exam-comparison:' + scope;
+        seedComparisonDataIfNeeded(key);
+
+        var records = readStoredArray(key).map(normalizeRecord);
+        currentPool = sortPool(buildPool(records, modeSelect.value || 'exam'));
+
+        poolSelect.innerHTML = '';
+        for (var i = 0; i < currentPool.length; i++) {
+          var option = document.createElement('option');
+          option.value = currentPool[i].id;
+          option.textContent = currentPool[i].label + ' | متوسط: ' + currentPool[i].avgScore + '%';
+          poolSelect.appendChild(option);
+        }
+
+        summarySection.classList.add('hidden');
+        tableSection.classList.add('hidden');
+      }
+
+      function selectedIds() {
+        var ids = [];
+        var options = poolSelect.options;
+        for (var i = 0; i < options.length; i++) {
+          if (options[i].selected) ids.push(options[i].value);
+        }
+        return ids;
+      }
+
+      function pickItemsByIds(ids) {
+        var picked = [];
+        for (var i = 0; i < currentPool.length; i++) {
+          if (ids.indexOf(currentPool[i].id) !== -1) picked.push(currentPool[i]);
+        }
+        return picked;
+      }
+
+      function metricClass(value, best, worst) {
+        if (value === best) return 'metric metric--best';
+        if (value === worst) return 'metric metric--worst';
+        return 'metric';
+      }
+
+      function renderSummary(items) {
+        var bestScore = -1;
+        var bestLabel = '-';
+        var bestPass = -1;
+        var bestPassLabel = '-';
+        var minScore = Number.POSITIVE_INFINITY;
+        var maxScore = Number.NEGATIVE_INFINITY;
+
+        for (var i = 0; i < items.length; i++) {
+          if (items[i].avgScore > bestScore) {
+            bestScore = items[i].avgScore;
+            bestLabel = items[i].label + ' (' + bestScore + '%)';
+          }
+          if (items[i].passRate > bestPass) {
+            bestPass = items[i].passRate;
+            bestPassLabel = items[i].label + ' (' + bestPass + '%)';
+          }
+          if (items[i].avgScore < minScore) minScore = items[i].avgScore;
+          if (items[i].avgScore > maxScore) maxScore = items[i].avgScore;
+        }
+
+        sumCount.textContent = String(items.length);
+        sumBest.textContent = bestLabel;
+        sumPass.textContent = bestPassLabel;
+        sumGap.textContent = round1(maxScore - minScore) + '%';
+      }
+
+      function renderTable(items) {
+        var scoreValues = items.map(function (item) { return item.avgScore; });
+        var passValues = items.map(function (item) { return item.passRate; });
+        var completionValues = items.map(function (item) { return item.completionRate; });
+
+        var scoreBest = Math.max.apply(null, scoreValues);
+        var scoreWorst = Math.min.apply(null, scoreValues);
+        var passBest = Math.max.apply(null, passValues);
+        var passWorst = Math.min.apply(null, passValues);
+        var completionBest = Math.max.apply(null, completionValues);
+        var completionWorst = Math.min.apply(null, completionValues);
+
+        var html = '';
+        for (var i = 0; i < items.length; i++) {
+          var item = items[i];
+          html += '<tr>'
+            + '<td>' + escapeHtml(item.label) + '</td>'
+            + '<td><span class="type-chip">' + escapeHtml(item.typeLabel) + '</span></td>'
+            + '<td>' + escapeHtml(item.subject || '-') + '</td>'
+            + '<td>' + escapeHtml(item.teacher || '-') + '</td>'
+            + '<td><span class="' + metricClass(item.avgScore, scoreBest, scoreWorst) + '">' + item.avgScore + '%</span></td>'
+            + '<td><span class="' + metricClass(item.passRate, passBest, passWorst) + '">' + item.passRate + '%</span></td>'
+            + '<td><span class="' + metricClass(item.completionRate, completionBest, completionWorst) + '">' + item.completionRate + '%</span></td>'
+            + '<td>' + item.submissions + '</td>'
+          + '</tr>';
+        }
+
+        compareBody.innerHTML = html;
+      }
+
+      function runComparison() {
+        var ids = selectedIds();
+        if (ids.length < 2) {
+          alert('يرجى اختيار عنصرين على الأقل للمقارنة.');
+          return;
+        }
+
+        var picked = pickItemsByIds(ids);
+        if (picked.length < 2) {
+          alert('لم يتم العثور على عناصر كافية للمقارنة.');
+          return;
+        }
+
+        renderSummary(picked);
+        renderTable(picked);
+        summarySection.classList.remove('hidden');
+        tableSection.classList.remove('hidden');
+      }
+
+      function selectFirstThree() {
+        var options = poolSelect.options;
+        for (var i = 0; i < options.length; i++) options[i].selected = i < 3;
+      }
+
+      function clearSelection() {
+        var options = poolSelect.options;
+        for (var i = 0; i < options.length; i++) options[i].selected = false;
+        summarySection.classList.add('hidden');
+        tableSection.classList.add('hidden');
+      }
+
+      modeSelect.addEventListener('change', renderPool);
+      compareBtn.addEventListener('click', runComparison);
+      pickThreeBtn.addEventListener('click', selectFirstThree);
+      clearBtn.addEventListener('click', clearSelection);
+
+      renderPool();
+    })();
+  </script>
+</body>
+</html>

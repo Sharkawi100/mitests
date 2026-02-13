@@ -237,6 +237,42 @@
       box-shadow: 0 0 0 3px rgba(53, 86, 178, 0.15);
     }
 
+    .teacher-note-tools {
+      display: grid;
+      gap: var(--space-3);
+      border: 1px solid var(--color-primary-200);
+      border-radius: var(--border-radius-md);
+      background: rgba(53, 86, 178, 0.06);
+      padding: var(--space-3);
+    }
+
+    .teacher-note-tools__hint {
+      margin: 0;
+      color: var(--color-gray-700);
+      font-size: var(--font-size-sm);
+    }
+
+    .teacher-note-tools__actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-2);
+    }
+
+    .teacher-note-tools__actions .btn {
+      white-space: nowrap;
+    }
+
+    .ai-note-preview {
+      border: 1px dashed var(--color-primary-300);
+      border-radius: var(--border-radius-sm);
+      background: var(--color-white);
+      padding: var(--space-3);
+      min-height: 72px;
+      color: var(--color-gray-700);
+      font-size: var(--font-size-sm);
+      line-height: 1.7;
+    }
+
     .approval-footer {
       position: sticky;
       bottom: 0;
@@ -400,7 +436,16 @@
 
       <section class="card teacher-note">
         <h2 data-i18n="teacherNoteTitle">ملاحظة المعلم</h2>
-        <textarea data-i18n-placeholder="teacherNotePlaceholder" placeholder="اكتب ملاحظة عامة للطالب حول نقاط القوة وما يحتاج إلى تحسين."></textarea>
+        <div class="teacher-note-tools">
+          <p class="teacher-note-tools__hint" data-i18n="teacherNoteAiHint">يمكن للذكاء الاصطناعي اقتراح ملخص ونصائح وتوصيات قصيرة لإدراجها مباشرة في ملاحظة المعلم.</p>
+          <div class="teacher-note-tools__actions">
+            <button type="button" class="btn btn--outline btn--sm note-ai-btn" data-note-mode="summary" data-i18n="aiSummaryBtn">توليد ملخص قصير</button>
+            <button type="button" class="btn btn--outline btn--sm note-ai-btn" data-note-mode="tips" data-i18n="aiTipsBtn">توليد نصائح</button>
+            <button type="button" class="btn btn--outline btn--sm note-ai-btn" data-note-mode="recommendations" data-i18n="aiRecommendationsBtn">توليد توصيات</button>
+          </div>
+          <div class="ai-note-preview" id="ai-note-preview" data-i18n="aiNotePreviewPlaceholder">ستظهر هنا صياغة AI قبل إضافتها إلى ملاحظة المعلم.</div>
+        </div>
+        <textarea id="teacher-note-input" data-i18n-placeholder="teacherNotePlaceholder" placeholder="اكتب ملاحظة عامة للطالب حول نقاط القوة وما يحتاج إلى تحسين."></textarea>
       </section>
 
       <footer class="approval-footer">
@@ -441,6 +486,11 @@
           approve: 'אישור',
           editMark: 'עריכת ציון',
           teacherNoteTitle: 'הערת מורה',
+          teacherNoteAiHint: 'ה-AI יכול להציע סיכום קצר, טיפים והמלצות להוספה ישירה להערת המורה.',
+          aiSummaryBtn: 'יצירת סיכום קצר',
+          aiTipsBtn: 'יצירת טיפים',
+          aiRecommendationsBtn: 'יצירת המלצות',
+          aiNotePreviewPlaceholder: 'כאן תופיע הצעת ה-AI לפני הוספה להערת המורה.',
           teacherNotePlaceholder: 'כתוב משוב כללי לתלמיד על נקודות לחיזוק והצלחות.',
           finalHint: 'לאחר אישור סופי, הציון והמשוב ישלחו לתלמיד.',
           finalize: 'סיום ושליחה לתלמיד'
@@ -468,6 +518,11 @@
           approve: 'اعتماد',
           editMark: 'تعديل العلامة',
           teacherNoteTitle: 'ملاحظة المعلم',
+          teacherNoteAiHint: 'يمكن للذكاء الاصطناعي اقتراح ملخص ونصائح وتوصيات قصيرة لإدراجها مباشرة في ملاحظة المعلم.',
+          aiSummaryBtn: 'توليد ملخص قصير',
+          aiTipsBtn: 'توليد نصائح',
+          aiRecommendationsBtn: 'توليد توصيات',
+          aiNotePreviewPlaceholder: 'ستظهر هنا صياغة AI قبل إضافتها إلى ملاحظة المعلم.',
           teacherNotePlaceholder: 'اكتب ملاحظة عامة للطالب حول نقاط القوة وما يحتاج إلى تحسين.',
           finalHint: 'بعد الاعتماد النهائي سيتم إرسال النتيجة والملاحظات إلى الطالب.',
           finalize: 'اعتماد نهائي وإرسال للطالب'
@@ -495,6 +550,11 @@
           approve: 'Approve',
           editMark: 'Edit Mark',
           teacherNoteTitle: 'Teacher Note',
+          teacherNoteAiHint: 'AI can suggest short summary, tips, and recommendations that can be inserted directly into the teacher note.',
+          aiSummaryBtn: 'Generate Short Summary',
+          aiTipsBtn: 'Generate Tips',
+          aiRecommendationsBtn: 'Generate Recommendations',
+          aiNotePreviewPlaceholder: 'AI wording will appear here before inserting it into the teacher note.',
           teacherNotePlaceholder: 'Write general feedback for the student on strengths and areas to improve.',
           finalHint: 'After finalizing, the grade and feedback will be sent to the student.',
           finalize: 'Finalize & Send to Student'
@@ -552,6 +612,53 @@
         }
       }
 
+      function buildAiTeacherNote(mode, lang) {
+        var params = new URLSearchParams(window.location.search);
+        var kind = params.get('kind') === 'assignment' ? 'assignment' : 'exam';
+        var title = params.get('title') || '';
+        var student = params.get('student') || '';
+
+        var kindAr = kind === 'assignment' ? 'الواجب' : 'الاختبار';
+        var kindEn = kind === 'assignment' ? 'assignment' : 'exam';
+        var kindHe = kind === 'assignment' ? 'המטלה' : 'המבחן';
+
+        if (lang === 'en') {
+          if (mode === 'summary') return 'Short summary: In the ' + kindEn + (title ? ' "' + title + '"' : '') + ', ' + (student || 'the student') + ' showed good effort with clear potential, but still needs better accuracy in key answers.';
+          if (mode === 'tips') return 'Tips: 1) Re-check keywords before answering. 2) Organize the answer into short logical steps. 3) Leave 2 minutes at the end for revision.';
+          return 'Recommendations: Assign 2 focused practice tasks this week and follow up with a mini-check to track progress before the next assessment.';
+        }
+
+        if (lang === 'he') {
+          if (mode === 'summary') return 'סיכום קצר: ב' + kindHe + (title ? ' "' + title + '"' : '') + ', ' + (student || 'התלמיד/ה') + ' הראה/תה מאמץ טוב ופוטנציאל ברור, אך עדיין צריך/ה דיוק טוב יותר בתשובות המרכזיות.';
+          if (mode === 'tips') return 'טיפים: 1) לבדוק מילות מפתח לפני המענה. 2) לסדר את התשובה בשלבים קצרים וברורים. 3) להשאיר 2 דקות בסוף לבדיקה עצמית.';
+          return 'המלצות: לתת שתי משימות תרגול ממוקדות השבוע ולעקוב בבדיקה קצרה לפני ההערכה הבאה.';
+        }
+
+        if (mode === 'summary') return 'ملخص قصير: في ' + kindAr + (title ? ' "' + title + '"' : '') + '، أظهر ' + (student || 'الطالب') + ' جهدًا جيدًا وقدرة واضحة، لكنه يحتاج إلى دقة أعلى في الإجابات الأساسية.';
+        if (mode === 'tips') return 'نصائح: 1) اقرأ الكلمات المفتاحية قبل الإجابة. 2) نظّم الإجابة على شكل خطوات قصيرة وواضحة. 3) اترك دقيقتين في النهاية للمراجعة.';
+        return 'توصيات: تكليف الطالب بمهمتين تدريبيتين مركزتين هذا الأسبوع مع متابعة قصيرة قبل التقييم القادم.';
+      }
+
+      function bindAiTeacherNoteTools() {
+        var buttons = document.querySelectorAll('.note-ai-btn');
+        var preview = document.getElementById('ai-note-preview');
+        var noteInput = document.getElementById('teacher-note-input');
+        if (!buttons.length || !preview || !noteInput) return;
+
+        for (var i = 0; i < buttons.length; i++) {
+          buttons[i].addEventListener('click', function () {
+            var mode = this.getAttribute('data-note-mode') || 'summary';
+            var lang = document.documentElement.getAttribute('lang') || 'ar';
+            var generated = buildAiTeacherNote(mode, lang);
+            preview.textContent = generated;
+
+            var existing = noteInput.value.trim();
+            noteInput.value = existing ? (existing + '\n\n' + generated) : generated;
+            noteInput.focus();
+          });
+        }
+      }
+
       document.addEventListener('mitests:languagechange', function (e) {
         var lang = (e.detail && e.detail.lang) || document.documentElement.getAttribute('lang') || 'ar';
         applyLanguage(lang);
@@ -563,6 +670,7 @@
         applyLanguage(lang);
         setText('.navbar__brand-text[data-i18n="brand"]', (I18N[lang] || I18N.ar).brand);
         applyAssessmentContext(lang);
+        bindAiTeacherNoteTools();
       });
     })();
   </script>

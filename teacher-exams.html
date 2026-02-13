@@ -1,27 +1,708 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Mitests - اختباراتي</title>
   <meta name="description" content="صفحة مستقلة لاختبارات المعلم.">
-  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"><link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="styles.css">
   <style>
-    .teacher-navbar{border-bottom:1px solid var(--color-gray-200)} body.rtl .main-content .teacher-navbar{right:var(--sidebar-width);left:0} body.ltr .main-content .teacher-navbar{left:var(--sidebar-width);right:0} body.rtl .main-content.main-content--expanded .teacher-navbar{right:var(--sidebar-collapsed-width)} body.ltr .main-content.main-content--expanded .teacher-navbar{left:var(--sidebar-collapsed-width)} .teacher-navbar .navbar__brand-icon{background:linear-gradient(135deg,var(--color-teacher),var(--color-primary-400))} .btn--teacher{background:var(--color-teacher);border-color:var(--color-teacher);color:var(--color-white)} .sidebar__item:hover,.sidebar__item--active{background:rgba(53,86,178,.25)} .sidebar__item--active{border-inline-start:3px solid var(--color-teacher)}
-    .main{padding:calc(var(--navbar-height) + var(--space-6)) var(--space-6) var(--space-8);display:grid;gap:var(--space-4)} .card-block{background:var(--color-white);border:1px solid var(--color-gray-200);border-top:4px solid var(--color-teacher);border-radius:var(--border-radius-md);box-shadow:var(--shadow-sm);padding:var(--space-4);display:grid;gap:var(--space-3)} .table-wrap{overflow-x:auto} .data-table{width:100%;border-collapse:collapse;min-width:640px} .data-table th,.data-table td{padding:var(--space-3);border-bottom:1px solid var(--color-gray-200);text-align:start;font-size:var(--font-size-sm)} .data-table th{background:var(--color-gray-50);color:var(--color-gray-500);font-weight:600}
-    @media (max-width:1023px){ body.rtl .main-content .teacher-navbar{right:var(--sidebar-collapsed-width)} body.ltr .main-content .teacher-navbar{left:var(--sidebar-collapsed-width)} body.rtl .main-content{margin-right:var(--sidebar-collapsed-width)} body.ltr .main-content{margin-left:var(--sidebar-collapsed-width)} .sidebar{width:var(--sidebar-collapsed-width)} .sidebar .sidebar__brand-text,.sidebar .sidebar__item span,.sidebar .sidebar__toggle span{display:none} }
-    @media (max-width:767px){ .sidebar{display:none} body.rtl .main-content,body.ltr .main-content{margin:0} body.rtl .main-content .teacher-navbar,body.ltr .main-content .teacher-navbar{right:0;left:0} .main{padding-inline:var(--space-4)} }
+    .teacher-navbar{border-bottom:1px solid var(--color-gray-200)}
+    body.rtl .main-content .teacher-navbar{right:var(--sidebar-width);left:0}
+    body.ltr .main-content .teacher-navbar{left:var(--sidebar-width);right:0}
+    body.rtl .main-content.main-content--expanded .teacher-navbar{right:var(--sidebar-collapsed-width)}
+    body.ltr .main-content.main-content--expanded .teacher-navbar{left:var(--sidebar-collapsed-width)}
+    .teacher-navbar .navbar__brand-icon{background:linear-gradient(135deg,var(--color-teacher),var(--color-primary-400))}
+    .btn--teacher{background:var(--color-teacher);border-color:var(--color-teacher);color:var(--color-white)}
+    .sidebar__item:hover,.sidebar__item--active{background:rgba(53,86,178,.25)}
+    .sidebar__item--active{border-inline-start:3px solid var(--color-teacher)}
+    .main{padding:calc(var(--navbar-height) + var(--space-6)) var(--space-6) var(--space-8);display:grid;gap:var(--space-4)}
+    .card-block{background:var(--color-white);border:1px solid var(--color-gray-200);border-top:4px solid var(--color-teacher);border-radius:var(--border-radius-md);box-shadow:var(--shadow-sm);padding:var(--space-4);display:grid;gap:var(--space-3)}
+    .page-head{display:flex;align-items:center;justify-content:space-between;gap:var(--space-3);flex-wrap:wrap}
+    .page-head h1{margin:0}
+    .page-head p{color:var(--color-gray-500);margin:0}
+    .section-head{display:flex;align-items:center;justify-content:space-between;gap:var(--space-3);flex-wrap:wrap}
+    .section-head h2{margin:0}
+    .trash-note{font-size:var(--font-size-sm);color:var(--color-gray-500);margin:0}
+    .share-note{font-size:var(--font-size-sm);color:var(--color-gray-500);margin:0}
+    .table-wrap{overflow-x:auto}
+    .data-table{width:100%;border-collapse:collapse;min-width:780px}
+    .data-table th,.data-table td{padding:var(--space-3);border-bottom:1px solid var(--color-gray-200);text-align:start;font-size:var(--font-size-sm)}
+    .data-table th{background:var(--color-gray-50);color:var(--color-gray-500);font-weight:600}
+    .kind-badge{display:inline-block;padding:2px 10px;border-radius:999px;font-size:12px;font-weight:700}
+    .kind-badge--exam{background:rgba(53,86,178,.12);color:#1d2f77}
+    .kind-badge--assignment{background:rgba(22,163,74,.12);color:#166534}
+    .status-pill{display:inline-block;padding:2px 10px;border-radius:999px;font-size:12px;font-weight:700}
+    .status-pill--published{background:#dcfce7;color:#166534}
+    .status-pill--draft{background:#fff7ed;color:#9a3412}
+    .status-pill--archived{background:#f3f4f6;color:#4b5563}
+    .action-buttons{display:flex;gap:var(--space-2);flex-wrap:wrap}
+    .btn-danger{background:#b91c1c;border-color:#b91c1c;color:var(--color-white)}
+    .btn-danger:hover{background:#991b1b;border-color:#991b1b;color:var(--color-white)}
+    .empty-cell{text-align:center;color:var(--color-gray-500)}
+    @media (max-width:1023px){
+      body.rtl .main-content .teacher-navbar{right:var(--sidebar-collapsed-width)}
+      body.ltr .main-content .teacher-navbar{left:var(--sidebar-collapsed-width)}
+      body.rtl .main-content{margin-right:var(--sidebar-collapsed-width)}
+      body.ltr .main-content{margin-left:var(--sidebar-collapsed-width)}
+      .sidebar{width:var(--sidebar-collapsed-width)}
+      .sidebar .sidebar__brand-text,.sidebar .sidebar__item span,.sidebar .sidebar__toggle span{display:none}
+    }
+    @media (max-width:767px){
+      .sidebar{display:none}
+      body.rtl .main-content,body.ltr .main-content{margin:0}
+      body.rtl .main-content .teacher-navbar,body.ltr .main-content .teacher-navbar{right:0;left:0}
+      .main{padding-inline:var(--space-4)}
+    }
   </style>
 </head>
 <body class="rtl">
-  <aside class="sidebar" id="sidebar" aria-label="Sidebar navigation"><div class="sidebar__header"><div class="sidebar__logo">M</div><span class="sidebar__brand-text">سراج - المعلم</span></div><nav class="sidebar__nav"><a class="sidebar__item" href="teacher-dashboard.html"><i class="fas fa-gauge"></i><span>نظرة عامة</span></a><a class="sidebar__item sidebar__item--active" href="teacher-exams.html"><i class="fas fa-file-lines"></i><span>اختباراتي</span></a><a class="sidebar__item" href="teacher-group.html"><i class="fas fa-users"></i><span>المجموعات</span></a><a class="sidebar__item" href="teacher-question-bank.html"><i class="fas fa-database"></i><span>بنك الأسئلة</span></a><a class="sidebar__item" href="teacher-community.html"><i class="fas fa-comments"></i><span>المجتمع</span></a><a class="sidebar__item" href="teacher-settings.html"><i class="fas fa-gear"></i><span>الإعدادات</span></a></nav><button class="sidebar__toggle" id="sidebar-toggle" aria-label="Toggle sidebar"><i class="fas fa-angles-right"></i><span>تصغير</span></button></aside>
-  <div class="main-content" id="main-content"><nav class="navbar teacher-navbar" role="navigation" aria-label="Teacher top navigation"><a href="teacher-exams.html" class="navbar__brand"><div class="navbar__brand-icon"><i class="fas fa-file-lines"></i></div><span class="navbar__brand-text">اختباراتي</span></a><div class="navbar__actions"><div class="lang-switcher" role="group" aria-label="Language selector"><button class="lang-switcher__btn active" data-lang="ar" aria-label="Arabic">&#1593;</button><button class="lang-switcher__btn" data-lang="he" aria-label="Hebrew">&#1506;&#1489;</button><button class="lang-switcher__btn" data-lang="en" aria-label="English">En</button></div><div class="avatar-dropdown"><button class="avatar-btn" type="button" data-avatar-toggle="teacher-avatar-menu" aria-label="قائمة حساب المعلم"><i class="fas fa-user"></i></button><div class="avatar-menu" id="teacher-avatar-menu" data-avatar-menu><span class="avatar-menu__label">حساب المعلم</span><a class="avatar-menu__link" href="teacher-profile.html"><i class="fas fa-id-card"></i><span>الملف الشخصي</span></a><a class="avatar-menu__link" href="teacher-settings.html"><i class="fas fa-gear"></i><span>الإعدادات</span></a></div></div><a href="index.html" class="btn btn--teacher btn--sm"><i class="fas fa-right-from-bracket"></i><span>تسجيل الخروج</span></a></div></nav>
-    <main class="main"><section class="card-block"><h1>قائمة الاختبارات</h1><p>إدارة كل اختباراتك من صفحة مستقلة بدون روابط # داخلية.</p></section><section class="card-block"><div class="table-wrap"><table class="data-table"><thead><tr><th>العنوان</th><th>التاريخ</th><th>الحالة</th><th>الإجراء</th></tr></thead><tbody><tr><td>اختبار قراءة - الوحدة 4</td><td>2026-02-10</td><td>منشور</td><td><a href="exam-report.html" class="btn btn--teacher btn--sm">النتائج</a></td></tr><tr><td>اختبار الكسور - الصف الثامن</td><td>2026-02-08</td><td>مسودة</td><td><a href="exam-report.html" class="btn btn--teacher btn--sm">النتائج</a></td></tr></tbody></table></div></section></main>
+  <aside class="sidebar" id="sidebar" aria-label="Sidebar navigation">
+    <div class="sidebar__header">
+      <div class="sidebar__logo">M</div>
+      <span class="sidebar__brand-text">سراج - المعلم</span>
+    </div>
+    <nav class="sidebar__nav">
+      <a class="sidebar__item" href="teacher-dashboard.html"><i class="fas fa-gauge"></i><span>نظرة عامة</span></a>
+      <a class="sidebar__item sidebar__item--active" href="teacher-exams.html"><i class="fas fa-file-lines"></i><span>اختباراتي</span></a>
+      <a class="sidebar__item" href="teacher-group.html"><i class="fas fa-users"></i><span>المجموعات</span></a>
+      <a class="sidebar__item" href="teacher-question-bank.html"><i class="fas fa-database"></i><span>بنك الأسئلة</span></a>
+      <a class="sidebar__item" href="teacher-community.html"><i class="fas fa-comments"></i><span>المجتمع</span></a>
+      <a class="sidebar__item" href="teacher-settings.html"><i class="fas fa-gear"></i><span>الإعدادات</span></a>
+    </nav>
+    <button class="sidebar__toggle" id="sidebar-toggle" aria-label="Toggle sidebar"><i class="fas fa-angles-right"></i><span>تصغير</span></button>
+  </aside>
+
+  <div class="main-content" id="main-content">
+    <nav class="navbar teacher-navbar" role="navigation" aria-label="Teacher top navigation">
+      <a href="teacher-exams.html" class="navbar__brand">
+        <div class="navbar__brand-icon"><i class="fas fa-file-lines"></i></div>
+        <span class="navbar__brand-text">اختباراتي</span>
+      </a>
+      <div class="navbar__actions">
+        <div class="lang-switcher" role="group" aria-label="Language selector">
+          <button class="lang-switcher__btn active" data-lang="ar" aria-label="Arabic">&#1593;</button>
+          <button class="lang-switcher__btn" data-lang="he" aria-label="Hebrew">&#1506;&#1489;</button>
+          <button class="lang-switcher__btn" data-lang="en" aria-label="English">En</button>
+        </div>
+        <div class="avatar-dropdown">
+          <button class="avatar-btn" type="button" data-avatar-toggle="teacher-avatar-menu" aria-label="قائمة حساب المعلم"><i class="fas fa-user"></i></button>
+          <div class="avatar-menu" id="teacher-avatar-menu" data-avatar-menu>
+            <span class="avatar-menu__label">حساب المعلم</span>
+            <a class="avatar-menu__link" href="teacher-profile.html"><i class="fas fa-id-card"></i><span>الملف الشخصي</span></a>
+            <a class="avatar-menu__link" href="teacher-settings.html"><i class="fas fa-gear"></i><span>الإعدادات</span></a>
+          </div>
+        </div>
+        <a href="index.html" class="btn btn--teacher btn--sm"><i class="fas fa-right-from-bracket"></i><span>تسجيل الخروج</span></a>
+      </div>
+    </nav>
+
+    <main class="main">
+      <section class="card-block">
+        <div class="page-head">
+          <div>
+            <h1>قائمة الاختبارات</h1>
+            <p>أي اختبار يتم حذفه ينتقل إلى سلة المحذوفات لمدة 30 يومًا قبل الحذف النهائي التلقائي.</p>
+          </div>
+          <a href="exam-wizard.html?kind=exam" class="btn btn--teacher"><i class="fas fa-calendar-plus"></i> جدولة اختبار جديد</a>
+        </div>
+      </section>
+
+      <section class="card-block">
+        <div class="section-head"><h2>الاختبارات الحالية</h2></div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>النوع</th>
+                <th>العنوان</th>
+                <th>الموعد</th>
+                <th>المدة</th>
+                <th>الحالة</th>
+                <th>الإجراء</th>
+              </tr>
+            </thead>
+            <tbody id="active-exams-body"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="card-block">
+        <div class="section-head">
+          <h2>اختبارات مشتركة من معلمين آخرين</h2>
+          <p class="share-note">يمكنك معاينة الاختبار المشترك ونسخه فقط. التعديل على النسخة الأصلية غير متاح.</p>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>المعلم المُشارك</th>
+                <th>العنوان</th>
+                <th>النوع</th>
+                <th>تاريخ المشاركة</th>
+                <th>الإجراء</th>
+              </tr>
+            </thead>
+            <tbody id="shared-exams-body"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="card-block">
+        <div class="section-head">
+          <h2>سلة المحذوفات</h2>
+          <p class="trash-note">يمكن استعادة الاختبار خلال 30 يومًا، أو حذفه نهائيًا يدويًا.</p>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>العنوان</th>
+                <th>النوع</th>
+                <th>تاريخ الحذف</th>
+                <th>متبقي للحذف النهائي</th>
+                <th>الإجراء</th>
+              </tr>
+            </thead>
+            <tbody id="deleted-exams-body"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
   </div>
+
   <script src="shared-layout.js"></script>
   <script src="tenant-mode.js"></script>
+  <script>
+    (function () {
+      'use strict';
+
+      var retentionDays = 30;
+      var activeBody = document.getElementById('active-exams-body');
+      var sharedBody = document.getElementById('shared-exams-body');
+      var deletedBody = document.getElementById('deleted-exams-body');
+      var state = {
+        scope: '',
+        examsKey: '',
+        trashKey: '',
+        sharesKey: '',
+        exams: [],
+        trash: [],
+        shares: [],
+        currentTeacher: { id: 'TCH-001', name: 'نورة العلي' }
+      };
+
+      function getCurrentScope() {
+        var tenantType = 'school_teacher';
+        try {
+          tenantType = localStorage.getItem('mitests-tenant-type') || 'school_teacher';
+        } catch (e) {}
+
+        if (tenantType === 'personal_teacher') {
+          var wsRaw = '';
+          try {
+            wsRaw = localStorage.getItem('mitests-personal-workspace') || '';
+          } catch (e2) {}
+          if (!wsRaw) return 'personal:default';
+          try {
+            var ws = JSON.parse(wsRaw);
+            return 'personal:' + (ws.workspaceId || 'default');
+          } catch (e3) {
+            return 'personal:default';
+          }
+        }
+
+        var schoolId = 'SCH-001';
+        try {
+          schoolId = localStorage.getItem('mitests-school-id') || 'SCH-001';
+        } catch (e4) {}
+        return 'school:' + schoolId;
+      }
+
+      function readStoredArray(key) {
+        try {
+          var raw = localStorage.getItem(key);
+          if (!raw) return [];
+          var parsed = JSON.parse(raw);
+          if (Array.isArray(parsed)) return parsed;
+        } catch (e) {}
+        return [];
+      }
+
+      function saveStoredArray(key, items) {
+        try {
+          localStorage.setItem(key, JSON.stringify(items));
+        } catch (e) {}
+      }
+
+      function getCurrentTeacher(scope) {
+        var fallback = { id: 'TCH-001', name: 'نورة العلي' };
+        if (String(scope || '').indexOf('personal:') === 0) {
+          try {
+            var profileRaw = localStorage.getItem('mitests-personal-teacher-profile');
+            if (profileRaw) {
+              var profile = JSON.parse(profileRaw);
+              return {
+                id: profile.teacherId || profile.id || 'PERSONAL-001',
+                name: profile.name || profile.teacherName || 'المعلم الشخصي'
+              };
+            }
+          } catch (e) {}
+          return { id: 'PERSONAL-001', name: 'المعلم الشخصي' };
+        }
+
+        try {
+          var currentRaw = localStorage.getItem('mitests-current-school-teacher');
+          if (currentRaw) {
+            var current = JSON.parse(currentRaw);
+            return {
+              id: current.id || fallback.id,
+              name: current.name || fallback.name
+            };
+          }
+        } catch (e2) {}
+        return fallback;
+      }
+
+      function getSchoolRecipients() {
+        var defaults = [
+          { id: 'TCH-001', name: 'نورة العلي' },
+          { id: 'TCH-002', name: 'أحمد ياسين' },
+          { id: 'TCH-003', name: 'ليلى خضر' },
+          { id: 'TCH-004', name: 'محمد صبري' }
+        ];
+        var directoryKey = 'mitests-school-teachers-directory:' + state.scope;
+        var directory = readStoredArray(directoryKey);
+        if (!directory.length) directory = defaults;
+
+        return directory.filter(function (teacher) {
+          return teacher && String(teacher.id || '') !== String(state.currentTeacher.id || '');
+        });
+      }
+
+      function escapeHtml(value) {
+        return String(value || '')
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
+      }
+
+      function normalizeDurationMinutes(rawValue) {
+        var parsed = parseInt(rawValue, 10);
+        if (!isNaN(parsed) && parsed >= 5 && parsed <= 180) return parsed;
+        return 45;
+      }
+
+      function formatDateTime(isoString) {
+        if (!isoString) return 'غير مجدول';
+        var date = new Date(isoString);
+        if (isNaN(date.getTime())) return 'غير مجدول';
+        try {
+          return date.toLocaleString('ar-EG', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit'
+          });
+        } catch (e) {
+          return isoString;
+        }
+      }
+
+      function formatShortDate(isoString) {
+        if (!isoString) return 'غير معروف';
+        var date = new Date(isoString);
+        if (isNaN(date.getTime())) return 'غير معروف';
+        try {
+          return date.toLocaleDateString('ar-EG', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
+          });
+        } catch (e) {
+          return isoString;
+        }
+      }
+
+      function getKindLabel(kind) {
+        return kind === 'assignment' ? 'واجب' : 'اختبار';
+      }
+
+      function getKindClass(kind) {
+        return kind === 'assignment' ? 'kind-badge--assignment' : 'kind-badge--exam';
+      }
+
+      function getStatusLabel(status) {
+        if (status === 'draft') return 'مسودة';
+        if (status === 'archived') return 'مؤرشف';
+        return 'منشور';
+      }
+
+      function getStatusClass(status) {
+        if (status === 'draft') return 'status-pill--draft';
+        if (status === 'archived') return 'status-pill--archived';
+        return 'status-pill--published';
+      }
+
+      function purgeExpiredTrash(items) {
+        var now = Date.now();
+        var result = [];
+        for (var i = 0; i < items.length; i++) {
+          var expiry = Date.parse(items[i].expiresAt || '');
+          if (!isNaN(expiry) && expiry > now) result.push(items[i]);
+        }
+        return result;
+      }
+
+      function getDaysRemaining(expiresAt) {
+        var expiry = Date.parse(expiresAt || '');
+        if (isNaN(expiry)) return 'غير معروف';
+        var diff = expiry - Date.now();
+        if (diff <= 0) return 'ينتهي اليوم';
+        return Math.ceil(diff / (24 * 60 * 60 * 1000)) + ' يوم';
+      }
+
+      function seedExamsIfNeeded(examsKey) {
+        try {
+          if (localStorage.getItem(examsKey) !== null) return;
+        } catch (e) {
+          return;
+        }
+
+        var defaults = [
+          {
+            id: 'seed-exam-1',
+            kind: 'exam',
+            title: 'اختبار قراءة - الوحدة 4',
+            scheduledAt: '2026-02-10T08:00:00.000Z',
+            durationMinutes: 45,
+            status: 'published',
+            createdAt: '2026-02-07T09:00:00.000Z'
+          },
+          {
+            id: 'seed-exam-2',
+            kind: 'assignment',
+            title: 'واجب الكسور - الصف الثامن',
+            scheduledAt: '2026-02-12T10:30:00.000Z',
+            durationMinutes: 35,
+            status: 'draft',
+            createdAt: '2026-02-08T11:00:00.000Z'
+          }
+        ];
+        saveStoredArray(examsKey, defaults);
+      }
+
+      function loadState() {
+        state.scope = getCurrentScope();
+        state.examsKey = 'mitests-teacher-exams:' + state.scope;
+        state.trashKey = 'mitests-teacher-exams-trash:' + state.scope;
+        state.sharesKey = 'mitests-teacher-shares:' + state.scope;
+        state.currentTeacher = getCurrentTeacher(state.scope);
+
+        seedExamsIfNeeded(state.examsKey);
+
+        var examsRaw = readStoredArray(state.examsKey);
+        state.exams = examsRaw.filter(function (item) {
+          return item && !item.deletedAt;
+        });
+
+        state.trash = purgeExpiredTrash(readStoredArray(state.trashKey));
+        saveStoredArray(state.trashKey, state.trash);
+        state.shares = readStoredArray(state.sharesKey);
+      }
+
+      function persistState() {
+        saveStoredArray(state.examsKey, state.exams);
+        saveStoredArray(state.trashKey, state.trash);
+        saveStoredArray(state.sharesKey, state.shares);
+      }
+
+      function renderActiveTable() {
+        if (!activeBody) return;
+        if (!state.exams.length) {
+          activeBody.innerHTML = '<tr><td class="empty-cell" colspan="6">لا توجد اختبارات حالية.</td></tr>';
+          return;
+        }
+
+        var html = '';
+        var canShareInSchool = String(state.scope || '').indexOf('school:') === 0;
+        for (var i = 0; i < state.exams.length; i++) {
+          var exam = state.exams[i];
+          var shareButton = canShareInSchool
+            ? '<button type="button" class="btn btn--outline btn--sm" data-action="share-exam" data-id="' + escapeHtml(exam.id || '') + '"><i class="fas fa-share-nodes"></i> مشاركة</button>'
+            : '';
+          html += '<tr>'
+            + '<td><span class="kind-badge ' + getKindClass(exam.kind) + '">' + getKindLabel(exam.kind) + '</span></td>'
+            + '<td>' + escapeHtml(exam.title || 'بدون عنوان') + '</td>'
+            + '<td>' + escapeHtml(formatDateTime(exam.scheduledAt)) + '</td>'
+            + '<td>' + normalizeDurationMinutes(exam.durationMinutes) + ' دقيقة</td>'
+            + '<td><span class="status-pill ' + getStatusClass(exam.status) + '">' + getStatusLabel(exam.status) + '</span></td>'
+            + '<td>'
+              + '<div class="action-buttons">'
+                + '<a href="exam-report.html?title=' + encodeURIComponent(exam.title || '') + '" class="btn btn--teacher btn--sm">النتائج</a>'
+                + shareButton
+                + '<button type="button" class="btn btn--outline btn--sm" data-action="move-trash" data-id="' + escapeHtml(exam.id || '') + '"><i class="fas fa-trash"></i> حذف</button>'
+              + '</div>'
+            + '</td>'
+          + '</tr>';
+        }
+
+        activeBody.innerHTML = html;
+      }
+
+      function renderTrashTable() {
+        if (!deletedBody) return;
+        if (!state.trash.length) {
+          deletedBody.innerHTML = '<tr><td class="empty-cell" colspan="5">لا توجد عناصر في سلة المحذوفات.</td></tr>';
+          return;
+        }
+
+        var html = '';
+        for (var i = 0; i < state.trash.length; i++) {
+          var item = state.trash[i];
+          html += '<tr>'
+            + '<td>' + escapeHtml(item.title || 'بدون عنوان') + '</td>'
+            + '<td><span class="kind-badge ' + getKindClass(item.kind) + '">' + getKindLabel(item.kind) + '</span></td>'
+            + '<td>' + escapeHtml(formatShortDate(item.deletedAt)) + '</td>'
+            + '<td>' + escapeHtml(getDaysRemaining(item.expiresAt)) + '</td>'
+            + '<td>'
+              + '<div class="action-buttons">'
+                + '<button type="button" class="btn btn--outline btn--sm" data-action="restore" data-id="' + escapeHtml(item.id || '') + '"><i class="fas fa-rotate-left"></i> استعادة</button>'
+                + '<button type="button" class="btn btn-danger btn--sm" data-action="delete-permanent" data-id="' + escapeHtml(item.id || '') + '"><i class="fas fa-trash-can"></i> حذف نهائي</button>'
+              + '</div>'
+            + '</td>'
+          + '</tr>';
+        }
+
+        deletedBody.innerHTML = html;
+      }
+
+      function isIncomingExamShare(item) {
+        if (!item || item.type !== 'exam_share' || !item.sharedTo) return false;
+        return String(item.sharedTo.id || '') === String(state.currentTeacher.id || '');
+      }
+
+      function renderSharedTable() {
+        if (!sharedBody) return;
+
+        var incomingShares = state.shares.filter(isIncomingExamShare);
+        if (!incomingShares.length) {
+          sharedBody.innerHTML = '<tr><td class="empty-cell" colspan="5">لا توجد اختبارات مشتركة موجهة إليك حاليًا.</td></tr>';
+          return;
+        }
+
+        var html = '';
+        for (var i = 0; i < incomingShares.length; i++) {
+          var share = incomingShares[i];
+          var sharedTitle = share.title || (share.examSnapshot && share.examSnapshot.title) || 'اختبار مشترك';
+          var sharedKind = share.kind || (share.examSnapshot && share.examSnapshot.kind) || 'exam';
+          var sharedByName = (share.sharedBy && share.sharedBy.name) ? share.sharedBy.name : 'معلم غير محدد';
+          var previewHref = 'exam-preview.html?readonly=1&shared=1'
+            + '&shareId=' + encodeURIComponent(share.id || '')
+            + '&title=' + encodeURIComponent(sharedTitle)
+            + '&kind=' + encodeURIComponent(sharedKind)
+            + '&from=' + encodeURIComponent(sharedByName);
+
+          html += '<tr>'
+            + '<td>' + escapeHtml(sharedByName) + '</td>'
+            + '<td>' + escapeHtml(sharedTitle) + '</td>'
+            + '<td><span class="kind-badge ' + getKindClass(sharedKind) + '">' + getKindLabel(sharedKind) + '</span></td>'
+            + '<td>' + escapeHtml(formatDateTime(share.createdAt)) + '</td>'
+            + '<td>'
+              + '<div class="action-buttons">'
+                + '<a href="' + previewHref + '" class="btn btn--outline btn--sm"><i class="fas fa-eye"></i> معاينة</a>'
+                + '<button type="button" class="btn btn--teacher btn--sm" data-action="duplicate-shared" data-id="' + escapeHtml(share.id || '') + '"><i class="fas fa-clone"></i> نسخ</button>'
+              + '</div>'
+            + '</td>'
+          + '</tr>';
+        }
+
+        sharedBody.innerHTML = html;
+      }
+
+      function renderAll() {
+        renderActiveTable();
+        renderSharedTable();
+        renderTrashTable();
+      }
+
+      function moveToTrash(examId) {
+        if (!examId) return;
+        var index = -1;
+        for (var i = 0; i < state.exams.length; i++) {
+          if (String(state.exams[i].id) === String(examId)) {
+            index = i;
+            break;
+          }
+        }
+        if (index === -1) return;
+        if (!window.confirm('سيتم نقل الاختبار إلى سلة المحذوفات لمدة 30 يومًا. هل تريد المتابعة؟')) return;
+
+        var removed = state.exams.splice(index, 1)[0];
+        var nowIso = new Date().toISOString();
+        var expiryIso = new Date(Date.now() + (retentionDays * 24 * 60 * 60 * 1000)).toISOString();
+        removed.deletedAt = nowIso;
+        removed.expiresAt = expiryIso;
+        state.trash.unshift(removed);
+
+        persistState();
+        renderAll();
+      }
+
+      function restoreFromTrash(examId) {
+        if (!examId) return;
+        var index = -1;
+        for (var i = 0; i < state.trash.length; i++) {
+          if (String(state.trash[i].id) === String(examId)) {
+            index = i;
+            break;
+          }
+        }
+        if (index === -1) return;
+
+        var restored = state.trash.splice(index, 1)[0];
+        delete restored.deletedAt;
+        delete restored.expiresAt;
+        state.exams.unshift(restored);
+
+        persistState();
+        renderAll();
+      }
+
+      function deletePermanently(examId) {
+        if (!examId) return;
+        if (!window.confirm('سيتم حذف هذا الاختبار نهائيًا ولن يمكن استعادته.')) return;
+
+        state.trash = state.trash.filter(function (item) {
+          return String(item.id) !== String(examId);
+        });
+
+        persistState();
+        renderAll();
+      }
+
+      function shareExam(examId) {
+        if (String(state.scope || '').indexOf('school:') !== 0) {
+          alert('ميزة مشاركة الاختبارات متاحة لمعلمي المدرسة فقط.');
+          return;
+        }
+        var exam = null;
+        for (var i = 0; i < state.exams.length; i++) {
+          if (String(state.exams[i].id) === String(examId)) {
+            exam = state.exams[i];
+            break;
+          }
+        }
+        if (!exam) return;
+
+        var recipients = getSchoolRecipients();
+        if (!recipients.length) {
+          alert('لا يوجد معلمون متاحون للمشاركة في هذه المدرسة.');
+          return;
+        }
+
+        var lines = [];
+        for (var j = 0; j < recipients.length; j++) {
+          lines.push((j + 1) + '. ' + recipients[j].name);
+        }
+
+        var picked = window.prompt('اختر رقم المعلم الذي تريد مشاركة الاختبار معه:\n' + lines.join('\n'), '1');
+        if (picked === null) return;
+        var pickedIndex = parseInt(String(picked).trim(), 10) - 1;
+        if (isNaN(pickedIndex) || pickedIndex < 0 || pickedIndex >= recipients.length) {
+          alert('اختيار غير صحيح.');
+          return;
+        }
+
+        var receiver = recipients[pickedIndex];
+        var share = {
+          id: 'share-' + Date.now(),
+          type: 'exam_share',
+          text: 'تمت مشاركة اختبار "' + (exam.title || 'بدون عنوان') + '" مع ' + receiver.name,
+          createdAt: new Date().toISOString(),
+          sharedBy: {
+            id: state.currentTeacher.id,
+            name: state.currentTeacher.name
+          },
+          sharedTo: {
+            id: receiver.id,
+            name: receiver.name
+          },
+          examId: exam.id,
+          title: exam.title || '',
+          kind: exam.kind || 'exam',
+          examSnapshot: {
+            kind: exam.kind || 'exam',
+            title: exam.title || '',
+            grade: exam.grade || '',
+            subject: exam.subject || '',
+            durationMinutes: normalizeDurationMinutes(exam.durationMinutes),
+            scheduledAt: exam.scheduledAt || '',
+            sourceType: exam.sourceType || '',
+            sourcePlan: exam.sourcePlan || ''
+          }
+        };
+
+        state.shares.unshift(share);
+        persistState();
+        alert('تمت مشاركة الاختبار مع ' + receiver.name + ' بنجاح.');
+        renderAll();
+      }
+
+      function duplicateSharedExam(shareId) {
+        var share = null;
+        for (var i = 0; i < state.shares.length; i++) {
+          if (String(state.shares[i].id) === String(shareId) && isIncomingExamShare(state.shares[i])) {
+            share = state.shares[i];
+            break;
+          }
+        }
+        if (!share) return;
+
+        var snapshot = share.examSnapshot || {};
+        var title = (snapshot.title || share.title || 'اختبار مشترك') + ' (نسخة)';
+        state.exams.unshift({
+          id: 'ex-' + Date.now(),
+          kind: snapshot.kind || share.kind || 'exam',
+          title: title,
+          grade: snapshot.grade || '',
+          subject: snapshot.subject || '',
+          durationMinutes: normalizeDurationMinutes(snapshot.durationMinutes),
+          scheduledAt: snapshot.scheduledAt || '',
+          sourceType: snapshot.sourceType || 'shared_copy',
+          sourcePlan: 'نسخة من اختبار مشترك',
+          status: 'draft',
+          createdAt: new Date().toISOString()
+        });
+
+        persistState();
+        renderAll();
+        alert('تم نسخ الاختبار إلى قائمة اختباراتي كمسودة.');
+      }
+
+      document.addEventListener('click', function (event) {
+        var trigger = event.target.closest('button[data-action]');
+        if (!trigger) return;
+
+        var action = trigger.getAttribute('data-action');
+        var examId = trigger.getAttribute('data-id');
+        if (action === 'move-trash') moveToTrash(examId);
+        if (action === 'restore') restoreFromTrash(examId);
+        if (action === 'delete-permanent') deletePermanently(examId);
+        if (action === 'share-exam') shareExam(examId);
+        if (action === 'duplicate-shared') duplicateSharedExam(examId);
+      });
+
+      loadState();
+      renderAll();
+    })();
+  </script>
 </body>
 </html>
-
-

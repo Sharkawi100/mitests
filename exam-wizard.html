@@ -22,6 +22,7 @@
     .breadcrumb{font-size:var(--font-size-sm);color:var(--color-gray-500);display:flex;align-items:center;gap:var(--space-2)}.breadcrumb a{color:var(--color-teacher);text-decoration:none}.breadcrumb a:hover{text-decoration:underline}
     .file-preview{display:flex;align-items:center;gap:var(--space-3);padding:var(--space-3);background:var(--color-primary-100);border:1px solid var(--color-primary-300);border-radius:var(--border-radius-sm);margin-top:var(--space-2)}.file-preview i{color:var(--color-teacher);font-size:1.2rem}.file-preview .file-name{flex:1;font-size:var(--font-size-sm);font-weight:600;color:var(--color-gray-800)}.file-preview .file-remove{background:none;border:none;color:var(--color-admin);cursor:pointer;font-size:var(--font-size-lg);padding:var(--space-1)}
     .drop.drag-over{border-color:var(--color-teacher);background:rgba(53,86,178,.08)}.drop{cursor:pointer}
+    .file-ai-panel{margin-top:var(--space-3);border:1px solid var(--color-primary-300);border-radius:var(--border-radius-md);padding:var(--space-3);background:rgba(53,86,178,.04);display:grid;gap:var(--space-2)}.file-ai-panel strong{color:var(--color-teacher)}.file-ai-list{margin:0;padding-inline-start:1.2rem;display:grid;gap:4px}.file-ai-status{font-size:var(--font-size-sm);color:var(--color-gray-700)}.field-help{font-size:var(--font-size-xs);color:var(--color-gray-500)}.no-text-box{border:1px solid var(--color-primary-300);border-radius:var(--border-radius-md);background:var(--color-primary-100);padding:var(--space-4);display:grid;gap:var(--space-3)}
     .field.error input,.field.error select,.field.error textarea{border-color:var(--color-admin);box-shadow:0 0 0 3px rgba(239,93,96,.12)}.field .error-msg{color:var(--color-admin);font-size:var(--font-size-xs);margin-top:2px;display:none}.field.error .error-msg{display:block}
     .success-box{min-width:320px}.success-icon{font-size:3rem;color:#16a34a;margin-bottom:var(--space-3)}.success-actions{display:flex;gap:var(--space-2);margin-top:var(--space-4);justify-content:center}
   </style>
@@ -97,6 +98,8 @@
             <div class="field"><label for="eq">عدد الأسئلة</label><input id="eq" type="number" min="1" max="50" placeholder="مثال: 15"></div>
             <div class="field"><label for="ed">مستوى الصعوبة</label><select id="ed"><option value="">اختر المستوى</option><option value="easy">سهل</option><option value="medium">متوسط</option><option value="hard">صعب</option><option value="mixed">مختلط</option></select></div>
             <div class="field"><label for="edr">مدة الاختبار (بالدقائق)</label><input id="edr" type="number" min="5" max="180" placeholder="مثال: 45"></div>
+            <div class="field"><label for="esd">تاريخ الاختبار</label><input id="esd" type="date"><small class="error-msg">يرجى تحديد تاريخ الاختبار</small></div>
+            <div class="field"><label for="est">وقت البدء</label><input id="est" type="time"><small class="error-msg">يرجى تحديد وقت بدء الاختبار</small></div>
           </div>
         </section>
 
@@ -105,11 +108,11 @@
           <div class="srcs">
             <button type="button" class="src on" data-src="up"><i class="fas fa-file-arrow-up"></i><h3>أ. رفع ملف</h3><p>PDF / Docs</p></button>
             <button type="button" class="src" data-src="ai"><i class="fas fa-pen-fancy"></i><h3>ب. توليد نص بالذكاء الاصطناعي</h3><p>الموضوع / النوع / طول النص</p></button>
-            <button type="button" class="src" data-src="man"><i class="fas fa-paste"></i><h3>ج. بشكل يدوي</h3><p>عنصر TinyMCE</p></button>
+            <button type="button" class="src" data-src="nt"><i class="fas fa-wand-magic-sparkles"></i><h3>ج. اختبار بدون نص</h3><p>توليد AI مباشر بدون قطعة قراءة</p></button>
           </div>
-          <div class="srcp on" data-srcp="up"><div class="drop" id="drop-zone"><input type="file" id="file-input" accept=".pdf,.doc,.docx" hidden><i class="fas fa-cloud-arrow-up"></i><p><strong>اسحب الملف هنا أو اضغط للاختيار</strong><br>PDF / Docs</p></div><div id="file-preview" class="file-preview hidden"></div></div>
+          <div class="srcp on" data-srcp="up"><div class="drop" id="drop-zone"><input type="file" id="file-input" accept=".pdf,.doc,.docx" hidden><i class="fas fa-cloud-arrow-up"></i><p><strong>اسحب الملف هنا أو اضغط للاختيار</strong><br>PDF / Docs</p></div><div id="file-preview" class="file-preview hidden"></div><div id="file-ai-panel" class="file-ai-panel hidden"><div class="file-ai-status" id="file-ai-status">سيتم تحليل الملف بعد الرفع.</div><label class="field">إجراء مقترح من AI<select id="file-ai-action"><option value="convert_db">تحويل المحتوى إلى قاعدة الأسئلة</option><option value="similar_exam">توليد اختبار مشابه لنفس المستوى</option><option value="extract_outcomes">استخراج نواتج التعلم وبناء مخطط اختبار</option><option value="homework_variant">إنشاء نسخة واجب مختصرة من نفس الملف</option><option value="mix_strategy">استراتيجية هجينة (استخراج + توليد)</option></select></label><ul id="file-ai-list" class="file-ai-list"></ul></div></div>
           <div class="srcp" data-srcp="ai"><div class="grid2"><div class="field"><label for="at">الموضوع</label><input id="at"></div><div class="field"><label for="ag">النمط</label><select id="ag"><option value="">اختر النمط</option><option>قصة</option><option>حوار</option><option>قطعة علمية</option><option>مقال</option></select></div><div class="field full"><label for="al">طول النص</label><select id="al"><option value="">اختر الطول</option><option value="short">قصير (حتى 300 كلمة)</option><option value="medium">متوسط (300-600 كلمة)</option><option value="long">طويل (أكثر من 600 كلمة)</option></select></div></div></div>
-          <div class="srcp" data-srcp="man"><div class="editor">عنصر TinyMCE</div></div>
+          <div class="srcp" data-srcp="nt"><div class="no-text-box"><p><strong>توليد اختبار بدون نص</strong><br>يستخدم AI لبناء اختبار مباشر بدون قطعة قراءة. مناسب للرياضيات، المفاهيم العلمية، أو اختبارات المهارات.</p><div class="grid2"><div class="field"><label for="nt-goal">هدف الاختبار</label><input id="nt-goal" placeholder="مثال: قياس إتقان الكسور والنسب"></div><div class="field"><label for="nt-focus">التركيز</label><select id="nt-focus"><option value="">اختر التركيز</option><option value="concepts">مفاهيم أساسية</option><option value="application">تطبيق عملي</option><option value="mixed">مختلط</option></select></div><div class="field full"><label for="nt-extra">تعليمات إضافية للذكاء الاصطناعي</label><textarea id="nt-extra" placeholder="مثال: اجعل 30% من الأسئلة تحديات قصيرة بدون نص."></textarea><small class="field-help">يقترح النظام أسئلة مباشرة بدون نص تمهيدي مع الحفاظ على مستوى الصف والصعوبة.</small></div></div></div></div>
         </section>
 
         <section class="panel" data-sp="3">
@@ -138,12 +141,14 @@
             <div class="row"><dt>المادة</dt><dd id="ss">-</dd></div>
             <div class="row"><dt>المهارات</dt><dd id="sk">-</dd></div>
             <div class="row"><dt>مصدر المحتوى</dt><dd id="sc">-</dd></div>
+            <div class="row"><dt>خطة المعالجة</dt><dd id="sfc">-</dd></div>
             <div class="row"><dt>أنواع الأسئلة</dt><dd id="sq">-</dd></div>
             <div class="row"><dt>الوزن الذكي</dt><dd id="swv">-</dd></div>
             <div class="row"><dt>طلب المعلم</dt><dd id="sr">-</dd></div>
             <div class="row"><dt>عدد الأسئلة</dt><dd id="sqc">-</dd></div>
             <div class="row"><dt>مستوى الصعوبة</dt><dd id="sdf">-</dd></div>
             <div class="row"><dt>مدة الاختبار</dt><dd id="sdr">-</dd></div>
+            <div class="row"><dt>موعد الاختبار</dt><dd id="ssc">-</dd></div>
           </dl>
         </section>
 
@@ -179,14 +184,24 @@
       var dropZone = document.getElementById('drop-zone');
       var fileInput = document.getElementById('file-input');
       var filePreview = document.getElementById('file-preview');
+      var fileAiPanel = document.getElementById('file-ai-panel');
+      var fileAiStatus = document.getElementById('file-ai-status');
+      var fileAiList = document.getElementById('file-ai-list');
+      var fileAiAction = document.getElementById('file-ai-action');
       var uploadedFile = null;
       var kindSelect = document.getElementById('ek');
       var gradeSelect = document.getElementById('eg');
       var subjectSelect = document.getElementById('es');
+      var noTextGoalInput = document.getElementById('nt-goal');
+      var noTextFocusInput = document.getElementById('nt-focus');
+      var noTextExtraInput = document.getElementById('nt-extra');
+      var scheduleDateInput = document.getElementById('esd');
+      var scheduleTimeInput = document.getElementById('est');
       var seedBox = document.getElementById('bank-seed');
       var seedCount = document.getElementById('bank-seed-count');
       var seedList = document.getElementById('bank-seed-list');
       var clearSeedBtn = document.getElementById('bank-seed-clear');
+      var scheduleBufferMinutes = 60;
 
       var gradesKey = 'mitests-admin-grades';
       var subjectsKey = 'mitests-admin-subjects';
@@ -244,6 +259,247 @@
       function hydrateCatalogs() {
         renderSelect(gradeSelect, 'اختر الصف', loadCatalog(gradesKey, defaultGrades));
         renderSelect(subjectSelect, 'اختر المادة', loadCatalog(subjectsKey, defaultSubjects));
+      }
+
+      function getCurrentScope() {
+        var tenantType = 'school_teacher';
+        try {
+          tenantType = localStorage.getItem('mitests-tenant-type') || 'school_teacher';
+        } catch (e) {}
+        var scope = 'school:SCH-001';
+        if (tenantType === 'personal_teacher') {
+          var wsRaw = '';
+          try {
+            wsRaw = localStorage.getItem('mitests-personal-workspace') || '';
+          } catch (e2) {}
+          if (wsRaw) {
+            try {
+              var ws = JSON.parse(wsRaw);
+              scope = 'personal:' + (ws.workspaceId || 'default');
+            } catch (e3) {
+              scope = 'personal:default';
+            }
+          } else {
+            scope = 'personal:default';
+          }
+        } else {
+          var schoolId = 'SCH-001';
+          try {
+            schoolId = localStorage.getItem('mitests-school-id') || 'SCH-001';
+          } catch (e4) {}
+          scope = 'school:' + schoolId;
+        }
+        return scope;
+      }
+
+      function readStoredArray(key) {
+        var items = [];
+        try {
+          var raw = localStorage.getItem(key);
+          if (raw) {
+            var parsed = JSON.parse(raw);
+            if (Array.isArray(parsed)) items = parsed;
+          }
+        } catch (e) {}
+        return items;
+      }
+
+      function normalizeDurationMinutes(rawValue) {
+        var parsed = parseInt(rawValue, 10);
+        if (!isNaN(parsed) && parsed >= 5 && parsed <= 180) return parsed;
+        return 45;
+      }
+
+      function toDisplayDateTime(isoString) {
+        if (!isoString) return 'غير محدد';
+        var time = new Date(isoString);
+        if (isNaN(time.getTime())) return 'غير محدد';
+        try {
+          return time.toLocaleString('ar-EG', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit'
+          });
+        } catch (e) {
+          return isoString;
+        }
+      }
+
+      function getAiProviderName() {
+        try {
+          return localStorage.getItem('mitests-admin-ai-provider') || 'Claude 3.5';
+        } catch (e) {
+          return 'Claude 3.5';
+        }
+      }
+
+      function getFileExtension(fileName) {
+        var name = String(fileName || '');
+        var dot = name.lastIndexOf('.');
+        if (dot === -1) return '';
+        return name.substring(dot + 1).toLowerCase();
+      }
+
+      function resetFileAiPanel() {
+        if (!fileAiPanel || !fileAiStatus || !fileAiList) return;
+        fileAiPanel.classList.add('hidden');
+        fileAiStatus.textContent = 'سيتم تحليل الملف بعد الرفع.';
+        fileAiList.innerHTML = '';
+        if (fileAiAction) fileAiAction.value = 'convert_db';
+      }
+
+      function runFileAiAnalysis(file) {
+        if (!fileAiPanel || !fileAiStatus || !fileAiList) return;
+
+        var provider = getAiProviderName();
+        var ext = getFileExtension(file ? file.name : '');
+        var sizeKb = file ? Math.max(1, Math.round(file.size / 1024)) : 0;
+
+        fileAiPanel.classList.remove('hidden');
+        fileAiStatus.textContent = 'جاري تحليل الملف عبر مزود AI (' + provider + ')...';
+        fileAiList.innerHTML = '';
+
+        window.setTimeout(function () {
+          var suggestions = [
+            'استخراج الأسئلة والاختيارات تلقائيًا وتحويلها إلى قاعدة بيانات الأسئلة.',
+            'توليد اختبار مشابه بنفس الدرجة والمادة مع تنويع صياغة الأسئلة.',
+            'تحليل نواتج التعلم المتوقعة واقتراح توزيع للأسئلة حسب بلوم.'
+          ];
+
+          if (ext === 'pdf') {
+            suggestions.push('اقتراح تقسيم الملف إلى وحدات تعليمية قبل التحويل إلى بنوك أسئلة.');
+            if (fileAiAction) fileAiAction.value = 'convert_db';
+          } else {
+            suggestions.push('اقتراح تنظيف المحتوى النصي أولًا ثم توليد نسخة واجب مختصرة.');
+            if (fileAiAction) fileAiAction.value = 'similar_exam';
+          }
+
+          if (sizeKb > 2048) {
+            suggestions.push('الملف كبير نسبيًا: يوصى باستراتيجية هجينة (استخراج + توليد) للحصول على أفضل نتائج.');
+            if (fileAiAction) fileAiAction.value = 'mix_strategy';
+          } else {
+            suggestions.push('الملف متوسط الحجم: مناسب لتوليد اختبار فوري ونسخة واجب في نفس الدورة.');
+          }
+
+          fileAiStatus.textContent = 'اكتمل التحليل عبر ' + provider + '. اختر طريقة المعالجة الأنسب:';
+
+          var html = '';
+          for (var i = 0; i < suggestions.length; i++) {
+            html += '<li>' + suggestions[i] + '</li>';
+          }
+          fileAiList.innerHTML = html;
+        }, 900);
+      }
+
+      function getSourceProcessingLabel(sourceKey) {
+        if (sourceKey === 'up') {
+          if (!uploadedFile) return 'لم يتم رفع ملف بعد';
+          var actionMap = {
+            convert_db: 'تحويل المحتوى إلى قاعدة الأسئلة',
+            similar_exam: 'توليد اختبار مشابه لنفس المستوى',
+            extract_outcomes: 'استخراج نواتج التعلم وبناء مخطط اختبار',
+            homework_variant: 'إنشاء نسخة واجب مختصرة من نفس الملف',
+            mix_strategy: 'استراتيجية هجينة (استخراج + توليد)'
+          };
+          return actionMap[(fileAiAction && fileAiAction.value) || ''] || 'غير محدد';
+        }
+
+        if (sourceKey === 'ai') return 'توليد نص مع هيكلة أسئلة AI';
+
+        var focusMap = {
+          concepts: 'اختبار مباشر للمفاهيم الأساسية',
+          application: 'اختبار مباشر للتطبيق العملي',
+          mixed: 'اختبار مباشر مختلط (مفاهيم + تطبيق)'
+        };
+        if (sourceKey === 'nt') {
+          if (noTextFocusInput && noTextFocusInput.value) {
+            return focusMap[noTextFocusInput.value] || 'اختبار بدون نص';
+          }
+          return 'اختبار بدون نص (توليد AI مباشر)';
+        }
+
+        return 'غير محدد';
+      }
+
+      function buildScheduledAtIso() {
+        if (!scheduleDateInput || !scheduleTimeInput) return '';
+        var datePart = scheduleDateInput.value;
+        var timePart = scheduleTimeInput.value;
+        if (!datePart || !timePart) return '';
+        var localDate = new Date(datePart + 'T' + timePart + ':00');
+        if (isNaN(localDate.getTime())) return '';
+        return localDate.toISOString();
+      }
+
+      function getKindText(kind) {
+        return kind === 'assignment' ? 'واجب' : 'اختبار';
+      }
+
+      function detectSchedulingConflicts(exams, scheduledAtIso, durationMinutes) {
+        var conflicts = [];
+        if (!scheduledAtIso) return conflicts;
+
+        var startTs = Date.parse(scheduledAtIso);
+        if (isNaN(startTs)) return conflicts;
+        var endTs = startTs + (durationMinutes * 60000);
+        var closeWindowMs = scheduleBufferMinutes * 60000;
+
+        for (var i = 0; i < exams.length; i++) {
+          var exam = exams[i];
+          if (!exam || exam.deletedAt || !exam.scheduledAt) continue;
+
+          var examStart = Date.parse(exam.scheduledAt);
+          if (isNaN(examStart)) continue;
+          var examDuration = normalizeDurationMinutes(exam.durationMinutes);
+          var examEnd = examStart + (examDuration * 60000);
+
+          var overlap = (startTs < examEnd) && (endTs > examStart);
+          var gapMs = 0;
+
+          if (!overlap) {
+            if (endTs <= examStart) gapMs = examStart - endTs;
+            else if (examEnd <= startTs) gapMs = startTs - examEnd;
+          }
+
+          var close = !overlap && gapMs > 0 && gapMs <= closeWindowMs;
+          if (!overlap && !close) continue;
+
+          conflicts.push({
+            type: overlap ? 'overlap' : 'close',
+            exam: exam,
+            gapMinutes: Math.max(1, Math.round(gapMs / 60000))
+          });
+        }
+
+        return conflicts;
+      }
+
+      function confirmSchedulingIfNeeded(scope, scheduledAtIso, durationMinutes) {
+        if (!scheduledAtIso) return true;
+
+        var examsKey = 'mitests-teacher-exams:' + scope;
+        var exams = readStoredArray(examsKey);
+        var conflicts = detectSchedulingConflicts(exams, scheduledAtIso, durationMinutes);
+        if (!conflicts.length) return true;
+
+        var lines = [];
+        var previewLimit = Math.min(3, conflicts.length);
+        for (var i = 0; i < previewLimit; i++) {
+          var conflict = conflicts[i];
+          var label = (conflict.type === 'overlap') ? 'نفس الوقت' : ('قريب (' + conflict.gapMinutes + ' دقيقة)');
+          lines.push('- ' + getKindText(conflict.exam.kind) + ': ' + (conflict.exam.title || 'بدون عنوان') + ' [' + label + ']');
+        }
+        if (conflicts.length > previewLimit) {
+          lines.push('- ... +' + (conflicts.length - previewLimit) + ' مواعيد إضافية');
+        }
+
+        var warningText = 'تنبيه: يوجد اختبارات أخرى في نفس الوقت أو قريبة من الموعد (خلال ' + scheduleBufferMinutes + ' دقيقة).\n\n'
+          + lines.join('\n')
+          + '\n\nهل تريد المتابعة في إنشاء الاختبار؟';
+
+        return window.confirm(warningText);
       }
 
       function loadSeedQuestions() {
@@ -339,14 +595,16 @@
         for (var j = 0; j < qTypeNodes.length; j++) qTypes.push(qTypeNodes[j].value);
 
         var src = document.querySelector('.src.on');
-        var srcMap = { up: 'رفع ملف', ai: 'توليد نص AI', man: 'بشكل يدوي' };
+        var sourceKey = src ? src.dataset.src : '';
+        var srcMap = { up: 'رفع ملف', ai: 'توليد نص AI', nt: 'اختبار بدون نص (AI)' };
 
         document.getElementById('stk').textContent = getKindLabel();
         document.getElementById('st').textContent = val('et') || 'غير محدد';
         document.getElementById('sg').textContent = gradeSelect.value || 'غير مختار';
         document.getElementById('ss').textContent = subjectSelect.value || 'غير مختار';
         document.getElementById('sk').textContent = skills.length ? skills.join(', ') : 'غير مختار';
-        document.getElementById('sc').textContent = src ? srcMap[src.dataset.src] : 'غير مختار';
+        document.getElementById('sc').textContent = (src && srcMap[sourceKey]) ? srcMap[sourceKey] : 'غير مختار';
+        document.getElementById('sfc').textContent = getSourceProcessingLabel(sourceKey);
         document.getElementById('sq').textContent = qTypes.length ? qTypes.join(', ') : 'غير مختار';
         document.getElementById('swv').textContent = document.getElementById('sw').checked ? 'مفعل' : 'غير مفعل';
         document.getElementById('sr').textContent = val('tr') || 'بدون توجيه';
@@ -354,6 +612,11 @@
         var diffMap = {easy:'سهل',medium:'متوسط',hard:'صعب',mixed:'مختلط'};
         document.getElementById('sdf').textContent = diffMap[val('ed')] || 'غير مختار';
         document.getElementById('sdr').textContent = val('edr') ? val('edr') + ' دقيقة' : 'غير محدد';
+        if (kindSelect.value === 'exam') {
+          document.getElementById('ssc').textContent = toDisplayDateTime(buildScheduledAtIso());
+        } else {
+          document.getElementById('ssc').textContent = 'غير مطلوب للواجب';
+        }
       }
 
       function validateStep(step) {
@@ -364,6 +627,10 @@
           if (!kindSelect.value) { kindSelect.closest('.field').classList.add('error'); valid = false; }
           if (!gradeSelect.value) { gradeSelect.closest('.field').classList.add('error'); valid = false; }
           if (!subjectSelect.value) { subjectSelect.closest('.field').classList.add('error'); valid = false; }
+          if (kindSelect.value === 'exam') {
+            if (!scheduleDateInput.value) { scheduleDateInput.closest('.field').classList.add('error'); valid = false; }
+            if (!scheduleTimeInput.value) { scheduleTimeInput.closest('.field').classList.add('error'); valid = false; }
+          }
         }
         return valid;
       }
@@ -397,6 +664,9 @@
           for (var j = 0; j < srcPanels.length; j++) {
             srcPanels[j].classList.toggle('on', srcPanels[j].dataset.srcp === key);
           }
+          if (key === 'up' && uploadedFile && fileAiPanel) fileAiPanel.classList.remove('hidden');
+          if (key !== 'up' && fileAiPanel) fileAiPanel.classList.add('hidden');
+          if (currentStep === 4) updateSummary();
         });
       }
 
@@ -409,36 +679,79 @@
           if (kindSelect.value) {
             kindSelect.closest('.field').classList.remove('error');
           }
+          if (kindSelect.value !== 'exam') {
+            if (scheduleDateInput) scheduleDateInput.closest('.field').classList.remove('error');
+            if (scheduleTimeInput) scheduleTimeInput.closest('.field').classList.remove('error');
+          }
+        });
+      }
+
+      if (scheduleDateInput) {
+        scheduleDateInput.addEventListener('change', function () {
+          if (scheduleDateInput.value) scheduleDateInput.closest('.field').classList.remove('error');
+        });
+      }
+
+      if (scheduleTimeInput) {
+        scheduleTimeInput.addEventListener('change', function () {
+          if (scheduleTimeInput.value) scheduleTimeInput.closest('.field').classList.remove('error');
         });
       }
 
       genBtn.addEventListener('click', function () {
+        if (!validateStep(1)) {
+          currentStep = 1;
+          updateStepper();
+          return;
+        }
+
         var itemKind = kindSelect.value || 'exam';
         var itemTitle = val('et') || (itemKind === 'assignment' ? 'واجب جديد' : 'اختبار جديد');
         var queueStatus = 'awaiting_submissions';
+        var durationMinutes = normalizeDurationMinutes(val('edr'));
+        var scheduledAtIso = (itemKind === 'exam') ? buildScheduledAtIso() : '';
+        var sourceNode = document.querySelector('.src.on');
+        var sourceType = sourceNode ? sourceNode.dataset.src : '';
+        var sourcePlan = getSourceProcessingLabel(sourceType);
+        var scope = '';
+
+        if (itemKind === 'exam' && !scheduledAtIso) {
+          alert('يرجى تحديد تاريخ ووقت الاختبار قبل الإنشاء.');
+          currentStep = 1;
+          updateStepper();
+          return;
+        }
 
         try {
-          var tenantType = localStorage.getItem('mitests-tenant-type') || 'school_teacher';
-          var scope = 'school:SCH-001';
-          if (tenantType === 'personal_teacher') {
-            var wsRaw = localStorage.getItem('mitests-personal-workspace');
-            if (wsRaw) {
-              var ws = JSON.parse(wsRaw);
-              scope = 'personal:' + (ws.workspaceId || 'default');
-            } else {
-              scope = 'personal:default';
-            }
-          } else {
-            scope = 'school:' + (localStorage.getItem('mitests-school-id') || 'SCH-001');
+          scope = getCurrentScope();
+
+          if (itemKind === 'exam' && !confirmSchedulingIfNeeded(scope, scheduledAtIso, durationMinutes)) {
+            return;
           }
 
+          var examsKey = 'mitests-teacher-exams:' + scope;
+          var exams = readStoredArray(examsKey);
+          exams.unshift({
+            id: 'ex-' + Date.now(),
+            kind: itemKind,
+            title: itemTitle,
+            grade: gradeSelect.value || '',
+            subject: subjectSelect.value || '',
+            durationMinutes: durationMinutes,
+            scheduledAt: scheduledAtIso,
+            sourceType: sourceType,
+            sourcePlan: sourcePlan,
+            sourceFileName: uploadedFile ? uploadedFile.name : '',
+            noTextGoal: noTextGoalInput ? noTextGoalInput.value.trim() : '',
+            noTextFocus: noTextFocusInput ? noTextFocusInput.value : '',
+            noTextExtra: noTextExtraInput ? noTextExtraInput.value.trim() : '',
+            status: 'published',
+            createdAt: new Date().toISOString()
+          });
+          localStorage.setItem(examsKey, JSON.stringify(exams));
+
           var queueKey = 'mitests-teacher-review-queue:' + scope;
-          var queue = [];
-          var queueRaw = localStorage.getItem(queueKey);
-          if (queueRaw) {
-            var parsedQueue = JSON.parse(queueRaw);
-            if (Array.isArray(parsedQueue)) queue = parsedQueue;
-          }
+          var queue = readStoredArray(queueKey);
 
           queue.unshift({
             id: 'rq-' + Date.now(),
@@ -464,7 +777,24 @@
       });
 
       draftBtn.addEventListener('click', function () {
-        try { localStorage.setItem('mitests-exam-draft', JSON.stringify({kind:kindSelect.value,title:val('et'),grade:gradeSelect.value,subject:subjectSelect.value,qCount:val('eq'),diff:val('ed'),dur:val('edr')})); } catch(e){}
+        try {
+          localStorage.setItem('mitests-exam-draft', JSON.stringify({
+            kind: kindSelect.value,
+            title: val('et'),
+            grade: gradeSelect.value,
+            subject: subjectSelect.value,
+            qCount: val('eq'),
+            diff: val('ed'),
+            dur: val('edr'),
+            sourceType: (document.querySelector('.src.on') || {}).dataset ? document.querySelector('.src.on').dataset.src : '',
+            sourcePlan: getSourceProcessingLabel((document.querySelector('.src.on') || {}).dataset ? document.querySelector('.src.on').dataset.src : ''),
+            noTextGoal: noTextGoalInput ? noTextGoalInput.value.trim() : '',
+            noTextFocus: noTextFocusInput ? noTextFocusInput.value : '',
+            noTextExtra: noTextExtraInput ? noTextExtraInput.value.trim() : '',
+            scheduleDate: scheduleDateInput ? scheduleDateInput.value : '',
+            scheduleTime: scheduleTimeInput ? scheduleTimeInput.value : ''
+          }));
+        } catch(e){}
         alert('تم حفظ المسودة بنجاح!');
       });
 
@@ -480,7 +810,15 @@
         uploadedFile = file;
         filePreview.classList.remove('hidden');
         filePreview.innerHTML = '<i class="fas fa-file-pdf"></i><span class="file-name">' + file.name + ' (' + (file.size/1024).toFixed(0) + ' KB)</span><button type="button" class="file-remove" title="حذف"><i class="fas fa-xmark"></i></button>';
-        filePreview.querySelector('.file-remove').addEventListener('click', function(){ uploadedFile=null; filePreview.classList.add('hidden'); filePreview.innerHTML=''; fileInput.value=''; });
+        runFileAiAnalysis(file);
+        filePreview.querySelector('.file-remove').addEventListener('click', function(){
+          uploadedFile = null;
+          filePreview.classList.add('hidden');
+          filePreview.innerHTML = '';
+          fileInput.value = '';
+          resetFileAiPanel();
+          if (currentStep === 4) updateSummary();
+        });
       }
 
       if (clearSeedBtn) {
@@ -494,6 +832,7 @@
 
       hydrateCatalogs();
       hydrateInitialKind();
+      resetFileAiPanel();
       renderSeedQuestions();
       updateGenerateButtonText();
       updateStepper();
