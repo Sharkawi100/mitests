@@ -306,6 +306,127 @@
       font-size: var(--font-size-sm);
     }
 
+    .tasks-kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: var(--space-4);
+      margin-bottom: var(--space-4);
+    }
+
+    .task-kpi {
+      border: 1px solid var(--color-gray-200);
+      border-top: 4px solid var(--color-teacher);
+      border-radius: var(--border-radius-md);
+      background: var(--color-white);
+      padding: var(--space-4);
+      box-shadow: var(--shadow-sm);
+      display: grid;
+      gap: var(--space-1);
+    }
+
+    .task-kpi__label {
+      color: var(--color-gray-500);
+      font-size: var(--font-size-sm);
+    }
+
+    .task-kpi__value {
+      color: var(--color-gray-900);
+      font-size: var(--font-size-2xl);
+      font-weight: 700;
+      line-height: 1.2;
+    }
+
+    .task-board {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr;
+      gap: var(--space-4);
+    }
+
+    .sub-title {
+      font-size: var(--font-size-lg);
+      color: var(--color-gray-900);
+      margin-bottom: var(--space-3);
+    }
+
+    .approvals-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: var(--space-3);
+    }
+
+    .approval-panel {
+      border: 1px solid var(--color-gray-200);
+      border-radius: var(--border-radius-md);
+      padding: var(--space-3);
+      background: var(--color-gray-50);
+    }
+
+    .approval-panel h4 {
+      font-size: var(--font-size-base);
+      color: var(--color-gray-900);
+      margin-bottom: var(--space-2);
+    }
+
+    .approval-list {
+      list-style: none;
+      display: grid;
+      gap: var(--space-2);
+      padding: 0;
+      margin: 0;
+    }
+
+    .approval-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: var(--space-2);
+      font-size: var(--font-size-sm);
+      color: var(--color-gray-700);
+      border-bottom: 1px dashed var(--color-gray-200);
+      padding-bottom: var(--space-2);
+    }
+
+    .approval-item:last-child {
+      border-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    .approval-item small {
+      color: var(--color-gray-500);
+      display: block;
+    }
+
+    .status-chip {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 10px;
+      border-radius: var(--border-radius-full);
+      font-size: var(--font-size-xs);
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .status-chip--needs-review {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .status-chip--pending {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .status-chip--approved {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .task-hint {
+      margin-top: var(--space-2);
+      color: var(--color-gray-500);
+      font-size: var(--font-size-xs);
+    }
+
     @media (max-width: 1023px) {
       body.rtl .main-content .teacher-navbar {
         right: var(--sidebar-collapsed-width);
@@ -338,7 +459,9 @@
       }
 
       .groups-grid,
-      .utility-grid {
+      .utility-grid,
+      .tasks-kpi-grid,
+      .task-board {
         grid-template-columns: 1fr;
       }
     }
@@ -490,6 +613,61 @@
         </div>
       </section>
 
+      <section id="teacher-tasks" aria-label="مهام المعلم">
+        <h2 class="section-title-inline">مهام المعلم</h2>
+        <div class="tasks-kpi-grid">
+          <article class="task-kpi">
+            <p class="task-kpi__label">أعضاء جدد في المجموعات</p>
+            <p class="task-kpi__value" id="task-new-group-members">0</p>
+          </article>
+          <article class="task-kpi">
+            <p class="task-kpi__label">مشاركات جديدة</p>
+            <p class="task-kpi__value" id="task-new-shares">0</p>
+          </article>
+          <article class="task-kpi">
+            <p class="task-kpi__label">طلاب جدد مُسندون</p>
+            <p class="task-kpi__value" id="task-new-assigned-students">0</p>
+          </article>
+        </div>
+
+        <div class="task-board">
+          <article class="card">
+            <h3 class="sub-title">ما الذي يحتاج مراجعة؟ أي اختبار؟ أي طالب؟</h3>
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>النوع</th>
+                    <th>العنوان</th>
+                    <th>المجموعة</th>
+                    <th>الطالب</th>
+                    <th>الحالة</th>
+                    <th>الإجراء</th>
+                  </tr>
+                </thead>
+                <tbody id="review-queue-body"></tbody>
+              </table>
+            </div>
+            <p class="task-hint">هذه القائمة تجيب مباشرة: ما الذي يحتاج مراجعة الآن، ولأي طالب.</p>
+          </article>
+
+          <article class="card">
+            <h3 class="sub-title">اعتماد الطلاب</h3>
+            <div class="approvals-grid">
+              <section class="approval-panel">
+                <h4>طلاب بانتظار الاعتماد</h4>
+                <ul class="approval-list" id="pending-approval-list"></ul>
+              </section>
+              <section class="approval-panel">
+                <h4>طلاب تمت الموافقة عليهم</h4>
+                <ul class="approval-list" id="approved-students-list"></ul>
+              </section>
+            </div>
+            <p class="task-hint">تعتمد على طلبات الانضمام للمجموعة: Pending مقابل Approved.</p>
+          </article>
+        </div>
+      </section>
+
       <section id="groups" aria-label="مجموعاتي">
         <h2 class="section-title-inline">مجموعاتي</h2>
         <div class="groups-grid">
@@ -551,6 +729,7 @@
             <table class="data-table">
               <thead>
                 <tr>
+                  <th>النوع</th>
                   <th>العنوان</th>
                   <th>التاريخ</th>
                   <th>الحالة</th>
@@ -559,18 +738,21 @@
               </thead>
               <tbody>
                 <tr>
+                  <td>اختبار</td>
                   <td>اختبار قراءة - الوحدة 4</td>
                   <td>2026-02-10</td>
                   <td><span class="status-pill status-pill--published">منشور</span></td>
                   <td><a href="exam-report.html" class="btn btn--teacher btn--sm">النتائج</a></td>
                 </tr>
                 <tr>
+                  <td>واجب</td>
                   <td>اختبار الكسور - الصف الثامن</td>
                   <td>2026-02-08</td>
                   <td><span class="status-pill status-pill--draft">مسودة</span></td>
                   <td><a href="exam-report.html" class="btn btn--teacher btn--sm">النتائج</a></td>
                 </tr>
                 <tr>
+                  <td>اختبار</td>
                   <td>اختبار العلوم - سلامة المختبر</td>
                   <td>2026-02-05</td>
                   <td><span class="status-pill status-pill--published">منشور</span></td>
@@ -597,6 +779,200 @@
 
   <script src="shared-layout.js"></script>
   <script src="tenant-mode.js"></script>
+  <script>
+  (function(){
+    'use strict';
+
+    function getTenantType() {
+      try { return localStorage.getItem('mitests-tenant-type') || 'school_teacher'; } catch (e) { return 'school_teacher'; }
+    }
+
+    function getScope(tenantType) {
+      if (tenantType === 'personal_teacher') {
+        try {
+          var raw = localStorage.getItem('mitests-personal-workspace');
+          if (raw) {
+            var ws = JSON.parse(raw);
+            if (ws && ws.workspaceId) return 'personal:' + String(ws.workspaceId);
+          }
+        } catch (e) {}
+        return 'personal:default';
+      }
+
+      try {
+        var schoolId = localStorage.getItem('mitests-school-id');
+        if (schoolId) return 'school:' + schoolId;
+        localStorage.setItem('mitests-school-id', 'SCH-001');
+      } catch (e2) {}
+      return 'school:SCH-001';
+    }
+
+    function loadArray(key, fallback) {
+      try {
+        var raw = localStorage.getItem(key);
+        if (!raw) return fallback.slice();
+        var parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) return parsed;
+      } catch (e) {}
+      return fallback.slice();
+    }
+
+    function saveArray(key, value) {
+      try { localStorage.setItem(key, JSON.stringify(value)); } catch (e) {}
+    }
+
+    function esc(value) {
+      return String(value || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function isRecent(isoDate, days) {
+      var d = new Date(isoDate || 0);
+      if (isNaN(d.getTime())) return false;
+      return (Date.now() - d.getTime()) <= days * 24 * 60 * 60 * 1000;
+    }
+
+    function formatDate(isoDate) {
+      var d = new Date(isoDate || Date.now());
+      if (isNaN(d.getTime())) return '-';
+      return d.toLocaleString('ar-SA', { hour12: true, year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+    }
+
+    var tenantType = getTenantType();
+    var scope = getScope(tenantType);
+
+    var groups = loadArray('mitests-teacher-groups:' + scope, [
+      { code: 'grade9-eng', name: 'الصف تاسع 1' },
+      { code: 'grade8-math', name: 'الصف ثامن 3' },
+      { code: 'grade10-sci', name: 'الصف عاشر 2' },
+      { code: 'grade7-eng', name: 'الصف سابع 1' }
+    ]);
+
+    var requests = loadArray('mitests-group-join-requests:' + scope, []);
+    var members = loadArray('mitests-group-memberships:' + scope, []);
+    var history = loadArray('mitests-group-join-history:' + scope, []);
+
+    var sharesKey = 'mitests-teacher-shares:' + scope;
+    var shares = loadArray(sharesKey, [
+      { id: 's1', text: 'مشاركة rubric جديدة في المجتمع', createdAt: new Date(Date.now() - (3 * 60 * 60 * 1000)).toISOString() },
+      { id: 's2', text: 'تنبيه من الإدارة حول تقييمات منتصف الفصل', createdAt: new Date(Date.now() - (26 * 60 * 60 * 1000)).toISOString() }
+    ]);
+    if (!loadArray(sharesKey, []).length) saveArray(sharesKey, shares);
+
+    var reviewQueueKey = 'mitests-teacher-review-queue:' + scope;
+    var reviewQueue = loadArray(reviewQueueKey, []);
+    if (!reviewQueue.length) {
+      reviewQueue = [
+        { id: 'rq1', kind: 'exam', title: 'اختبار قراءة - الوحدة 4', groupCode: 'grade9-eng', studentName: 'يوسف لؤي', studentId: 'STD-202401', status: 'needs_review', submittedAt: new Date(Date.now() - (2 * 60 * 60 * 1000)).toISOString() },
+        { id: 'rq2', kind: 'assignment', title: 'واجب المفردات - الأسبوع 3', groupCode: 'grade7-eng', studentName: 'ليان حسن', studentId: 'STD-202442', status: 'needs_review', submittedAt: new Date(Date.now() - (5 * 60 * 60 * 1000)).toISOString() },
+        { id: 'rq3', kind: 'exam', title: 'اختبار العلوم - سلامة المختبر', groupCode: 'grade10-sci', studentName: 'مالك العلي', studentId: 'STD-202447', status: 'needs_review', submittedAt: new Date(Date.now() - (20 * 60 * 60 * 1000)).toISOString() }
+      ];
+      saveArray(reviewQueueKey, reviewQueue);
+    }
+
+    function groupName(code) {
+      for (var i = 0; i < groups.length; i++) {
+        if (groups[i].code === code) return groups[i].name;
+      }
+      return 'مجموعة غير محددة';
+    }
+
+    function setText(id, value) {
+      var el = document.getElementById(id);
+      if (el) el.textContent = String(value);
+    }
+
+    var newMembersCount = history.filter(function (h) { return h.status === 'approved' && isRecent(h.decidedAt, 7); }).length;
+    var newSharesCount = shares.filter(function (s) { return isRecent(s.createdAt, 7); }).length;
+    var newAssignedCount = members.filter(function (m) { return m.source === 'school_auto' && isRecent(m.joinedAt, 7); }).length;
+
+    setText('task-new-group-members', newMembersCount);
+    setText('task-new-shares', newSharesCount);
+    setText('task-new-assigned-students', newAssignedCount);
+
+    var reviewBody = document.getElementById('review-queue-body');
+    if (reviewBody) {
+      if (!reviewQueue.length) {
+        reviewBody.innerHTML = '<tr><td colspan="6">لا يوجد عناصر حالياً تحتاج مراجعة.</td></tr>';
+      } else {
+        var reviewRows = '';
+        for (var r = 0; r < reviewQueue.length; r++) {
+          var item = reviewQueue[r];
+          var kindText = item.kind === 'assignment' ? 'واجب' : 'اختبار';
+          var statusClass = 'status-chip--pending';
+          var statusText = 'قيد الانتظار';
+          if (item.status === 'needs_review') {
+            statusClass = 'status-chip--needs-review';
+            statusText = 'تحتاج مراجعة';
+          } else if (item.status === 'awaiting_submissions') {
+            statusClass = 'status-chip--pending';
+            statusText = 'بانتظار تسليم الطلاب';
+          }
+          var href = 'exam-assessment.html?kind=' + encodeURIComponent(item.kind || 'exam')
+            + '&title=' + encodeURIComponent(item.title || '')
+            + '&student=' + encodeURIComponent(item.studentName || '')
+            + '&group=' + encodeURIComponent(groupName(item.groupCode));
+
+          reviewRows += ''
+            + '<tr>'
+            + '<td>' + kindText + '</td>'
+            + '<td>' + esc(item.title) + '</td>'
+            + '<td>' + esc(groupName(item.groupCode)) + '</td>'
+            + '<td>' + esc(item.studentName) + (item.studentId ? ' <small style="color:#6b7280;">(' + esc(item.studentId) + ')</small>' : '') + '</td>'
+            + '<td><span class="status-chip ' + statusClass + '">' + statusText + '</span></td>'
+            + '<td><a class="btn btn--teacher btn--sm" href="' + href + '">مراجعة الآن</a></td>'
+            + '</tr>';
+        }
+        reviewBody.innerHTML = reviewRows;
+      }
+    }
+
+    var pendingList = document.getElementById('pending-approval-list');
+    if (pendingList) {
+      if (!requests.length) {
+        pendingList.innerHTML = '<li class="approval-item"><span>لا يوجد طلاب بانتظار الاعتماد.</span></li>';
+      } else {
+        requests.sort(function (a, b) { return new Date(b.requestedAt || 0).getTime() - new Date(a.requestedAt || 0).getTime(); });
+        var pendingHtml = '';
+        var pendingLimit = Math.min(5, requests.length);
+        for (var p = 0; p < pendingLimit; p++) {
+          var req = requests[p];
+          pendingHtml += ''
+            + '<li class="approval-item">'
+            + '<span>' + esc(req.studentName || 'طالب') + '<small>' + esc(groupName(req.groupCode)) + ' • ' + formatDate(req.requestedAt) + '</small></span>'
+            + '<a class="btn btn--outline btn--sm" href="teacher-group.html?g=' + encodeURIComponent(req.groupCode || '') + '">اعتماد</a>'
+            + '</li>';
+        }
+        pendingList.innerHTML = pendingHtml;
+      }
+    }
+
+    var approvedList = document.getElementById('approved-students-list');
+    if (approvedList) {
+      var approvedItems = history.filter(function (h) { return h.status === 'approved'; });
+      if (!approvedItems.length) {
+        approvedList.innerHTML = '<li class="approval-item"><span>لا يوجد اعتماد حديث بعد.</span></li>';
+      } else {
+        approvedItems.sort(function (a, b) { return new Date(b.decidedAt || 0).getTime() - new Date(a.decidedAt || 0).getTime(); });
+        var approvedHtml = '';
+        var approvedLimit = Math.min(5, approvedItems.length);
+        for (var a = 0; a < approvedLimit; a++) {
+          var ok = approvedItems[a];
+          approvedHtml += ''
+            + '<li class="approval-item">'
+            + '<span>' + esc(ok.studentName || 'طالب') + '<small>' + esc(groupName(ok.groupCode)) + ' • ' + formatDate(ok.decidedAt) + '</small></span>'
+            + '<span class="status-chip status-chip--approved">معتمد</span>'
+            + '</li>';
+        }
+        approvedList.innerHTML = approvedHtml;
+      }
+    }
+  })();
+  </script>
   <script>
   (function(){
     var bell = document.querySelector('#teacher-notif-bell .notification-bell__btn');

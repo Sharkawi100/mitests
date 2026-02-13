@@ -323,10 +323,10 @@
 
     <main class="assessment-main">
       <header class="header-card">
-        <h1><span data-i18n="studentLabel">الطالب</span>: <span>يوسف علي</span></h1>
+        <h1><span data-i18n="studentLabel">الطالب</span>: <span id="assessment-student-name">يوسف علي</span></h1>
         <div class="header-meta">
-          <span class="chip"><i class="fas fa-file-pen"></i><span data-i18n="examLabel">الاختبار</span>: <strong>الإنجليزية - اختبار منتصف الفصل</strong></span>
-          <span class="chip"><i class="fas fa-users"></i><span data-i18n="groupLabel">المجموعة</span>: <strong>تاسع 1</strong></span>
+          <span class="chip"><i class="fas fa-file-pen"></i><span id="assessment-kind-label" data-i18n="examLabel">الاختبار</span>: <strong id="assessment-title">الإنجليزية - اختبار منتصف الفصل</strong></span>
+          <span class="chip"><i class="fas fa-users"></i><span data-i18n="groupLabel">المجموعة</span>: <strong id="assessment-group">تاسع 1</strong></span>
         </div>
       </header>
 
@@ -526,15 +526,43 @@
         }
       }
 
+      function applyAssessmentContext(lang) {
+        var params = new URLSearchParams(window.location.search);
+        var kind = params.get('kind') || 'exam';
+        var title = params.get('title');
+        var student = params.get('student');
+        var group = params.get('group');
+
+        var studentEl = document.getElementById('assessment-student-name');
+        var titleEl = document.getElementById('assessment-title');
+        var groupEl = document.getElementById('assessment-group');
+        var kindLabelEl = document.getElementById('assessment-kind-label');
+
+        if (studentEl && student) studentEl.textContent = student;
+        if (titleEl && title) titleEl.textContent = title;
+        if (groupEl && group) groupEl.textContent = group;
+
+        if (kindLabelEl) {
+          if (kind === 'assignment') {
+            kindLabelEl.textContent = lang === 'he' ? 'מטלה' : (lang === 'en' ? 'Assignment' : 'الواجب');
+          } else {
+            var currentLang = I18N[lang] || I18N.ar;
+            kindLabelEl.textContent = currentLang.examLabel;
+          }
+        }
+      }
+
       document.addEventListener('mitests:languagechange', function (e) {
         var lang = (e.detail && e.detail.lang) || document.documentElement.getAttribute('lang') || 'ar';
         applyLanguage(lang);
+        applyAssessmentContext(lang);
       });
 
       document.addEventListener('DOMContentLoaded', function () {
         var lang = document.documentElement.getAttribute('lang') || 'ar';
         applyLanguage(lang);
         setText('.navbar__brand-text[data-i18n="brand"]', (I18N[lang] || I18N.ar).brand);
+        applyAssessmentContext(lang);
       });
     })();
   </script>

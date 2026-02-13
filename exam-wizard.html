@@ -81,6 +81,7 @@
           <h2>معلومات عامة</h2>
           <div class="grid2">
             <div class="field full"><label for="et">عنوان الاختبار</label><input id="et" placeholder="مثال: اختبار اللغة الإنجليزية للصف التاسع"></div>
+            <div class="field"><label for="ek">نوع التقييم</label><select id="ek"><option value="">اختر النوع</option><option value="exam">اختبار</option><option value="assignment">واجب</option></select></div>
             <div class="field"><label for="eg">الصف</label><select id="eg"><option value="">اختر الصف</option></select></div>
             <div class="field"><label for="es">المادة</label><select id="es"><option value="">اختر المادة</option></select></div>
             <div class="field full">
@@ -130,6 +131,7 @@
         <section class="panel" data-sp="4">
           <h2>مراجعة وإنشاء</h2>
           <dl class="summary">
+            <div class="row"><dt>نوع التقييم</dt><dd id="stk">-</dd></div>
             <div class="row"><dt>عنوان الاختبار</dt><dd id="st">-</dd></div>
             <div class="row"><dt>الصف</dt><dd id="sg">-</dd></div>
             <div class="row"><dt>المادة</dt><dd id="ss">-</dd></div>
@@ -177,6 +179,7 @@
       var fileInput = document.getElementById('file-input');
       var filePreview = document.getElementById('file-preview');
       var uploadedFile = null;
+      var kindSelect = document.getElementById('ek');
       var gradeSelect = document.getElementById('eg');
       var subjectSelect = document.getElementById('es');
       var seedBox = document.getElementById('bank-seed');
@@ -257,6 +260,27 @@
         }
       }
 
+      function getKindLabel() {
+        var kind = kindSelect ? kindSelect.value : '';
+        if (kind === 'assignment') return 'واجب';
+        if (kind === 'exam') return 'اختبار';
+        return 'غير مختار';
+      }
+
+      function updateGenerateButtonText() {
+        var kind = kindSelect ? kindSelect.value : '';
+        var isAssignment = kind === 'assignment';
+
+        genBtn.innerHTML = '<i class="fas fa-wand-magic-sparkles"></i> ' + (isAssignment ? 'إنشاء الواجب بالذكاء الاصطناعي' : 'إنشاء الاختبار بالذكاء الاصطناعي');
+
+        var overlayText = document.querySelector('#ov .box p');
+        if (overlayText) {
+          overlayText.textContent = isAssignment
+            ? 'يتم الآن إنشاء الواجب باستخدام الذكاء الاصطناعي'
+            : 'يتم الآن إنشاء الاختبار باستخدام الذكاء الاصطناعي';
+        }
+      }
+
       function updateStepper() {
         for (var i = 0; i < wizardPanels.length; i++) {
           wizardPanels[i].classList.toggle('active', Number(wizardPanels[i].dataset.sp) === currentStep);
@@ -276,6 +300,7 @@
         draftBtn.classList.toggle('hidden', currentStep !== totalSteps);
 
         if (currentStep === 4) updateSummary();
+        updateGenerateButtonText();
       }
 
       function val(id) {
@@ -294,6 +319,7 @@
         var src = document.querySelector('.src.on');
         var srcMap = { up: 'رفع ملف', ai: 'توليد نص AI', man: 'بشكل يدوي' };
 
+        document.getElementById('stk').textContent = getKindLabel();
         document.getElementById('st').textContent = val('et') || 'غير محدد';
         document.getElementById('sg').textContent = gradeSelect.value || 'غير مختار';
         document.getElementById('ss').textContent = subjectSelect.value || 'غير مختار';
@@ -313,6 +339,7 @@
         document.querySelectorAll('.field.error').forEach(function(f){f.classList.remove('error');});
         if (step === 1) {
           if (!val('et')) { document.getElementById('et').closest('.field').classList.add('error'); valid = false; }
+          if (!kindSelect.value) { kindSelect.closest('.field').classList.add('error'); valid = false; }
           if (!gradeSelect.value) { gradeSelect.closest('.field').classList.add('error'); valid = false; }
           if (!subjectSelect.value) { subjectSelect.closest('.field').classList.add('error'); valid = false; }
         }
@@ -351,18 +378,68 @@
         });
       }
 
+      if (kindSelect) {
+        kindSelect.addEventListener('change', function () {
+          updateGenerateButtonText();
+          if (kindSelect.value) {
+            kindSelect.closest('.field').classList.remove('error');
+          }
+        });
+      }
+
       genBtn.addEventListener('click', function () {
+        var itemKind = kindSelect.value || 'exam';
+        var itemTitle = val('et') || (itemKind === 'assignment' ? 'واجب جديد' : 'اختبار جديد');
+        var queueStatus = 'awaiting_submissions';
+
+        try {
+          var tenantType = localStorage.getItem('mitests-tenant-type') || 'school_teacher';
+          var scope = 'school:SCH-001';
+          if (tenantType === 'personal_teacher') {
+            var wsRaw = localStorage.getItem('mitests-personal-workspace');
+            if (wsRaw) {
+              var ws = JSON.parse(wsRaw);
+              scope = 'personal:' + (ws.workspaceId || 'default');
+            } else {
+              scope = 'personal:default';
+            }
+          } else {
+            scope = 'school:' + (localStorage.getItem('mitests-school-id') || 'SCH-001');
+          }
+
+          var queueKey = 'mitests-teacher-review-queue:' + scope;
+          var queue = [];
+          var queueRaw = localStorage.getItem(queueKey);
+          if (queueRaw) {
+            var parsedQueue = JSON.parse(queueRaw);
+            if (Array.isArray(parsedQueue)) queue = parsedQueue;
+          }
+
+          queue.unshift({
+            id: 'rq-' + Date.now(),
+            kind: itemKind,
+            title: itemTitle,
+            groupCode: new URLSearchParams(window.location.search).get('group') || '',
+            studentName: 'بانتظار تسليم الطلاب',
+            studentId: '',
+            status: queueStatus,
+            submittedAt: new Date().toISOString()
+          });
+
+          localStorage.setItem(queueKey, JSON.stringify(queue));
+        } catch (queueError) {}
+
         overlay.classList.add('on');
         overlay.setAttribute('aria-hidden', 'false');
         setTimeout(function () {
           overlay.classList.remove('on');
           overlay.setAttribute('aria-hidden', 'true');
-          window.location.href = 'exam-assessment.html';
+          window.location.href = 'exam-assessment.html?kind=' + encodeURIComponent(itemKind) + '&title=' + encodeURIComponent(itemTitle);
         }, 2400);
       });
 
       draftBtn.addEventListener('click', function () {
-        try { localStorage.setItem('mitests-exam-draft', JSON.stringify({title:val('et'),grade:gradeSelect.value,subject:subjectSelect.value,qCount:val('eq'),diff:val('ed'),dur:val('edr')})); } catch(e){}
+        try { localStorage.setItem('mitests-exam-draft', JSON.stringify({kind:kindSelect.value,title:val('et'),grade:gradeSelect.value,subject:subjectSelect.value,qCount:val('eq'),diff:val('ed'),dur:val('edr')})); } catch(e){}
         alert('تم حفظ المسودة بنجاح!');
       });
 
@@ -392,6 +469,7 @@
 
       hydrateCatalogs();
       renderSeedQuestions();
+      updateGenerateButtonText();
       updateStepper();
     })();
   </script>
