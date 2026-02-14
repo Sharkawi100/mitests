@@ -1,4 +1,4 @@
-# Mitests.com - Requirement Analysis (RA) v2.7
+# Mitests.com - Requirement Analysis (RA) v2.8
 
 ## 1) مقدمة ورؤية المنتج
 Mitests هي منصة تقييم تعليمي مدعومة بالذكاء الاصطناعي، تهدف إلى تحويل الاختبار من عبء تشغيلي إلى أداة تعلم قابلة للقياس.
@@ -155,6 +155,11 @@ Mitests هي منصة تقييم تعليمي مدعومة بالذكاء الا
 - كود انضمام لكل مجموعة مع:
   - نسخ الكود.
   - تدوير (Rotate) الكود.
+- **إدارة الموارد (Resources):**
+  - دعم إرفاق ملفات (PDF, DOCX, Video) مع تحويلها لـ DataURL (لأغراض العرض).
+  - دعم روابط ويب (Web Links) مع اكتشاف تلقائي وتضمين لروابط يوتيوب (YouTube Embed).
+  - إضافة ملاحظات (Notes) لكل مورد.
+  - عرض حجم الملف وتنسيقه (KB/MB).
 
 #### 5.6.2 طلبات الانضمام
 - الطالب يرسل طلب انضمام عبر كود.
@@ -197,9 +202,10 @@ Mitests هي منصة تقييم تعليمي مدعومة بالذكاء الا
 - التدفق واحد لكلا النوعين (نفس الـ Wizard ونفس التقييم)، مع اختلاف التصنيف.
 - مصادر المحتوى: رفع ملف / توليد AI / اختبار بدون نص (توليد AI مباشر) / إدخال يدوي (بدون AI).
 - عند توليد AI: حقل "النمط" Dropdown: `قصة`، `حوار`، `قطعة علمية`، `مقال`.
-- أنواع الأسئلة (MC/Open-end/True-False...).
-- Smart Weighting حسب Bloom.
-- عند Generate: يظهر Processing Overlay ثم انتقال لصفحة التقييم.
+- أنواع الأسئلة المدعومة: `MC` (اختيار من متعدد)، `True/False` (صح/خطأ)، `Matching` (مطابقة)، `Completion` (إكمال)، `Short Answer` (إجابة قصيرة)، `Open-end` (مقال).
+- دعم مستوى صعوبة `Mixed` (مختلط) يوزع الأسئلة بين Easy/Medium/Hard.
+- الحالة الافتراضية للاختبار عند الإنشاء هي `Draft` (مسودة).
+- عند Generate: يظهر Processing Overlay ثم انتقال لصفحة `Answer Key Preview` (ليس Dashboard مباشرة).
 
 #### 5.7.2 تحليل الملف عبر مزود AI واقتراح خطة المعالجة
 - عند رفع ملف في معالج الاختبار، يقوم النظام بتحليل الملف عبر مزود AI.
@@ -375,4 +381,4 @@ Mitests هي منصة تقييم تعليمي مدعومة بالذكاء الا
 
 ---
 
-**Document Status:** Updated (v2.7) - added school-level multi-item exam/group comparison page.
+**Document Status:** Updated (v2.8) - Enhanced Exam Wizard (Draft status, Question Types, Preview flow) and Group Resources (Attachments, YouTube).

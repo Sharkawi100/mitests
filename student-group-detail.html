@@ -13,6 +13,13 @@
   <link rel="stylesheet" href="styles.css">
 
   <style>
+    body {
+      background:
+        radial-gradient(920px 460px at 10% -14%, rgba(14, 165, 165, 0.16), transparent 60%),
+        radial-gradient(760px 340px at 92% -18%, rgba(53, 86, 178, 0.1), transparent 62%),
+        linear-gradient(180deg, #f4fbfb 0%, #f8fafc 44%, #eef7fa 100%);
+    }
+
     .student-navbar { border-bottom: 1px solid var(--color-gray-200); }
     body.rtl .main-content .student-navbar { right: var(--sidebar-width); left: 0; }
     body.ltr .main-content .student-navbar { left: var(--sidebar-width); right: 0; }
@@ -28,7 +35,16 @@
       padding: calc(var(--navbar-height) + var(--space-6)) var(--space-6) var(--space-8);
       display: grid;
       gap: var(--space-5);
-      max-width: 1020px;
+       max-width: 1080px;
+       margin-inline: auto;
+    }
+
+    .group-main .card {
+      background: rgba(255,255,255,0.96);
+      border: 1px solid #d6ecec;
+      border-radius: 16px;
+      box-shadow: 0 10px 24px rgba(9, 107, 107, 0.1);
+      padding: var(--space-5);
     }
 
     .back-link {
@@ -40,11 +56,11 @@
 
     /* ── Group header ── */
     .group-header {
-      background: linear-gradient(145deg, rgba(14,165,165,0.13), rgba(255,255,255,1) 60%);
-      border: 1px solid var(--color-teal-100);
-      border-radius: var(--border-radius-lg);
-      border-top: 4px solid var(--color-student);
-      box-shadow: var(--shadow-md);
+      background: linear-gradient(145deg, rgba(14,165,165,0.18), rgba(255,255,255,0.98) 58%);
+      border: 1px solid #bde9e9;
+      border-radius: 18px;
+      border-top: 5px solid var(--color-student);
+      box-shadow: 0 14px 28px rgba(9, 107, 107, 0.16);
       padding: var(--space-6);
       display: flex; justify-content: space-between; align-items: center;
       gap: var(--space-4); flex-wrap: wrap;
@@ -83,13 +99,14 @@
     /* ── Announcements ── */
     .announce-list { display: grid; gap: var(--space-3); }
     .announce-item {
-      background: var(--color-white); border: 1px solid var(--color-gray-200);
-      border-radius: var(--border-radius-md); padding: var(--space-4);
+      background: linear-gradient(180deg, #ffffff, #fbfeff);
+      border: 1px solid #dce8f3;
+      border-radius: 14px; padding: var(--space-4);
       display: grid; gap: var(--space-2);
       border-inline-start: 4px solid var(--color-amber-500);
-      transition: box-shadow var(--transition-fast);
+      transition: transform var(--transition-fast), box-shadow var(--transition-fast);
     }
-    .announce-item:hover { box-shadow: var(--shadow-md); }
+    .announce-item:hover { transform: translateY(-2px); box-shadow: 0 12px 24px rgba(20, 81, 113, 0.14); }
     .announce-item--pinned { border-inline-start-color: var(--color-coral-500); }
     .announce-item__head {
       display: flex; justify-content: space-between; align-items: center;
@@ -106,11 +123,12 @@
       gap: var(--space-3);
     }
     .stat-card {
-      background: var(--color-white); border: 1px solid var(--color-gray-200);
-      border-radius: var(--border-radius-md); padding: var(--space-4);
+      background: linear-gradient(180deg, #ffffff, #f7fdfd);
+      border: 1px solid #d4eaea;
+      border-radius: 14px; padding: var(--space-4);
       text-align: center; transition: transform var(--transition-fast), box-shadow var(--transition-fast);
     }
-    .stat-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+    .stat-card:hover { transform: translateY(-3px); box-shadow: 0 12px 24px rgba(12, 111, 111, 0.14); }
     .stat-card__icon { font-size: var(--font-size-xl); margin-bottom: var(--space-2); }
     .stat-card__value { font-size: var(--font-size-2xl); font-weight: 700; color: var(--color-gray-900); }
     .stat-card__label { font-size: var(--font-size-xs); color: var(--color-gray-500); margin-top: var(--space-1); }
@@ -122,13 +140,14 @@
     /* ── Upcoming tests ── */
     .upcoming-list { display: grid; gap: var(--space-3); }
     .upcoming-item {
-      background: var(--color-white); border: 1px solid var(--color-gray-200);
-      border-radius: var(--border-radius-md); padding: var(--space-4);
+      background: linear-gradient(180deg, #ffffff, #f8fcfc);
+      border: 1px solid #d4eaea;
+      border-radius: 14px; padding: var(--space-4);
       display: flex; justify-content: space-between; align-items: center;
       gap: var(--space-3); flex-wrap: wrap;
-      transition: box-shadow var(--transition-fast);
+      transition: transform var(--transition-fast), box-shadow var(--transition-fast);
     }
-    .upcoming-item:hover { box-shadow: var(--shadow-md); }
+    .upcoming-item:hover { transform: translateY(-2px); box-shadow: 0 12px 24px rgba(12, 111, 111, 0.14); }
     .upcoming-item__info { display: grid; gap: var(--space-1); }
     .upcoming-item__title { font-weight: 700; color: var(--color-gray-900); }
     .upcoming-item__meta { font-size: var(--font-size-sm); color: var(--color-gray-500); display: flex; gap: var(--space-3); flex-wrap: wrap; }
@@ -143,13 +162,19 @@
     }
 
     /* ── Past tests table ── */
-    .table-wrap { overflow-x: auto; }
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid #d6ecec;
+      border-radius: 14px;
+      background: #fff;
+    }
     .data-table { width: 100%; border-collapse: collapse; min-width: 580px; }
     .data-table th, .data-table td {
-      padding: var(--space-3); border-bottom: 1px solid var(--color-gray-200);
+      padding: var(--space-3); border-bottom: 1px solid #e6f0f4;
       text-align: start; font-size: var(--font-size-sm);
     }
-    .data-table th { color: var(--color-gray-500); font-weight: 600; background: var(--color-gray-50); }
+    .data-table th { color: #4a5b7c; font-weight: 700; background: linear-gradient(180deg, #f7fbfb, #eef8f8); }
+    .data-table tbody tr:hover { background: #f7fcfc; }
     .grade-pill {
       background: var(--color-teal-100); color: #0b8b8b;
       border-radius: var(--border-radius-full);
@@ -166,13 +191,14 @@
       gap: var(--space-3);
     }
     .material-card {
-      background: var(--color-white); border: 1px solid var(--color-gray-200);
-      border-radius: var(--border-radius-md); padding: var(--space-4);
+      background: linear-gradient(180deg, #ffffff, #f8fefe);
+      border: 1px solid #d6ecec;
+      border-radius: 14px; padding: var(--space-4);
       display: flex; align-items: center; gap: var(--space-3);
       text-decoration: none; color: inherit;
       transition: transform var(--transition-fast), box-shadow var(--transition-fast);
     }
-    .material-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); color: inherit; }
+    .material-card:hover { transform: translateY(-3px); box-shadow: 0 12px 24px rgba(12, 111, 111, 0.14); color: inherit; }
     .material-icon {
       width: 42px; height: 42px; border-radius: var(--border-radius-sm);
       display: flex; align-items: center; justify-content: center;
@@ -185,6 +211,73 @@
     .material-info { display: grid; gap: 2px; }
     .material-info__name { font-weight: 600; font-size: var(--font-size-sm); color: var(--color-gray-900); }
     .material-info__size { font-size: var(--font-size-xs); color: var(--color-gray-400); }
+
+    .stream-wrap {
+      margin-top: var(--space-5);
+      display: grid;
+      gap: var(--space-3);
+      padding-top: var(--space-3);
+      border-top: 1px dashed #cfe4e4;
+    }
+    .stream-title {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      font-size: var(--font-size-lg);
+      font-weight: 700;
+      color: var(--color-gray-900);
+    }
+    .stream-title i { color: var(--color-student); }
+    .stream-list {
+      display: grid;
+      gap: var(--space-3);
+    }
+    .stream-item {
+      background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(245,253,253,0.95));
+      border: 1px solid #d4eaea;
+      border-inline-start: 5px solid var(--color-student);
+      border-radius: 14px;
+      padding: var(--space-4);
+      display: grid;
+      gap: var(--space-3);
+      box-shadow: 0 8px 18px rgba(10, 100, 100, 0.1);
+      transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+    }
+    .stream-item:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 14px 24px rgba(9, 96, 96, 0.15);
+    }
+    .stream-item__head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: var(--space-2);
+      flex-wrap: wrap;
+    }
+    .stream-item__title { font-weight: 700; color: var(--color-gray-900); }
+    .stream-item__meta { font-size: var(--font-size-xs); color: var(--color-gray-500); }
+    .stream-item__body { color: var(--color-gray-700); font-size: var(--font-size-sm); line-height: 1.7; }
+    .stream-item__actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-2);
+    }
+    .stream-video {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      border: 0;
+      border-radius: 12px;
+      background: #000;
+      box-shadow: 0 8px 18px rgba(8, 48, 48, 0.2);
+    }
+    .stream-empty {
+      border: 1px dashed var(--color-teal-200);
+      border-radius: var(--border-radius-md);
+      background: var(--color-teal-100);
+      color: #0b8b8b;
+      padding: var(--space-3);
+      font-size: var(--font-size-sm);
+    }
 
     /* ── Responsive ── */
     @media (max-width: 1023px) {
@@ -440,6 +533,10 @@
             </div>
           </a>
         </div>
+        <div class="stream-wrap">
+          <h3 class="stream-title"><i class="fas fa-stream"></i> <span data-i18n="streamTitle">تدفق المجموعة</span></h3>
+          <div class="stream-list" id="group-stream"></div>
+        </div>
       </section>
 
     </main>
@@ -487,6 +584,8 @@
           past4Name: 'יחידה 1 - הבעה בכתב', past4Date: '20 בדצמבר', past4Avg: '78',
           past5Name: 'מבחן אבחוני', past5Date: '1 בדצמבר', past5Avg: '72',
           materialsTitle: 'חומרי לימוד',
+          streamTitle: 'זרם הקבוצה',
+          streamEmpty: 'עדיין לא פורסמו תכנים חדשים בזרם הקבוצה.',
           mat1: 'סיכום יחידה 5', mat2: 'דפי עבודה - דקדוק',
           mat3: 'הסבר Present Perfect', mat3Size: 'וידאו · 12 דקות',
           mat4: 'תרגילים אינטראקטיביים', mat4Size: 'קישור חיצוני'
@@ -527,6 +626,8 @@
           past4Name: 'الوحدة 1 - تعبير كتابي', past4Date: '20 ديسمبر', past4Avg: '78',
           past5Name: 'اختبار تشخيصي', past5Date: '1 ديسمبر', past5Avg: '72',
           materialsTitle: 'مواد دراسية',
+          streamTitle: 'تدفق المجموعة',
+          streamEmpty: 'لا يوجد محتوى منشور حديثًا في تدفق المجموعة.',
           mat1: 'ملخص الوحدة 5', mat2: 'أوراق عمل - القواعد',
           mat3: 'شرح Present Perfect', mat3Size: 'فيديو · 12 دقيقة',
           mat4: 'تمارين تفاعلية', mat4Size: 'رابط خارجي'
@@ -567,6 +668,8 @@
           past4Name: 'Unit 1 - Creative Writing', past4Date: 'Dec 20', past4Avg: '78',
           past5Name: 'Diagnostic Test', past5Date: 'Dec 1', past5Avg: '72',
           materialsTitle: 'Study Materials',
+          streamTitle: 'Group Stream',
+          streamEmpty: 'No new posts are available in the group stream yet.',
           mat1: 'Unit 5 Summary', mat2: 'Grammar Worksheets',
           mat3: 'Present Perfect Explained', mat3Size: 'Video · 12 min',
           mat4: 'Interactive Exercises', mat4Size: 'External Link'
@@ -626,6 +729,37 @@
           .replace(/'/g, '&#39;');
       }
 
+      function isWebUrl(value) {
+        return /^https?:\/\//i.test(String(value || '').trim());
+      }
+
+      function parseYouTubeId(url) {
+        var value = String(url || '').trim();
+        if (!value) return '';
+        var match = value.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{6,})/i);
+        return match ? match[1] : '';
+      }
+
+      function fileExt(fileName) {
+        var name = String(fileName || '').trim().toLowerCase();
+        var idx = name.lastIndexOf('.');
+        if (idx < 0) return '';
+        return name.slice(idx + 1);
+      }
+
+      function inferResourceType(item) {
+        var websiteLink = String(item.websiteLink || item.link || '').trim();
+        if (item.youtubeId || parseYouTubeId(websiteLink)) return 'video';
+
+        var oldFileRef = item.attachmentName ? '' : (isWebUrl(websiteLink) ? '' : websiteLink);
+        var ext = fileExt(item.attachmentName || oldFileRef);
+        if (ext === 'pdf') return 'pdf';
+        if (ext === 'doc' || ext === 'docx') return 'docx';
+        if (ext) return 'file';
+        if (isWebUrl(websiteLink)) return 'link';
+        return item.type || 'link';
+      }
+
       function resourceMeta(type, lang) {
         var isAr = lang === 'ar';
         var isHe = lang === 'he';
@@ -633,11 +767,33 @@
         if (type === 'pdf') return { cls: 'pdf', icon: 'file-pdf', label: 'PDF' };
         if (type === 'docx') return { cls: 'doc', icon: 'file-word', label: 'DOCX' };
         if (type === 'video') return { cls: 'video', icon: 'video', label: isHe ? 'וידאו' : (isAr ? 'فيديو' : 'Video') };
+        if (type === 'file') return { cls: 'doc', icon: 'paperclip', label: isHe ? 'קובץ מצורף' : (isAr ? 'ملف مرفق' : 'Attachment') };
         return { cls: 'link', icon: 'link', label: isHe ? 'קישור חיצוני' : (isAr ? 'رابط خارجي' : 'External Link') };
+      }
+
+      function streamEmptyText(lang) {
+        var t = I18N[lang] || I18N.ar;
+        return t.streamEmpty || I18N.ar.streamEmpty;
+      }
+
+      function formatStreamDate(value, lang) {
+        var d = new Date(value || Date.now());
+        if (isNaN(d.getTime())) return '-';
+        var locale = 'ar-SA';
+        if (lang === 'he') locale = 'he-IL';
+        if (lang === 'en') locale = 'en-US';
+        return d.toLocaleString(locale, {
+          year: 'numeric',
+          month: 'short',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit'
+        });
       }
 
       function renderTeacherMaterials(lang) {
         var grid = document.getElementById('materials-grid');
+        var stream = document.getElementById('group-stream');
         if (!grid) return;
 
         var params = new URLSearchParams(window.location.search);
@@ -650,8 +806,6 @@
         var resources = loadArray(resourcesKey, []);
         var groupResources = resources.filter(function (item) { return item.groupCode === groupCode; });
 
-        if (!groupResources.length) return;
-
         var groups = loadArray(groupsKey, []);
         for (var g = 0; g < groups.length; g++) {
           if (groups[g].code === groupCode) {
@@ -661,27 +815,78 @@
           }
         }
 
-        var html = '';
-        for (var i = 0; i < groupResources.length; i++) {
-          var item = groupResources[i];
-          var meta = resourceMeta(item.type, lang);
-          var linkValue = String(item.link || '').trim();
-          var isWebLink = /^https?:\/\//i.test(linkValue);
-          var href = isWebLink ? esc(linkValue) : '#';
-          var openAttr = isWebLink ? ' target="_blank" rel="noopener"' : '';
-          var sizeText = item.size ? esc(item.size) : meta.label;
+        if (!groupResources.length) {
+          if (stream) stream.innerHTML = '<div class="stream-empty">' + esc(streamEmptyText(lang)) + '</div>';
+          return;
+        }
 
-          html += ''
-            + '<a href="' + href + '" class="material-card"' + openAttr + '>'
+        var materialsHtml = '';
+        var streamHtml = '';
+
+        for (var i = 0; i < groupResources.length; i++) {
+          var item = groupResources[i] || {};
+          var websiteLink = String(item.websiteLink || item.link || '').trim();
+          var youtubeId = String(item.youtubeId || parseYouTubeId(websiteLink) || '').trim();
+          var oldFileRef = item.attachmentName ? '' : (isWebUrl(websiteLink) ? '' : websiteLink);
+          var attachmentName = String(item.attachmentName || oldFileRef || '').trim();
+          var attachmentHref = String(item.attachmentDataUrl || '').trim();
+          var note = String(item.note || '').trim();
+          var type = inferResourceType(item);
+          var meta = resourceMeta(type, lang);
+          var sizeText = String(item.attachmentSizeText || item.size || meta.label).trim();
+          var subtitle = meta.label + (sizeText && sizeText !== meta.label ? (' · ' + esc(sizeText)) : '');
+
+          var wrapperStart = '<div class="material-card">';
+          var wrapperEnd = '</div>';
+          if (attachmentHref) {
+            var dlName = attachmentName || (item.title || 'attachment');
+            wrapperStart = '<a href="' + esc(attachmentHref) + '" class="material-card" download="' + esc(dlName) + '">';
+            wrapperEnd = '</a>';
+          } else if (isWebUrl(websiteLink)) {
+            wrapperStart = '<a href="' + esc(websiteLink) + '" class="material-card" target="_blank" rel="noopener">';
+            wrapperEnd = '</a>';
+          }
+
+          materialsHtml += ''
+            + wrapperStart
             + '<div class="material-icon material-icon--' + meta.cls + '"><i class="fas fa-' + meta.icon + '"></i></div>'
             + '<div class="material-info">'
             + '<div class="material-info__name">' + esc(item.title || 'محتوى تعليمي') + '</div>'
-            + '<div class="material-info__size">' + meta.label + ' · ' + sizeText + '</div>'
+            + '<div class="material-info__size">' + subtitle + '</div>'
             + '</div>'
-            + '</a>';
+            + wrapperEnd;
+
+          var streamActions = '';
+          if (attachmentHref) {
+            streamActions += '<a href="' + esc(attachmentHref) + '" download="' + esc(attachmentName || 'attachment') + '" class="btn btn--student btn--sm"><i class="fas fa-paperclip"></i> تحميل المرفق</a>';
+          } else if (attachmentName) {
+            streamActions += '<span class="material-info__size">مرفق: ' + esc(attachmentName) + '</span>';
+          }
+          if (isWebUrl(websiteLink)) {
+            streamActions += '<a href="' + esc(websiteLink) + '" target="_blank" rel="noopener" class="btn btn--outline btn--sm"><i class="fas fa-link"></i> فتح الرابط</a>';
+          }
+          if (!streamActions) {
+            streamActions = '<span class="material-info__size">لا يوجد رابط مباشر.</span>';
+          }
+
+          var streamBody = note ? '<div class="stream-item__body">' + esc(note) + '</div>' : '';
+          if (youtubeId) {
+            streamBody += '<iframe class="stream-video" src="https://www.youtube.com/embed/' + esc(youtubeId) + '" title="' + esc(item.title || 'YouTube video') + '" loading="lazy" allowfullscreen></iframe>';
+          }
+
+          streamHtml += ''
+            + '<article class="stream-item">'
+            + '<div class="stream-item__head">'
+            + '<div class="stream-item__title">' + esc(item.title || 'منشور تعليمي') + '</div>'
+            + '<div class="stream-item__meta">' + esc(formatStreamDate(item.createdAt, lang)) + '</div>'
+            + '</div>'
+            + streamBody
+            + '<div class="stream-item__actions">' + streamActions + '</div>'
+            + '</article>';
         }
 
-        grid.innerHTML = html;
+        grid.innerHTML = materialsHtml;
+        if (stream) stream.innerHTML = streamHtml;
       }
 
       document.addEventListener('mitests:languagechange', function (e) {

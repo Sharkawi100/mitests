@@ -1,0 +1,1089 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mitests.com - Requirement Analysis (RA) v2.8</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&family=IBM+Plex+Sans+Arabic:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="styles.css">
+
+  <style>
+    :root{
+      --bg:#0b1220;
+      --card:#0f1a30;
+      --card2:#0c162a;
+      --muted:#9fb0d0;
+      --text:#eaf0ff;
+      --line: rgba(255,255,255,.08);
+      --accent:#7c5cff;
+      --accent2:#2dd4bf;
+      --warn:#fb7185;
+      --ok:#22c55e;
+      --shadow: 0 14px 40px rgba(0,0,0,.35);
+      --radius: 18px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: "Tajawal", "IBM Plex Sans Arabic", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background:
+        radial-gradient(900px 500px at 90% 10%, rgba(124,92,255,.25), transparent 60%),
+        radial-gradient(700px 400px at 10% 20%, rgba(45,212,191,.18), transparent 60%),
+        radial-gradient(700px 500px at 50% 110%, rgba(251,113,133,.10), transparent 60%),
+        var(--bg);
+      color:var(--text);
+      line-height:1.75;
+    }
+
+    a{color:inherit}
+    .wrap{
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 28px 18px 70px;
+    }
+
+    /* Top Header */
+    .hero{
+      position:relative;
+      padding: 22px 22px;
+      border:1px solid rgba(51, 65, 85, 0.5);
+      border-radius: var(--radius);
+      background:
+        linear-gradient(135deg, rgba(30, 41, 59, 0.95), rgba(15, 23, 42, 0.98)),
+        #0f172a;
+      box-shadow: 
+        0 8px 32px rgba(124,92,255,.15),
+        0 1px 2px rgba(0,0,0,.3);
+      overflow:hidden;
+    }
+    .hero:before{
+      content:"";
+      position:absolute;
+      inset:-2px;
+      background:
+        radial-gradient(550px 350px at 95% 5%, rgba(30, 58, 138, 0.4), transparent 60%),
+        radial-gradient(550px 350px at 5% 95%, rgba(15, 23, 42, 0.4), transparent 60%);
+      filter: blur(40px);
+      pointer-events:none;
+      z-index: 0;
+    }
+    .hero-inner{position:relative; z-index:2; display:flex; gap:18px; align-items:flex-start; flex-wrap:wrap}
+    .brand{
+      display:flex;
+      gap:12px;
+      align-items:center;
+      min-width: 260px;
+    }
+    .logo{
+      width:48px;height:48px;
+      border-radius: 14px;
+      border:1px solid rgba(255,255,255,.3);
+      background:
+        linear-gradient(135deg, #7c3aed, #2dd4bf);
+      box-shadow: 0 12px 26px rgba(124,92,255,.25);
+      display:grid;
+      place-items:center;
+      font-weight:800;
+      letter-spacing:.5px;
+      color:#fff;
+      user-select:none;
+      font-size: 18px;
+    }
+    .title h1{
+      margin:0;
+      font-size: 22px;
+      line-height:1.2;
+      letter-spacing:.2px;
+      color: #fff;
+      text-shadow: 0 2px 10px rgba(0,0,0,.3);
+    }
+    .title .sub{
+      margin-top:6px;
+      color: rgba(255,255,255,.9);
+      font-size: 14px;
+      font-weight: 500;
+    }
+    .badges{
+      margin-inline-start:auto;
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:flex-end;
+    }
+    .badge{
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.04);
+      padding: 8px 10px;
+      border-radius: 999px;
+      font-size: 13px;
+      color: var(--muted);
+      display:flex;
+      gap:8px;
+      align-items:center;
+      white-space:nowrap;
+    }
+    .dot{
+      width:10px;height:10px;border-radius:999px;
+      background: var(--accent2);
+      box-shadow: 0 0 0 3px rgba(45,212,191,.14);
+    }
+    .dot.warn{background: var(--warn); box-shadow: 0 0 0 3px rgba(251,113,133,.12)}
+    .dot.purple{background: var(--accent); box-shadow: 0 0 0 3px rgba(124,92,255,.12)}
+
+    /* Layout */
+    .grid{
+      margin-top: 18px;
+      display:grid;
+      grid-template-columns: 360px 1fr;
+      gap: 16px;
+      align-items:start;
+    }
+    @media (max-width: 980px){
+      .grid{grid-template-columns: 1fr}
+    }
+
+    /* Sidebar */
+    .side{
+      position: sticky;
+      top: 16px;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.02);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .side .side-head{
+      padding: 14px 16px;
+      border-bottom:1px solid var(--line);
+      background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.01));
+    }
+    .side .side-head h2{
+      margin:0;
+      font-size: 15px;
+      letter-spacing:.2px;
+    }
+    .search{
+      padding: 12px 14px 14px;
+      border-bottom:1px solid var(--line);
+    }
+    .search input{
+      width:100%;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border:1px solid var(--line);
+      background: rgba(12,22,42,.55);
+      color: var(--text);
+      outline:none;
+      font-family:inherit;
+      font-size: 14px;
+    }
+    .search input::placeholder{color: rgba(159,176,208,.75)}
+    .toc{
+      padding: 6px 10px 12px;
+      max-height: calc(100vh - 220px);
+      overflow:auto;
+    }
+    .toc a{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      text-decoration:none;
+      padding: 8px 10px;
+      border-radius: 12px;
+      color: rgba(234,240,255,.86);
+      border: 1px solid transparent;
+    }
+    .toc a:hover{
+      background: rgba(255,255,255,.03);
+      border-color: rgba(255,255,255,.06);
+    }
+    .toc small{
+      color: var(--muted);
+      font-size: 12px;
+      margin-inline-start:auto;
+    }
+    .pill{
+      font-family: var(--mono);
+      font-size: 12px;
+      color: rgba(234,240,255,.85);
+      padding: 2px 8px;
+      border-radius: 999px;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(124,92,255,.10);
+    }
+
+    /* Content */
+    .content{
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.02);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .content-top{
+      padding: 16px 18px;
+      border-bottom:1px solid var(--line);
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+      justify-content:space-between;
+      background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.01));
+    }
+    .chips{
+      display:flex; gap:8px; flex-wrap:wrap; align-items:center;
+    }
+    .chip{
+      padding: 6px 10px;
+      border-radius: 999px;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.03);
+      color: var(--muted);
+      font-size: 13px;
+      display:flex;
+      gap:8px;
+      align-items:center;
+      white-space:nowrap;
+    }
+    .chip strong{color: rgba(234,240,255,.92); font-weight:700}
+    .actions{
+      display:flex; gap:8px; flex-wrap:wrap; align-items:center;
+    }
+    .btn{
+      cursor:pointer;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(12,22,42,.55);
+      color: rgba(234,240,255,.92);
+      padding: 8px 10px;
+      border-radius: 12px;
+      font-family:inherit;
+      font-size: 13px;
+      display:flex;
+      gap:8px;
+      align-items:center;
+    }
+    .btn:hover{border-color: rgba(124,92,255,.30)}
+    .btn.primary{
+      background: linear-gradient(135deg, rgba(124,92,255,.95), rgba(45,212,191,.70));
+      color:#081023;
+      border-color: transparent;
+      font-weight:700;
+    }
+
+    .section{
+      padding: 18px 18px 6px;
+      border-bottom:1px solid rgba(255,255,255,.06);
+    }
+    .section:last-child{border-bottom:0}
+    .section h2{
+      margin: 0 0 10px;
+      font-size: 18px;
+      letter-spacing:.2px;
+    }
+    .section h3{
+      margin: 14px 0 8px;
+      font-size: 15px;
+      color: rgba(234,240,255,.92);
+    }
+    .section p{margin: 0 0 10px; color: rgba(234,240,255,.88)}
+    .muted{color: var(--muted)}
+    .quote{
+      margin: 10px 0 6px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(12,22,42,.45);
+      position:relative;
+    }
+    .quote:before{
+      content:"“";
+      position:absolute;
+      inset-inline-start: 12px;
+      top: 2px;
+      font-size: 34px;
+      color: rgba(124,92,255,.35);
+      font-weight:800;
+    }
+    .quote b{color: rgba(234,240,255,.95)}
+    .callouts{
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin: 10px 0 12px;
+    }
+    @media (max-width: 980px){ .callouts{grid-template-columns: 1fr} }
+    .callout{
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(12,22,42,.42));
+      padding: 12px 12px;
+      min-height: 86px;
+    }
+    .callout .k{
+      font-family: var(--mono);
+      font-size: 12px;
+      color: rgba(159,176,208,.95);
+      margin-bottom: 6px;
+    }
+    .callout .v{
+      font-size: 14px;
+      color: rgba(234,240,255,.92);
+      font-weight:700;
+    }
+
+    /* Lists */
+    ul{margin: 8px 0 12px; padding:0 18px}
+    li{margin: 6px 0; color: rgba(234,240,255,.86)}
+    li::marker{color: rgba(45,212,191,.80)}
+
+    /* Details */
+    details{
+      border:1px solid rgba(255,255,255,.10);
+      border-radius: 16px;
+      background: rgba(12,22,42,.38);
+      padding: 10px 12px;
+      margin: 10px 0 12px;
+    }
+    summary{
+      cursor:pointer;
+      display:flex;
+      gap:10px;
+      align-items:center;
+      list-style:none;
+      font-weight:800;
+      color: rgba(234,240,255,.92);
+    }
+    summary::-webkit-details-marker{display:none}
+    summary .tag{
+      font-family: var(--mono);
+      font-size: 12px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(45,212,191,.10);
+      color: rgba(234,240,255,.86);
+    }
+
+    /* Tables */
+    .table{
+      width:100%;
+      border-collapse: collapse;
+      margin: 10px 0 14px;
+      overflow:hidden;
+      border-radius: 16px;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(12,22,42,.38);
+    }
+    .table th, .table td{
+      padding: 10px 12px;
+      border-bottom:1px solid rgba(255,255,255,.08);
+      vertical-align: top;
+      font-size: 14px;
+    }
+    .table th{
+      text-align:start;
+      color: rgba(234,240,255,.92);
+      background: rgba(255,255,255,.03);
+      font-weight:800;
+    }
+    .table tr:last-child td{border-bottom:0}
+    .table td{
+      color: rgba(234,240,255,.86);
+    }
+    code, .code{
+      font-family: var(--mono);
+      background: rgba(124,92,255,.10);
+      border:1px solid rgba(255,255,255,.10);
+      padding: 2px 6px;
+      border-radius: 10px;
+    }
+    .kbd{
+      font-family: var(--mono);
+      padding: 2px 6px;
+      border-radius: 8px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.03);
+      color: rgba(234,240,255,.9);
+    }
+
+    /* Checklists */
+    .checklist{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin: 8px 0 12px;
+    }
+    @media (max-width: 980px){ .checklist{grid-template-columns: 1fr} }
+    .check{
+      display:flex;
+      gap:10px;
+      align-items:flex-start;
+      padding: 10px 12px;
+      border-radius: 14px;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(12,22,42,.38);
+    }
+    .box{
+      width:18px;height:18px;
+      border-radius: 6px;
+      border:1px solid rgba(255,255,255,.18);
+      background: rgba(255,255,255,.02);
+      flex: 0 0 auto;
+      margin-top: 3px;
+    }
+
+    /* Footer */
+    .foot{
+      margin-top: 16px;
+      color: rgba(159,176,208,.9);
+      font-size: 13px;
+      text-align:center;
+      padding: 14px 10px;
+    }
+
+    /* Print */
+    @media print{
+      :root{ --bg:#ffffff; --text:#0b1220; --muted:#44516a; --line:#e7ebf3; --card:#ffffff; --card2:#ffffff }
+      body{ background:#fff; color:#0b1220 }
+      .wrap{ padding: 0 }
+      .hero, .side, .content{ box-shadow:none !important; background:#fff !important }
+      .grid{ grid-template-columns: 1fr }
+      .side{ position: static; margin-bottom: 12px }
+      .btn, .search{ display:none !important }
+      .toc a{ border-color: transparent !important }
+      details{ break-inside: avoid; page-break-inside: avoid }
+      .section{ page-break-inside: avoid }
+      a{ text-decoration:none }
+    }
+  </style>
+</head>
+
+<body class="rtl">
+  <aside class="sidebar" id="sidebar" aria-label="Sidebar navigation">
+    <div class="sidebar__header">
+      <div class="sidebar__logo">M</div>
+      <span class="sidebar__brand-text">سراج - الإدارة</span>
+    </div>
+
+    <nav class="sidebar__nav">
+      <a class="sidebar__item" href="admin-dashboard.html"><i class="fas fa-gauge"></i><span>نظرة عامة</span></a>
+      <a class="sidebar__item" href="admin-ai-config.html"><i class="fas fa-robot"></i><span>إعدادات AI</span></a>
+      <a class="sidebar__item" href="admin-prompt-library.html"><i class="fas fa-book-open"></i><span>مكتبة البرومبت</span></a>
+      <a class="sidebar__item" href="admin-plans.html"><i class="fas fa-layer-group"></i><span>الخطط والاشتراكات</span></a>
+      <a class="sidebar__item" href="admin-schools.html"><i class="fas fa-school"></i><span>إدارة المدارس</span></a>
+      <a class="sidebar__item" href="admin-settings.html"><i class="fas fa-gear"></i><span>الإعدادات</span></a>
+      <a class="sidebar__item" href="admin-notifications.html"><i class="fas fa-bell"></i><span>الإشعارات</span></a>
+      <div style="height:1px; background:rgba(255,255,255,0.1); margin:8px 12px"></div>
+      <a class="sidebar__item sidebar__item--active" href="ra.html"><i class="fas fa-file-code"></i><span>تحليل المتطلبات (RA)</span></a>
+    </nav>
+
+    <button class="sidebar__toggle" id="sidebar-toggle" aria-label="Toggle sidebar">
+      <i class="fas fa-angles-right"></i>
+      <span>تصغير</span>
+    </button>
+  </aside>
+
+  <div class="main-content" id="main-content">
+  <div class="wrap">
+
+    <!-- Header -->
+    <header class="hero" id="top">
+      <div class="hero-inner">
+        <div class="brand">
+          <div class="logo">MI</div>
+          <div class="title">
+            <h1>Mitests.com — Requirement Analysis (RA)</h1>
+            <div class="sub">الإصدار <b>v2.8</b> • وثيقة تحليل المتطلبات • Demo متعدد الأدوار • ar/he/en + RTL/LTR</div>
+          </div>
+        </div>
+
+        <div class="badges">
+          <div class="badge"><span class="dot purple"></span> Document Status: <b>Updated</b></div>
+          <div class="badge"><span class="dot"></span> Tenant-aware Storage</div>
+          <div class="badge"><span class="dot warn"></span> Exam Scheduling Soft Warning</div>
+        </div>
+      </div>
+
+      <div class="callouts" style="margin-top:14px">
+        <div class="callout">
+          <div class="k">الرؤية</div>
+          <div class="v">تحويل الاختبار من عبء تشغيلي إلى أداة تعلم قابلة للقياس</div>
+        </div>
+        <div class="callout">
+          <div class="k">الشعار</div>
+          <div class="v">وراء كل اختبار، إنسان.</div>
+        </div>
+        <div class="callout">
+          <div class="k">النطاق الحالي</div>
+          <div class="v">Demo متعدد الأدوار: Admin / School / Teacher / Personal Teacher / Student</div>
+        </div>
+      </div>
+    </header>
+
+    <div class="grid">
+      <!-- Sidebar -->
+      <aside class="side">
+        <div class="side-head">
+          <h2>فهرس الوثيقة</h2>
+        </div>
+
+        <div class="search">
+          <input id="q" type="search" placeholder="ابحث داخل العناوين… (مثل: Exam Wizard, Tokens, White Label)" />
+        </div>
+
+        <nav class="toc" id="toc">
+          <a href="#s1"><span class="pill">01</span> مقدمة ورؤية المنتج <small>Vision</small></a>
+          <a href="#s2"><span class="pill">02</span> النطاق (Scope) <small>Roles</small></a>
+          <a href="#s3"><span class="pill">03</span> مبادئ تنظيم المسؤوليات <small>Governance</small></a>
+          <a href="#s4"><span class="pill">04</span> خريطة الصفحات <small>IA</small></a>
+          <a href="#s5"><span class="pill">05</span> المتطلبات الوظيفية الأساسية <small>FR</small></a>
+          <a href="#s6"><span class="pill">06</span> السلوك التقني (Demo Data Contract) <small>Storage</small></a>
+          <a href="#s7"><span class="pill">07</span> التدفقات الأساسية <small>Flows</small></a>
+          <a href="#s8"><span class="pill">08</span> متطلبات UX/NFR <small>UX</small></a>
+          <a href="#s9"><span class="pill">09</span> Backlog <small>Next</small></a>
+          <a href="#s10"><span class="pill">10</span> معايير القبول <small>Checklist</small></a>
+        </nav>
+      </aside>
+
+      <!-- Main Content -->
+      <main class="content">
+        <div class="content-top">
+          <div class="chips">
+            <div class="chip">المستند: <strong>RA v2.8</strong></div>
+            <div class="chip">اللغة الافتراضية: <strong>العربية</strong></div>
+            <div class="chip">التنقل: <strong>صفحات مستقلة</strong> بدون <span class="code">#</span></div>
+          </div>
+          <div class="actions">
+            <button class="btn" id="expandAll" type="button">فتح جميع الأقسام</button>
+            <button class="btn" id="collapseAll" type="button">طيّ جميع الأقسام</button>
+            <button class="btn primary" id="print" type="button">طباعة</button>
+          </div>
+        </div>
+
+        <!-- 1 -->
+        <section class="section" id="s1">
+          <h2>1) مقدمة ورؤية المنتج</h2>
+          <p>
+            Mitests هي منصة تقييم تعليمي مدعومة بالذكاء الاصطناعي، تهدف إلى تحويل الاختبار من عبء تشغيلي إلى أداة تعلم قابلة للقياس.
+          </p>
+          <div class="quote">
+            <b>الشعار:</b> وراء كل اختبار، إنسان.
+          </div>
+        </section>
+
+        <!-- 2 -->
+        <section class="section" id="s2">
+          <h2>2) النطاق (Scope)</h2>
+          <p class="muted">النطاق الحالي يغطي تجربة Demo متعددة الأدوار:</p>
+          <ul>
+            <li>Admin (إدارة المنصة)</li>
+            <li>School (إدارة المؤسسة التعليمية)</li>
+            <li>Teacher (المعلم ضمن مدرسة)</li>
+            <li>Personal Teacher (معلم مستقل)</li>
+            <li>Student (الطالب)</li>
+          </ul>
+          <p>مع دعم واجهات متعددة اللغات <span class="code">ar/he/en</span> و<code>RTL/LTR</code>.</p>
+        </section>
+
+        <!-- 3 -->
+        <section class="section" id="s3">
+          <h2>3) مبادئ تنظيم المسؤوليات</h2>
+
+          <details open>
+            <summary><span class="tag">3.1</span> مستوى الإدارة العامة (Admin-Level)</summary>
+            <ul>
+              <li>مزودو الذكاء الاصطناعي وسياسات Fallback.</li>
+              <li>مكتبة البرومبت المركزية.</li>
+              <li>إدارة الخطط والاشتراكات.</li>
+              <li>إدارة سجل المدارس.</li>
+              <li>كتالوج مركزي للمراحل والمواد.</li>
+              <li>مؤشرات وتقارير على مستوى المنصة.</li>
+            </ul>
+          </details>
+
+          <details open>
+            <summary><span class="tag">3.2</span> مستوى المدرسة (School-Level)</summary>
+            <ul>
+              <li>الملف المؤسسي التفصيلي.</li>
+              <li>إدارة المستخدمين داخل المدرسة.</li>
+              <li>إدارة التوكنز وتوزيعها.</li>
+              <li>الهوية المؤسسية (White Label) الخاصة بالمدرسة.</li>
+              <li>تدقيق/مراجعة الاختبارات داخل المدرسة.</li>
+              <li>التواصل والإشعارات داخل المدرسة.</li>
+            </ul>
+          </details>
+
+          <details>
+            <summary><span class="tag">3.3</span> قرارات الحوكمة</summary>
+            <ul>
+              <li>White Label على مستوى المدرسة وليس Admin.</li>
+              <li>QA التشغيلي التفصيلي على مستوى المدرسة (قابلية التوسع لـ 300+ مدرسة).</li>
+              <li>Admin يركز على السياسات والقياس الكلي، وليس التشغيل اليومي لكل مدرسة.</li>
+            </ul>
+          </details>
+        </section>
+
+        <!-- 4 -->
+        <section class="section" id="s4">
+          <h2>4) خريطة الصفحات (Information Architecture)</h2>
+          <div class="quote">
+            التنقل الأساسي يعتمد صفحات مستقلة <code>*.html</code> بدون روابط <code>#section</code>.
+          </div>
+
+          <details open>
+            <summary><span class="tag">4.1</span> صفحات عامة</summary>
+            <table class="table">
+              <thead><tr><th>الصفحة</th><th>الوصف</th></tr></thead>
+              <tbody>
+                <tr><td><code>index.html</code></td><td>الصفحة الرئيسية + اختيار الدور</td></tr>
+              </tbody>
+            </table>
+          </details>
+
+          <details>
+            <summary><span class="tag">4.2</span> Admin</summary>
+            <ul>
+              <li><code>admin-dashboard.html</code> — نظرة عامة مركزية</li>
+              <li><code>admin-ai-config.html</code> — إعدادات AI</li>
+              <li><code>admin-prompt-library.html</code> — مكتبة البرومبت</li>
+              <li><code>admin-plans.html</code> — الباقات والخطط</li>
+              <li><code>admin-schools.html</code> — إدارة المدارس</li>
+              <li><code>admin-settings.html</code> — إعدادات إدارية عامة</li>
+              <li><code>admin-grades-catalog.html</code> — كتالوج المراحل</li>
+              <li><code>admin-subjects-catalog.html</code> — كتالوج المواد</li>
+              <li><code>admin-profile.html</code> — ملف المدير</li>
+            </ul>
+          </details>
+
+          <details>
+            <summary><span class="tag">4.3</span> School</summary>
+            <ul>
+              <li><code>school.html</code> — لوحة المدرسة</li>
+              <li><code>school-profile.html</code> — الملف المؤسسي</li>
+              <li><code>school-tokens.html</code> — إدارة التوكنز</li>
+              <li><code>school-users-teachers.html</code> — إدارة المعلمين</li>
+              <li><code>school-users-students.html</code> — إدارة الطلاب</li>
+              <li><code>school-users-staff.html</code> — إدارة الموظفين</li>
+              <li><code>school-qa-review.html</code> — مراجعة الاختبارات</li>
+              <li><code>school-exam-comparison.html</code> — مقارنة الاختبارات والمجموعات</li>
+              <li><code>school-approval.html</code> — اعتماد المحتوى</li>
+              <li><code>school-communications.html</code> — التواصل والإشعارات</li>
+              <li><code>school-settings.html</code> — إعدادات المدرسة</li>
+              <li><code>school-whitelabel.html</code> — الهوية المؤسسية</li>
+            </ul>
+          </details>
+
+          <details>
+            <summary><span class="tag">4.4</span> Teacher</summary>
+            <ul>
+              <li><code>teacher-dashboard.html</code> — لوحة المعلم (مدرسي)</li>
+              <li><code>teacher-personal-dashboard.html</code> — لوحة المعلم المستقل</li>
+              <li><code>teacher-exams.html</code> — اختباراتي</li>
+              <li><code>exam-wizard.html</code> — معالج إنشاء الاختبار</li>
+              <li><code>exam-assessment.html</code> — اعتماد/تعديل تقييم AI</li>
+              <li><code>exam-report.html</code> — تقرير المجموعة</li>
+              <li><code>teacher-group.html</code> — إدارة المجموعات</li>
+              <li><code>teacher-question-bank.html</code> — بنك الأسئلة</li>
+              <li><code>teacher-settings.html</code> — إعدادات المعلم</li>
+              <li><code>teacher-profile.html</code> — الملف الشخصي</li>
+            </ul>
+          </details>
+
+          <details>
+            <summary><span class="tag">4.5</span> Student</summary>
+            <ul>
+              <li><code>student-dashboard.html</code> — لوحة الطالب</li>
+              <li><code>student-coming-tests.html</code> — الاختبارات القادمة</li>
+              <li><code>student-groups.html</code> — مجموعاتي + الانضمام بالكود</li>
+              <li><code>student-group-detail.html</code> — تفاصيل مجموعة</li>
+              <li><code>student-learning.html</code> — مسار التعلم</li>
+              <li><code>student-reports.html</code> — تقارير حديثة</li>
+              <li><code>student-feedback.html</code> — صفحة الملاحظات (Canonical)</li>
+              <li><code>student-exam.html</code> — واجهة أداء الاختبار</li>
+              <li><code>student-settings.html</code> — إعدادات الطالب</li>
+              <li><code>student-profile.html</code> — الملف الشخصي</li>
+            </ul>
+          </details>
+        </section>
+
+        <!-- 5 -->
+        <section class="section" id="s5">
+          <h2>5) المتطلبات الوظيفية الأساسية</h2>
+
+          <details open>
+            <summary><span class="tag">5.1</span> إدارة المدارس (Admin Schools)</summary>
+
+            <h3>5.1.1 إنشاء مدرسة جديدة</h3>
+            <ul>
+              <li>أيقونة/شعار المؤسسة (اختياري).</li>
+              <li>رمز المؤسسة التعليمية.</li>
+              <li>اسم المؤسسة.</li>
+              <li>البريد الإلكتروني للمؤسسة (إلزامي).</li>
+              <li>المراحل التعليمية للمؤسسة (تُسحب من الكتالوج المركزي).</li>
+            </ul>
+
+            <h3>5.1.2 ملف المؤسسة</h3>
+            <ul>
+              <li>الدولة، العنوان، الهاتف.</li>
+              <li>روابط التواصل الاجتماعي.</li>
+              <li>اللغة الافتراضية.</li>
+              <li>بيانات الهوية المؤسسية.</li>
+            </ul>
+          </details>
+
+          <details>
+            <summary><span class="tag">5.2</span> كتالوج المراحل والمواد (Admin Catalog)</summary>
+            <ul>
+              <li>إدارة بقوائم فعلية (وليس Textarea بفواصل).</li>
+              <li>إضافة عنصر واحد بزر إضافة.</li>
+              <li>عرض فوري لجميع العناصر.</li>
+              <li>تعديل/حذف العناصر.</li>
+              <li>حفظ مركزي لاستهلاكه في صفحات المدارس والمعلمين.</li>
+            </ul>
+          </details>
+
+          <details>
+            <summary><span class="tag">5.3</span> إدارة المستخدمين (School Users)</summary>
+
+            <h3>5.3.1 المعلمون</h3>
+            <ul>
+              <li>إضافة/تعديل/تصفية.</li>
+              <li>الصفوف والتخصصات والصلاحيات.</li>
+              <li>ربط المعلم بأكثر من مادة (Multi-subject assignment).</li>
+            </ul>
+
+            <h3>5.3.2 الطلاب</h3>
+            <ul>
+              <li>إضافة/تعديل/حذف الطالب.</li>
+              <li>البيانات الأساسية: الاسم، الصف، الشعبة، رقم ولي الأمر.</li>
+              <li>حفظ البيانات بشكل قابل للاستهلاك من إدارة المجموعات.</li>
+            </ul>
+
+            <h3>5.3.3 الموظفون</h3>
+            <ul>
+              <li>أدوار تشغيلية واضحة (Admin/Secretary/Supervisor/Accountant).</li>
+              <li>مصفوفة صلاحيات دقيقة.</li>
+            </ul>
+          </details>
+
+          <details>
+            <summary><span class="tag">5.4</span> التوكنز</summary>
+            <ul>
+              <li>رصيد ديناميكي للمدرسة.</li>
+              <li>سجل حركات (Transaction History).</li>
+              <li>تخصيص رصيد للمعلمين.</li>
+            </ul>
+          </details>
+
+          <details>
+            <summary><span class="tag">5.5</span> وضعا المعلم (School vs Personal)</summary>
+            <ul>
+              <li>النظام يدعم نمطين: <code>school_teacher</code> و <code>personal_teacher</code>.</li>
+              <li>عزل البيانات حسب النمط (Tenant-aware storage).</li>
+              <li>تحويل روابط الواجهة المنزلية تلقائيًا حسب النمط.</li>
+            </ul>
+          </details>
+
+          <details>
+            <summary><span class="tag">5.6</span> إدارة المجموعات والانضمام (Teacher/Student)</summary>
+
+            <h3>5.6.1 إدارة المجموعات (Teacher)</h3>
+            <ul>
+              <li>إنشاء/تعديل/حذف/فتح المجموعة.</li>
+              <li>تعريف: اسم المجموعة، المادة، الصف، الشعبة.</li>
+              <li>كود انضمام لكل مجموعة: نسخ + تدوير (Rotate).</li>
+            </ul>
+
+            <h3>إدارة الموارد (Resources)</h3>
+            <ul>
+              <li>إرفاق ملفات (PDF, DOCX, Video) مع تحويلها إلى DataURL (لأغراض العرض).</li>
+              <li>روابط ويب (Web Links) مع اكتشاف تلقائي وتضمين YouTube Embed.</li>
+              <li>إضافة ملاحظات (Notes) لكل مورد.</li>
+              <li>عرض حجم الملف وتنسيقه (KB/MB).</li>
+            </ul>
+
+            <h3>5.6.2 طلبات الانضمام</h3>
+            <ul>
+              <li>الطالب يرسل طلب انضمام عبر كود.</li>
+              <li>المعلم يرى الطلبات المعلقة ويقوم بـ: موافقة / رفض.</li>
+            </ul>
+
+            <h3>5.6.3 سجل الحالات (History)</h3>
+            <ul>
+              <li>كل قرار Approved/Rejected يُسجل بتاريخ القرار.</li>
+              <li>الطالب يرى: Pending + سجل الطلبات السابقة مع الحالة.</li>
+            </ul>
+
+            <h3>5.6.4 ربط المدرسة بالمجموعات (Auto-enroll)</h3>
+            <ul>
+              <li>في وضع المدرسة: مزامنة تلقائية حسب الصف والشعبة (إن وُجدت).</li>
+            </ul>
+
+            <h3>5.6.5 لوحة مهام المعلم (Teacher Tasks)</h3>
+            <ul>
+              <li>إجابة مباشرة: ما الذي يحتاج مراجعة؟ لأي طالب؟ من المعتمد ومن بانتظار الاعتماد؟</li>
+              <li>مكونات: عدّاد <code>New Group Member</code> / <code>New Share</code> / <code>New Student/s Assigned</code>.</li>
+              <li>جدول <code>Review Queue</code>: النوع، العنوان، المجموعة، الطالب، الحالة، زر المراجعة.</li>
+              <li>قسم اعتماد الطلاب: Pending مقابل Approved.</li>
+            </ul>
+          </details>
+
+          <details>
+            <summary><span class="tag">5.7</span> معالج الاختبار (Exam Wizard)</summary>
+
+            <p class="muted">المعالج يعمل عبر 4 خطوات: <span class="kbd">General Info</span> → <span class="kbd">Content Source</span> → <span class="kbd">AI Structure</span> → <span class="kbd">Review & Generate</span></p>
+
+            <ul>
+              <li>حقل إلزامي <b>نوع التقييم</b>: اختبار / واجب.</li>
+              <li>نفس التدفق لكلا النوعين، مع اختلاف التصنيف.</li>
+              <li>مصادر المحتوى: رفع ملف / توليد AI / اختبار بدون نص (AI Direct) / إدخال يدوي (بدون AI).</li>
+              <li>عند توليد AI: حقل "النمط" Dropdown: قصة، حوار، قطعة علمية، مقال.</li>
+              <li>أنواع الأسئلة: MC، True/False، Matching، Completion، Short Answer، Open-end.</li>
+              <li>دعم صعوبة <code>Mixed</code> لتوزيع Easy/Medium/Hard.</li>
+              <li>الحالة الافتراضية عند الإنشاء: <code>Draft</code>.</li>
+              <li>عند Generate: Processing Overlay ثم انتقال إلى <code>Answer Key Preview</code>.</li>
+            </ul>
+
+            <h3>5.7.2 تحليل الملف عبر مزود AI واقتراح خطة المعالجة</h3>
+            <ul>
+              <li>تحليل الملف عبر AI بعد الرفع.</li>
+              <li>اقتراحات: قاعدة أسئلة / اختبار مشابه / استخراج نواتج تعلم وبناء مخطط / اقتراحات إضافية حسب النوع والحجم.</li>
+              <li>اختيار خطة المعالجة قبل المتابعة.</li>
+            </ul>
+
+            <h3>5.7.3 وضع "اختبار بدون نص" (AI Direct)</h3>
+            <ul>
+              <li>إنشاء اختبار بدون نص تمهيدي عبر AI مباشرة.</li>
+              <li>يدعم: هدف الاختبار + نوع التركيز (مفاهيم/تطبيق/مختلط) + تعليمات إضافية.</li>
+            </ul>
+
+            <h3>5.7.1 جدولة الاختبار والتحقق من التعارض</h3>
+            <ul>
+              <li>عند نوع <code>اختبار</code>: تاريخ مستقبلي + وقت بدء.</li>
+              <li>فحص اختبارات مجدولة ضمن نفس <code>tenant scope</code>.</li>
+              <li>تعارض مباشر أو موعد قريب (±24 ساعة): تنبيه أيقونة حمراء + تفاصيل عند النقر.</li>
+              <li>لا يمنع الحفظ (Soft Warning).</li>
+            </ul>
+
+            <h3>5.7.4 قواعد التحقق والقفل (Validation & Locking)</h3>
+            <ul>
+              <li>بعد أول Submission: قفل الاختبار (Locked) وتعطيل التعديل.</li>
+              <li>الجدولة: منع اختيار تاريخ ماضي.</li>
+            </ul>
+          </details>
+
+          <details>
+            <summary><span class="tag">5.8</span> التقييم والتقرير</summary>
+            <ul>
+              <li><code>exam-assessment.html</code>: AI Suggested Grade مقابل Teacher Confirmed Grade.</li>
+              <li>مراجعة كل سؤال + تفسير AI + تعديل/اعتماد + ملاحظة المعلم.</li>
+              <li>داخل ملاحظة المعلم: توليد AI (ملخص/نصائح/توصيات).</li>
+              <li>تمرير سياق العنصر: <code>kind</code>, <code>title</code>, <code>student</code>, <code>group</code>.</li>
+              <li>Finalize ينقل إلى <code>exam-report.html</code>.</li>
+            </ul>
+          </details>
+
+          <details>
+            <summary><span class="tag">5.9</span> تجربة الطالب داخل الاختبار</summary>
+            <ul>
+              <li>Focus Mode بدون Sidebar.</li>
+              <li>عداد زمني ثابت مع تحذير أحمر في آخر 5 دقائق.</li>
+              <li>Lockdown تحذيري عبر <code>visibilitychange</code>.</li>
+              <li>Autosave indicator.</li>
+              <li>دعم LaTeX.</li>
+            </ul>
+          </details>
+
+          <details>
+            <summary><span class="tag">5.10</span> حذف الاختبارات وسلة المحذوفات</summary>
+            <ul>
+              <li>Soft Delete من قائمة المعلم.</li>
+              <li>نقل إلى سلة محذوفات لمدة <code>30</code> يومًا.</li>
+              <li>خلال 30 يوم: استعادة أو حذف نهائي.</li>
+              <li>بعد 30 يوم: حذف تلقائي.</li>
+            </ul>
+          </details>
+
+          <details>
+            <summary><span class="tag">5.11</span> مشاركة الاختبارات بين المعلمين</summary>
+            <ul>
+              <li>مشاركة داخل المدرسة فقط.</li>
+              <li>صلاحيات المستلم: Preview + Duplicate.</li>
+              <li>الأصل Read-only للآخرين (لا تعديل مباشر).</li>
+            </ul>
+          </details>
+
+          <details>
+            <summary><span class="tag">5.12</span> مقارنة الاختبارات/المجموعات (School Dashboard)</summary>
+            <ul>
+              <li>صفحة مقارنة مستقلة من لوحة المدرسة.</li>
+              <li>مقارنة عنصرين أو أكثر.</li>
+              <li>الأنماط: اختبارات / مجموعات / أزواج اختبار×مجموعة.</li>
+              <li>مخرجات: متوسط الدرجات، نسبة النجاح، نسبة الإكمال، عدد التسليمات.</li>
+            </ul>
+          </details>
+        </section>
+
+        <!-- 6 -->
+        <section class="section" id="s6">
+          <h2>6) السلوك التقني (Demo Data Contract)</h2>
+
+          <details open>
+            <summary><span class="tag">6.1</span> مفاتيح التخزين (localStorage)</summary>
+            <table class="table">
+              <thead><tr><th>Key</th><th>الوصف</th></tr></thead>
+              <tbody>
+                <tr><td><code>mitests-tenant-type</code></td><td>نوع المستأجر: school / personal</td></tr>
+                <tr><td><code>mitests-school-id</code></td><td>معرّف المدرسة</td></tr>
+                <tr><td><code>mitests-personal-workspace</code></td><td>معرّف مساحة المعلم المستقل</td></tr>
+                <tr><td><code>mitests-teacher-groups:&lt;scope&gt;</code></td><td>مجموعات المعلم حسب النطاق</td></tr>
+                <tr><td><code>mitests-group-join-requests:&lt;scope&gt;</code></td><td>طلبات الانضمام</td></tr>
+                <tr><td><code>mitests-group-memberships:&lt;scope&gt;</code></td><td>عضويات الطلاب</td></tr>
+                <tr><td><code>mitests-group-join-history:&lt;scope&gt;</code></td><td>سجل القرارات</td></tr>
+                <tr><td><code>mitests-school-students:&lt;scope&gt;</code></td><td>طلاب المدرسة</td></tr>
+                <tr><td><code>mitests-current-student-profile:&lt;scope&gt;</code></td><td>ملف الطالب الحالي</td></tr>
+                <tr><td><code>mitests-teacher-review-queue:&lt;scope&gt;</code></td><td>قائمة المراجعة</td></tr>
+                <tr><td><code>mitests-teacher-shares:&lt;scope&gt;</code></td><td>المشاركات</td></tr>
+                <tr><td><code>mitests-teacher-exams:&lt;scope&gt;</code></td><td>اختبارات المعلم</td></tr>
+                <tr><td><code>mitests-teacher-exams-trash:&lt;scope&gt;</code></td><td>سلة المحذوفات</td></tr>
+                <tr><td><code>mitests-school-exam-comparison:&lt;scope&gt;</code></td><td>بيانات المقارنة</td></tr>
+              </tbody>
+            </table>
+          </details>
+
+          <details>
+            <summary><span class="tag">6.2</span> قاعدة العزل (Scope)</summary>
+            <ul>
+              <li><code>&lt;scope&gt;</code> = <code>school:&lt;schoolId&gt;</code> أو <code>personal:&lt;workspaceId&gt;</code>.</li>
+              <li>يمنع تداخل بيانات المدرسة مع بيانات المعلم المستقل.</li>
+            </ul>
+          </details>
+        </section>
+
+        <!-- 7 -->
+        <section class="section" id="s7">
+          <h2>7) التدفقات الأساسية (End-to-End Flows)</h2>
+          <div class="checklist">
+            <div class="check"><div class="box"></div><div><b>Admin</b><div class="muted">Catalog → Schools/Plans/AI</div></div></div>
+            <div class="check"><div class="box"></div><div><b>School</b><div class="muted">Profile → Users/Tokens → QA/Approval</div></div></div>
+            <div class="check"><div class="box"></div><div><b>Teacher (School)</b><div class="muted">Groups → Join Requests → Tasks → Wizard→Assessment→Report</div></div></div>
+            <div class="check"><div class="box"></div><div><b>Teacher (Personal)</b><div class="muted">Workspace Groups/Students → Tasks → Wizard→Assessment→Report</div></div></div>
+            <div class="check"><div class="box"></div><div><b>Student</b><div class="muted">Profile → Join Code → Pending/History → Exam + Feedback</div></div></div>
+          </div>
+        </section>
+
+        <!-- 8 -->
+        <section class="section" id="s8">
+          <h2>8) متطلبات UX/NFR</h2>
+          <ul>
+            <li>العربية هي الافتراضي.</li>
+            <li>دعم <code>he/ar/en</code> مع <code>RTL/LTR</code>.</li>
+            <li>توحيد المكونات (Sidebar/Navbar/Cards/Tables/Modals).</li>
+            <li>منع روابط <code>#</code> في التنقل الأساسي.</li>
+            <li>قابلية توسع لـ 300+ مدرسة.</li>
+            <li>جاهزية تكامل Backend لاحقًا.</li>
+          </ul>
+        </section>
+
+        <!-- 9 -->
+        <section class="section" id="s9">
+          <h2>9) Backlog (المرحلة القادمة)</h2>
+          <ul>
+            <li>مركز محادثة وإشعارات موحد مع صلاحيات دقيقة (School/Teacher/Student).</li>
+            <li>توحيد جميع Popups (بدل أي تفاعلات بدائية).</li>
+            <li>تعريف تشغيلي واضح لزر "استخدام في اختبار" داخل بنك الأسئلة.</li>
+            <li>توسيع سجل القرارات ليشمل سبب الرفض القابل للتحرير.</li>
+          </ul>
+        </section>
+
+        <!-- 10 -->
+        <section class="section" id="s10">
+          <h2>10) معايير القبول (Acceptance Checklist)</h2>
+          <p class="muted">قائمة تحقق جاهزة للاختبار في الـ Demo:</p>
+
+          <div class="checklist">
+            <div class="check"><div class="box"></div><div>الفصل واضح بين Admin وSchool وظيفيًا.</div></div>
+            <div class="check"><div class="box"></div><div>الكتالوج المركزي يعمل كقوائم CRUD فعلية.</div></div>
+            <div class="check"><div class="box"></div><div>تدفق الاختبار: Wizard → Assessment → Report.</div></div>
+            <div class="check"><div class="box"></div><div>الروابط الأساسية صفحات مستقلة بدون <code>#</code>.</div></div>
+            <div class="check"><div class="box"></div><div>دعم ar/he/en مع RTL/LTR على جميع الواجهات.</div></div>
+            <div class="check"><div class="box"></div><div>أزرار Logout تعود إلى <code>index.html</code>.</div></div>
+            <div class="check"><div class="box"></div><div>طلاب المدرسة محفوظون بشكل قابل للاستهلاك من المجموعات.</div></div>
+            <div class="check"><div class="box"></div><div>الانضمام بالكود + موافقة/رفض من المعلم.</div></div>
+            <div class="check"><div class="box"></div><div>سجل الطالب: Pending + History (Approved/Rejected).</div></div>
+            <div class="check"><div class="box"></div><div>عزل بيانات الـ tenant بين المدرسة والمعلم المستقل.</div></div>
+            <div class="check"><div class="box"></div><div>لوحة المعلم تعرض Review Queue واضحًا حسب الطالب.</div></div>
+            <div class="check"><div class="box"></div><div>Pending vs Approved للطلاب واضح في لوحة المعلم.</div></div>
+            <div class="check"><div class="box"></div><div>تصنيف Exam/Assignment بنفس التدفق داخل Wizard.</div></div>
+            <div class="check"><div class="box"></div><div>فحص تعارض/قرب زمني مع تنبيه (Soft Warning).</div></div>
+            <div class="check"><div class="box"></div><div>Multi-subject assignment في شاشة إدارة المعلمين.</div></div>
+            <div class="check"><div class="box"></div><div>Trash 30 يومًا مع استعادة/حذف نهائي.</div></div>
+            <div class="check"><div class="box"></div><div>ملاحظة المعلم تدعم توليد AI (ملخص/نصائح/توصيات).</div></div>
+            <div class="check"><div class="box"></div><div>Sharing: Preview + Duplicate مع منع تعديل الأصل.</div></div>
+            <div class="check"><div class="box"></div><div>رفع الملف يعرض اقتراحات AI لخطة المعالجة.</div></div>
+            <div class="check"><div class="box"></div><div>AI Direct: اختبار بدون نص كتوليد مباشر.</div></div>
+            <div class="check"><div class="box"></div><div>مقارنة 2+ عناصر في صفحة مستقلة (اختبارات/مجموعات/أزواج).</div></div>
+          </div>
+
+          <div class="quote" style="margin-top:14px">
+            <b>Document Status:</b> Updated (v2.8) — Enhanced Exam Wizard (Draft status, Question Types, Preview flow) and Group Resources (Attachments, YouTube).
+          </div>
+        </section>
+
+        <div class="foot">
+          © Mitests.com — Requirement Analysis (RA) v2.8 • Designed for readable web + print
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    // --- Search in TOC (simple filter) ---
+    const q = document.getElementById('q');
+    const toc = document.getElementById('toc');
+    const links = Array.from(toc.querySelectorAll('a'));
+    q.addEventListener('input', () => {
+      const s = q.value.trim().toLowerCase();
+      links.forEach(a => {
+        const txt = a.textContent.toLowerCase();
+        a.style.display = (!s || txt.includes(s)) ? 'flex' : 'none';
+      });
+    });
+
+    // --- Expand/Collapse details ---
+    const allDetails = () => Array.from(document.querySelectorAll('details'));
+    document.getElementById('expandAll').addEventListener('click', () => {
+      allDetails().forEach(d => d.open = true);
+    });
+    document.getElementById('collapseAll').addEventListener('click', () => {
+      allDetails().forEach(d => d.open = false);
+      // keep first-level key sections visible in view (optional)
+    });
+
+    // --- Print ---
+    document.getElementById('print').addEventListener('click', () => window.print());
+
+    // --- Smooth anchor scroll (no #section navigation in app routing; this is doc-only) ---
+    document.querySelectorAll('.toc a').forEach(a => {
+      a.addEventListener('click', (e) => {
+        e.preventDefault();
+        const id = a.getAttribute('href').slice(1);
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    });
+  </script>
+  </div>
+  <script src="shared-layout.js"></script>
+</body>
+</html>

@@ -280,8 +280,31 @@
     </div>
   </div>
 
+  <div class="warning-overlay" id="confirm-submit-overlay" aria-hidden="true">
+    <div class="warning-modal" style="border-top-color: var(--color-student);">
+      <h2 data-i18n="confirmSubmitTitle">تأكيد الإرسال</h2>
+      <p data-i18n="confirmSubmitText">هل أنت متأكد من رغبتك في تسليم الاختبار وإنهاء المحاولة؟</p>
+      <div class="exam-footer__actions" style="justify-content: flex-end; margin-top: 1rem;">
+        <button class="btn btn--outline" id="confirm-cancel" data-i18n="cancel">إلغاء</button>
+        <button class="btn btn--submit" id="confirm-proceed" data-i18n="submitExam">نعم، سلم الاختبار</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="exam-shell" id="review-screen" style="display: none;">
+    <h2 data-i18n="reviewAnswersTitle" style="margin-bottom: var(--space-4);">مراجعة الإجابات</h2>
+    <div class="question-card" id="review-list">
+      <!-- Review items will be injected here -->
+    </div>
+    <div class="exam-footer__actions" style="margin-top: var(--space-4);">
+      <button class="btn btn--outline" id="return-to-exam" data-i18n="returnToExam">عودة للأسئلة</button>
+      <button class="btn btn--submit" id="review-submit" data-i18n="submitExam">تسليم الاختبار</button>
+    </div>
+  </div>
+
   <script src="shared-layout.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" defer></script>
+  <script src="cefr-data.js"></script>
   <script>
     (function () {
       'use strict';
@@ -310,7 +333,16 @@
           counterTemplate: 'שאלה {current} מתוך {total}',
           pointsTemplate: '{points} נקודות',
           openPlaceholder: 'כתוב כאן את התשובה שלך...',
-          submittedMsg: 'המבחן נשלח בהצלחה.'
+          submittedMsg: 'המבחן נשלח בהצלחה.',
+          confirmSubmitTitle: 'אישור הגשה',
+          confirmSubmitText: 'האם את/ה בטוח/ה שברצונך להגיש את המבחן ולסיים את הניסיון?',
+          cancel: 'ביטול',
+          returnToExam: 'חזרה לשאלות',
+          reviewAnswersTitle: 'סקירת תשובות',
+          reviewStatusAnswered: 'נענה',
+          reviewStatusUnanswered: 'לא נענה',
+          reviewGoto: 'עבור לשאלה',
+          progressTemplate: '{answered} מתוך {total} נענו'
         },
         ar: {
           pageTitle: 'Mitests - اختبار نشط',
@@ -328,7 +360,16 @@
           counterTemplate: 'السؤال {current} من {total}',
           pointsTemplate: '{points} نقاط',
           openPlaceholder: 'اكتب إجابتك هنا...',
-          submittedMsg: 'تم إرسال الاختبار بنجاح.'
+          submittedMsg: 'تم إرسال الاختبار بنجاح.',
+          confirmSubmitTitle: 'تأكيد الإرسال',
+          confirmSubmitText: 'هل أنت متأكد من رغبتك في تسليم الاختبار وإنهاء المحاولة؟',
+          cancel: 'إلغاء',
+          returnToExam: 'عودة للأسئلة',
+          reviewAnswersTitle: 'مراجعة الإجابات',
+          reviewStatusAnswered: 'تمت الإجابة',
+          reviewStatusUnanswered: 'لم تتم الإجابة',
+          reviewGoto: 'ذهاب للسؤال',
+          progressTemplate: 'تمت إجابة {answered} من {total}'
         },
         en: {
           pageTitle: 'Mitests - Active Exam',
@@ -346,7 +387,16 @@
           counterTemplate: 'Question {current} of {total}',
           pointsTemplate: '{points} points',
           openPlaceholder: 'Write your answer here...',
-          submittedMsg: 'Exam submitted successfully.'
+          submittedMsg: 'Exam submitted successfully.',
+          confirmSubmitTitle: 'Confirm Submission',
+          confirmSubmitText: 'Are you sure you want to submit the exam and end your attempt?',
+          cancel: 'Cancel',
+          returnToExam: 'Return to Questions',
+          reviewAnswersTitle: 'Review Answers',
+          reviewStatusAnswered: 'Answered',
+          reviewStatusUnanswered: 'Not Answered',
+          reviewGoto: 'Go to Question',
+          progressTemplate: '{answered} of {total} answered'
         }
       };
 
@@ -438,6 +488,16 @@
       var submitBtn = document.getElementById('btn-submit');
       var warningOverlay = document.getElementById('warning-overlay');
       var warningClose = document.getElementById('warning-close');
+      
+      // QA Fixes Elements
+      var confirmOverlay = document.getElementById('confirm-submit-overlay');
+      var confirmProceedBtn = document.getElementById('confirm-proceed');
+      var confirmCancelBtn = document.getElementById('confirm-cancel');
+      var reviewScreen = document.getElementById('review-screen');
+      var reviewList = document.getElementById('review-list');
+      var reviewSubmitBtn = document.getElementById('review-submit');
+      var returnToExamBtn = document.getElementById('return-to-exam');
+      var examShell = document.querySelector('main.exam-shell'); // Original main container
 
       function format(template, values) {
         var out = template;
@@ -484,6 +544,24 @@
           current: String(currentIndex + 1),
           total: String(questionSet.length)
         });
+        
+        // Progress Indicator (QA Fix #4)
+        var answeredCount = 0;
+        for(var k=0; k<questionSet.length; k++) {
+             var qCheck = questionSet[k];
+             if(qCheck.type === 'mc' || qCheck.type === 'True/False') {
+                 if(qCheck.answer !== null && qCheck.answer !== undefined) answeredCount++;
+             } else {
+                 if(qCheck.answer && String(qCheck.answer).trim().length > 0) answeredCount++;
+             }
+        }
+        var progressText = format(t.progressTemplate, { answered: String(answeredCount), total: String(questionSet.length) });
+        // Append progress to counter or make a new element. For now appending.
+        questionCounterEl.innerHTML = format(t.counterTemplate, {
+          current: String(currentIndex + 1),
+          total: String(questionSet.length)
+        }) + ' <span style="margin-inline-start:10px; font-size:0.85em; opacity:0.8; font-weight:normal;">(' + progressText + ')</span>';
+
         questionPointsEl.textContent = format(t.pointsTemplate, { points: String(q.points) });
         questionTextEl.innerHTML = q.text;
 
@@ -581,6 +659,70 @@
         warningOverlay.setAttribute('aria-hidden', 'true');
       }
 
+      function showConfirmModal() {
+        confirmOverlay.classList.add('active');
+        confirmOverlay.setAttribute('aria-hidden', 'false');
+      }
+
+      function hideConfirmModal() {
+        confirmOverlay.classList.remove('active');
+        confirmOverlay.setAttribute('aria-hidden', 'true');
+      }
+
+      function showReviewScreen() {
+        var t = I18N[activeLang] || I18N.ar;
+        var questionSet = QUESTIONS[activeLang] || QUESTIONS.he;
+        
+        examShell.style.display = 'none';
+        reviewScreen.style.display = 'block';
+        
+        reviewList.innerHTML = '';
+        var table = document.createElement('div');
+        table.style.display = 'grid';
+        table.style.gap = '10px';
+        
+        for(var i=0; i<questionSet.length; i++) {
+            var q = questionSet[i];
+            var isAnswered = false;
+             if(q.type === 'mc' || q.type === 'True/False') {
+                 if(q.answer !== null && q.answer !== undefined) isAnswered = true;
+             } else {
+                 if(q.answer && String(q.answer).trim().length > 0) isAnswered = true;
+             }
+            
+            var row = document.createElement('div');
+            row.className = 'option-item'; // reuse existing class
+            row.style.justifyContent = 'space-between';
+            row.style.alignItems = 'center';
+            
+            var infoDiv = document.createElement('div');
+            infoDiv.innerHTML = '<strong>' + (i+1) + '.</strong> ' + (isAnswered 
+                ? '<span style="color:var(--color-green-500);"><i class="fas fa-check-circle"></i> ' + t.reviewStatusAnswered + '</span>'
+                : '<span style="color:var(--color-red-500);"><i class="fas fa-circle-exclamation"></i> ' + t.reviewStatusUnanswered + '</span>');
+            
+            var gotoBtn = document.createElement('button');
+            gotoBtn.className = 'btn btn--outline btn--sm';
+            gotoBtn.textContent = t.reviewGoto;
+            (function(idx){
+                gotoBtn.onclick = function() {
+                    currentIndex = idx;
+                    hideReviewScreen();
+                    renderQuestion();
+                };
+            })(i);
+            
+            row.appendChild(infoDiv);
+            row.appendChild(gotoBtn);
+            table.appendChild(row);
+        }
+        reviewList.appendChild(table);
+      }
+
+      function hideReviewScreen() {
+        reviewScreen.style.display = 'none';
+        examShell.style.display = 'grid';
+      }
+
       prevBtn.addEventListener('click', function () {
         if (currentIndex > 0) {
           currentIndex -= 1;
@@ -596,7 +738,16 @@
         }
       });
 
-      submitBtn.addEventListener('click', submitExam);
+      submitBtn.addEventListener('click', function() {
+          showReviewScreen();
+      });
+      
+      confirmProceedBtn.addEventListener('click', submitExam);
+      confirmCancelBtn.addEventListener('click', hideConfirmModal);
+      
+      reviewSubmitBtn.addEventListener('click', showConfirmModal);
+      returnToExamBtn.addEventListener('click', hideReviewScreen);
+
       warningClose.addEventListener('click', hideWarningModal);
 
       document.addEventListener('visibilitychange', function () {

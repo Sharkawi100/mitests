@@ -166,9 +166,10 @@
     </main>
   </div>
   <div id="ov" class="ov" aria-hidden="true"><div class="box"><div class="spin"></div><strong>جاري المعالجة...</strong><p>يتم الآن إنشاء الاختبار باستخدام الذكاء الاصطناعي</p></div></div>
-  <div id="success-ov" class="ov" aria-hidden="true"><div class="box success-box"><i class="fas fa-circle-check success-icon"></i><strong>تم إنشاء الاختبار بنجاح!</strong><p>يمكنك الآن مراجعة الاختبار أو العودة للوحة المعلم.</p><div class="success-actions"><a href="exam-preview.html" class="btn gen">عرض الاختبار</a><a href="teacher-dashboard.html" class="btn btn--outline">العودة للوحة</a></div></div></div>
+  <div id="success-ov" class="ov" aria-hidden="true"><div class="box success-box"><i class="fas fa-circle-check success-icon"></i><strong>تم إنشاء الاختبار بنجاح!</strong><p>يمكنك الآن مراجعة الاختبار أو العودة للوحة المعلم.</p><div class="success-actions"><a href="exam-preview.html" class="btn gen" id="success-preview-link">عرض الاختبار</a><a href="teacher-dashboard.html" class="btn btn--outline">العودة للوحة</a></div></div></div>
   <script src="shared-layout.js"></script>
   <script src="tenant-mode.js"></script>
+  <script src="cefr-data.js"></script>
   <script>
     (function () {
       'use strict';
@@ -183,6 +184,7 @@
       var genBtn = document.getElementById('gen');
       var draftBtn = document.getElementById('draft');
       var overlay = document.getElementById('ov');
+      var successPreviewLink = document.getElementById('success-preview-link');
       var dropZone = document.getElementById('drop-zone');
       var fileInput = document.getElementById('file-input');
       var filePreview = document.getElementById('file-preview');
@@ -621,6 +623,88 @@
         }
       }
 
+      function getSelectedQuestionTypes() {
+        var nodes = document.querySelectorAll('input[name="qt"]:checked');
+        var selected = [];
+        for (var i = 0; i < nodes.length; i++) selected.push(nodes[i].value);
+        return selected.length ? selected : ['MC'];
+      }
+
+      function pickDifficulty(baseDifficulty, index) {
+        var base = String(baseDifficulty || '').trim();
+        if (!base || base === 'mixed') {
+          var mixed = ['easy', 'medium', 'hard'];
+          return mixed[index % mixed.length];
+        }
+        return base;
+      }
+
+      function buildGeneratedQuestions(config) {
+        var total = Math.max(1, Math.min(50, Number(config.count) || 8));
+        var types = config.types && config.types.length ? config.types : ['MC'];
+        var subject = config.subject || 'المادة';
+        var grade = config.grade || 'الصف';
+        var title = config.title || 'الاختبار';
+        var teacherPrompt = String(config.teacherPrompt || '').trim();
+        var seedItems = loadSeedQuestions();
+        var bloomLevels = ['L1 - التذكر', 'L2 - الفهم', 'L3 - التطبيق', 'L4 - التحليل', 'L5 - التقييم'];
+        var questions = [];
+
+        for (var i = 0; i < total; i++) {
+          var type = types[i % types.length];
+          var difficulty = pickDifficulty(config.difficulty, i);
+          var seed = seedItems[i] || null;
+          var seedHint = seed && (seed.title || seed.text || seed.question) ? (seed.title || seed.text || seed.question) : '';
+          var baseText = 'سؤال ' + (i + 1) + ' في ' + subject + ' (' + grade + ')';
+          if (seedHint) {
+            baseText = 'اعتمادًا على سؤال بنك الأسئلة: "' + seedHint + '"، طوّر نسخة مناسبة بعنوان ' + title + '.';
+          } else if (teacherPrompt) {
+            baseText = baseText + '. توجيه المعلم: ' + teacherPrompt;
+          } else {
+            baseText = baseText + '.';
+          }
+
+          var q = {
+            id: i + 1,
+            type: type,
+            bloom: bloomLevels[i % bloomLevels.length],
+            difficulty: difficulty,
+            points: (type === 'Open-end' || type === 'Short Answer') ? 10 : 5,
+            text: baseText,
+            options: [],
+            answer: 'تُراجع الإجابة وفق نموذج التصحيح المعتمد.'
+          };
+
+          if (type === 'MC') {
+            q.options = [
+              { label: 'أ', text: 'الخيار الأول', correct: true },
+              { label: 'ب', text: 'الخيار الثاني', correct: false },
+              { label: 'ج', text: 'الخيار الثالث', correct: false },
+              { label: 'د', text: 'الخيار الرابع', correct: false }
+            ];
+            q.answer = 'الإجابة الصحيحة: الخيار (أ).';
+          } else if (type === 'True/False') {
+            q.options = [
+              { label: 'صح', text: 'العبارة صحيحة', correct: true },
+              { label: 'خطأ', text: 'العبارة خاطئة', correct: false }
+            ];
+            q.answer = 'الإجابة الصحيحة: صح.';
+          } else if (type === 'Matching') {
+            q.answer = 'تتم المطابقة حسب المفاهيم الرئيسة في الدرس.';
+          } else if (type === 'Completion') {
+            q.answer = 'تُستكمل الجملة بالكلمة/المفهوم الصحيح.';
+          } else if (type === 'Short Answer') {
+            q.answer = 'إجابة قصيرة نموذجية من 2-3 أسطر.';
+          } else if (type === 'Open-end') {
+            q.answer = 'إجابة تحليلية تعتمد على جودة التبرير واللغة.';
+          }
+
+          questions.push(q);
+        }
+
+        return questions;
+      }
+
       function validateStep(step) {
         var valid = true;
         document.querySelectorAll('.field.error').forEach(function(f){f.classList.remove('error');});
@@ -709,12 +793,23 @@
 
         var itemKind = kindSelect.value || 'exam';
         var itemTitle = val('et') || (itemKind === 'assignment' ? 'واجب جديد' : 'اختبار جديد');
-        var queueStatus = 'awaiting_submissions';
         var durationMinutes = normalizeDurationMinutes(val('edr'));
         var scheduledAtIso = (itemKind === 'exam') ? buildScheduledAtIso() : '';
         var sourceNode = document.querySelector('.src.on');
         var sourceType = sourceNode ? sourceNode.dataset.src : '';
         var sourcePlan = getSourceProcessingLabel(sourceType);
+        var questionTypes = getSelectedQuestionTypes();
+        var generatedQuestions = buildGeneratedQuestions({
+          count: val('eq'),
+          types: questionTypes,
+          subject: subjectSelect.value,
+          grade: gradeSelect.value,
+          title: itemTitle,
+          difficulty: val('ed') || 'mixed',
+          teacherPrompt: val('tr')
+        });
+        var examId = 'ex-' + Date.now() + '-' + Math.floor(Math.random() * 1000);
+        var previewHref = 'exam-preview.html?id=' + encodeURIComponent(examId);
         var scope = '';
 
         if (itemKind === 'exam' && !scheduledAtIso) {
@@ -734,47 +829,40 @@
           var examsKey = 'mitests-teacher-exams:' + scope;
           var exams = readStoredArray(examsKey);
           exams.unshift({
-            id: 'ex-' + Date.now(),
+            id: examId,
             kind: itemKind,
             title: itemTitle,
             grade: gradeSelect.value || '',
             subject: subjectSelect.value || '',
             durationMinutes: durationMinutes,
             scheduledAt: scheduledAtIso,
+            qCount: generatedQuestions.length,
+            difficulty: val('ed') || 'mixed',
+            questionTypes: questionTypes,
+            bloomEnabled: !!document.getElementById('sw').checked,
+            teacherPrompt: val('tr'),
             sourceType: sourceType,
             sourcePlan: sourcePlan,
             sourceFileName: uploadedFile ? uploadedFile.name : '',
             noTextGoal: noTextGoalInput ? noTextGoalInput.value.trim() : '',
             noTextFocus: noTextFocusInput ? noTextFocusInput.value : '',
             noTextExtra: noTextExtraInput ? noTextExtraInput.value.trim() : '',
-            status: 'published',
+            groupCode: new URLSearchParams(window.location.search).get('group') || '',
+            status: 'draft',
+            questions: generatedQuestions,
             createdAt: new Date().toISOString()
           });
           localStorage.setItem(examsKey, JSON.stringify(exams));
-
-          var queueKey = 'mitests-teacher-review-queue:' + scope;
-          var queue = readStoredArray(queueKey);
-
-          queue.unshift({
-            id: 'rq-' + Date.now(),
-            kind: itemKind,
-            title: itemTitle,
-            groupCode: new URLSearchParams(window.location.search).get('group') || '',
-            studentName: 'بانتظار تسليم الطلاب',
-            studentId: '',
-            status: queueStatus,
-            submittedAt: new Date().toISOString()
-          });
-
-          localStorage.setItem(queueKey, JSON.stringify(queue));
         } catch (queueError) {}
+
+        if (successPreviewLink) successPreviewLink.setAttribute('href', previewHref);
 
         overlay.classList.add('on');
         overlay.setAttribute('aria-hidden', 'false');
         setTimeout(function () {
           overlay.classList.remove('on');
           overlay.setAttribute('aria-hidden', 'true');
-          window.location.href = 'teacher-exams.html';
+          window.location.href = previewHref;
         }, 2400);
       });
 
@@ -860,4 +948,3 @@
   </script>
 </body>
 </html>
-

@@ -90,9 +90,9 @@
   var inviteCodeValue = document.getElementById('invite-code-value');
   var resourcesBody = document.getElementById('resources-body');
   var resourceTitleInput = document.getElementById('resource-title');
-  var resourceTypeInput = document.getElementById('resource-type');
+  var resourceFileInput = document.getElementById('resource-file');
   var resourceLinkInput = document.getElementById('resource-link');
-  var resourceSizeInput = document.getElementById('resource-size');
+  var resourceNoteInput = document.getElementById('resource-note');
   var addResourceBtn = document.getElementById('add-resource-btn');
 
   var addGroupBtn = document.getElementById('add-group-btn');
@@ -363,12 +363,42 @@
     requestsBody.innerHTML = rows;
   }
 
+  function isWebUrl(value) {
+    return /^https?:\/\//i.test(String(value || '').trim());
+  }
+
+  function parseYouTubeId(url) {
+    var value = String(url || '').trim();
+    if (!value) return '';
+    var match = value.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{6,})/i);
+    return match ? match[1] : '';
+  }
+
+  function fileExt(fileName) {
+    var name = String(fileName || '').trim().toLowerCase();
+    var idx = name.lastIndexOf('.');
+    if (idx < 0) return '';
+    return name.slice(idx + 1);
+  }
+
+  function inferResourceType(item) {
+    var webLink = String(item.websiteLink || item.link || '').trim();
+    if (parseYouTubeId(webLink)) return 'video';
+
+    var ext = fileExt(item.attachmentName);
+    if (ext === 'pdf') return 'pdf';
+    if (ext === 'doc' || ext === 'docx') return 'docx';
+    if (ext === 'mp4' || ext === 'webm') return 'video';
+    if (!item.attachmentName && isWebUrl(webLink)) return 'link';
+    return item.type || 'file';
+  }
+
   function resourceTypeLabel(type) {
     if (type === 'pdf') return 'PDF';
     if (type === 'docx') return 'DOCX';
     if (type === 'link') return 'رابط';
     if (type === 'video') return 'فيديو';
-    return 'ملف';
+    return 'ملف مرفق';
   }
 
   function renderResources(group) {
@@ -376,22 +406,38 @@
     var list = resourcesOf(group.code);
 
     if (!list.length) {
-      resourcesBody.innerHTML = '<tr><td colspan="4">لا يوجد محتوى مضاف بعد. يمكنك إضافة PDF أو DOCX أو رابط.</td></tr>';
+      resourcesBody.innerHTML = '<tr><td colspan="5">لا يوجد محتوى مضاف بعد. أضف مرفقًا أو رابطًا للمجموعة.</td></tr>';
       return;
     }
 
     var rows = '';
     for (var i = 0; i < list.length; i++) {
-      var item = list[i];
-      var linkText = item.link || '-';
-      var isWebLink = /^https?:\/\//i.test(linkText);
-      var linkHtml = linkText === '-' ? '-' : (isWebLink
-        ? '<a href="' + esc(linkText) + '" target="_blank" rel="noopener">' + esc(linkText) + '</a>'
-        : esc(linkText));
+      var item = list[i] || {};
+      var websiteLink = String(item.websiteLink || item.link || '').trim();
+      var oldFileRef = item.attachmentName ? '' : (isWebUrl(websiteLink) ? '' : websiteLink);
+      var attachmentName = String(item.attachmentName || oldFileRef || '').trim();
+      var attachmentSize = String(item.attachmentSizeText || item.size || '').trim();
+      var attachmentHtml = '-';
+      if (attachmentName) {
+        if (item.attachmentDataUrl) {
+          attachmentHtml = '<a href="' + esc(item.attachmentDataUrl) + '" download="' + esc(attachmentName) + '">' + esc(attachmentName) + '</a>';
+        } else {
+          attachmentHtml = esc(attachmentName);
+        }
+        if (attachmentSize) attachmentHtml += ' <small style="color:#6b7280;">(' + esc(attachmentSize) + ')</small>';
+      }
+
+      var linkHtml = '-';
+      if (isWebUrl(websiteLink)) {
+        linkHtml = '<a href="' + esc(websiteLink) + '" target="_blank" rel="noopener">' + esc(websiteLink) + '</a>';
+      }
+
+      var note = String(item.note || item.size || '').trim();
       rows += '' +
         '<tr>' +
-          '<td>' + esc(item.title || 'محتوى') + (item.size ? ' <small style="color:#6b7280;">(' + esc(item.size) + ')</small>' : '') + '</td>' +
-          '<td>' + resourceTypeLabel(item.type) + '</td>' +
+          '<td>' + esc(item.title || 'محتوى') + (note ? ' <small style="color:#6b7280;">(' + esc(note) + ')</small>' : '') + '</td>' +
+          '<td>' + resourceTypeLabel(inferResourceType(item)) + '</td>' +
+          '<td>' + attachmentHtml + '</td>' +
           '<td>' + linkHtml + '</td>' +
           '<td><button type="button" class="btn btn--outline btn--sm" data-resource-action="delete" data-resource-id="' + esc(item.id) + '">حذف</button></td>' +
         '</tr>';
@@ -410,7 +456,7 @@
       inviteCodeValue.textContent = '-';
       studentsBody.innerHTML = '<tr><td colspan="4">لا توجد بيانات طلاب.</td></tr>';
       requestsBody.innerHTML = '<tr><td colspan="4">لا توجد طلبات.</td></tr>';
-      if (resourcesBody) resourcesBody.innerHTML = '<tr><td colspan="4">لا توجد مجموعة محددة.</td></tr>';
+      if (resourcesBody) resourcesBody.innerHTML = '<tr><td colspan="5">لا توجد مجموعة محددة.</td></tr>';
       return;
     }
 
@@ -597,6 +643,38 @@
     document.body.removeChild(area);
   }
 
+  function formatFileSize(bytes) {
+    var size = Number(bytes) || 0;
+    if (size <= 0) return '';
+    if (size < 1024) return size + ' B';
+    if (size < 1024 * 1024) return Math.max(1, Math.round(size / 1024)) + ' KB';
+    return (size / (1024 * 1024)).toFixed(1) + ' MB';
+  }
+
+  function readAttachmentAsDataUrl(file, done) {
+    if (!file) {
+      done({ dataUrl: '', sizeText: '' });
+      return;
+    }
+
+    var sizeText = formatFileSize(file.size);
+    var maxBytes = 1024 * 1024;
+    if (file.size > maxBytes) {
+      done({ dataUrl: '', sizeText: sizeText });
+      alert('حجم الملف كبير للحفظ داخل المتصفح. سيتم حفظ اسم الملف فقط بدون معاينة مباشرة.');
+      return;
+    }
+
+    var reader = new FileReader();
+    reader.onload = function () {
+      done({ dataUrl: String(reader.result || ''), sizeText: sizeText });
+    };
+    reader.onerror = function () {
+      done({ dataUrl: '', sizeText: sizeText });
+    };
+    reader.readAsDataURL(file);
+  }
+
   function addResource() {
     var group = getGroup(selectedCode);
     if (!group) {
@@ -605,32 +683,59 @@
     }
 
     var title = String(resourceTitleInput && resourceTitleInput.value || '').trim();
-    var type = String(resourceTypeInput && resourceTypeInput.value || 'pdf').trim();
-    var link = String(resourceLinkInput && resourceLinkInput.value || '').trim();
-    var size = String(resourceSizeInput && resourceSizeInput.value || '').trim();
+    var websiteLink = String(resourceLinkInput && resourceLinkInput.value || '').trim();
+    var note = String(resourceNoteInput && resourceNoteInput.value || '').trim();
+    var attachment = resourceFileInput && resourceFileInput.files && resourceFileInput.files.length
+      ? resourceFileInput.files[0]
+      : null;
 
     if (!title) {
       alert('يرجى إدخال عنوان المحتوى.');
       return;
     }
 
-    resources.unshift({
-      id: 'res-' + Date.now() + '-' + Math.floor(Math.random() * 1000),
-      groupCode: group.code,
-      title: title,
-      type: type || 'pdf',
-      link: link,
-      size: size,
-      createdAt: new Date().toISOString()
+    if (!attachment && !websiteLink) {
+      alert('أضف مرفقًا أو رابط موقع على الأقل.');
+      return;
+    }
+
+    if (websiteLink && !isWebUrl(websiteLink)) {
+      alert('يرجى إدخال رابط صحيح يبدأ بـ http أو https.');
+      return;
+    }
+
+    readAttachmentAsDataUrl(attachment, function (attachmentInfo) {
+      var resourceItem = {
+        id: 'res-' + Date.now() + '-' + Math.floor(Math.random() * 1000),
+        groupCode: group.code,
+        title: title,
+        websiteLink: websiteLink,
+        note: note,
+        createdAt: new Date().toISOString()
+      };
+
+      if (attachment) {
+        resourceItem.attachmentName = attachment.name || 'attachment';
+        resourceItem.attachmentMime = attachment.type || '';
+        resourceItem.attachmentSizeBytes = Number(attachment.size) || 0;
+        resourceItem.attachmentSizeText = attachmentInfo.sizeText || formatFileSize(attachment.size);
+        resourceItem.attachmentDataUrl = attachmentInfo.dataUrl || '';
+      }
+
+      var youtubeId = parseYouTubeId(websiteLink);
+      if (youtubeId) resourceItem.youtubeId = youtubeId;
+      resourceItem.type = inferResourceType(resourceItem);
+
+      resources.unshift(resourceItem);
+
+      saveAll();
+      renderResources(group);
+
+      if (resourceTitleInput) resourceTitleInput.value = '';
+      if (resourceLinkInput) resourceLinkInput.value = '';
+      if (resourceNoteInput) resourceNoteInput.value = '';
+      if (resourceFileInput) resourceFileInput.value = '';
     });
-
-    saveAll();
-    renderResources(group);
-
-    if (resourceTitleInput) resourceTitleInput.value = '';
-    if (resourceLinkInput) resourceLinkInput.value = '';
-    if (resourceSizeInput) resourceSizeInput.value = '';
-    if (resourceTypeInput) resourceTypeInput.value = 'pdf';
   }
   groupsGrid.addEventListener('click', function (e) {
     var btn = e.target.closest('button[data-action]');
