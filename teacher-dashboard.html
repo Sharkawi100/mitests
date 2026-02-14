@@ -592,10 +592,10 @@
           <h1>مرحبًا، نورة العلي</h1>
           <p>يوم ممتاز لإدارة الاختبارات، المجموعات، وتغذية راجعة أفضل للطلاب.</p>
         </div>
-        <button type="button" class="btn btn--new-exam btn--lg" id="create-item-btn" data-modal-open="create-item-modal" aria-label="إنشاء اختبار أو واجب">
+        <a href="exam-wizard.html?kind=exam" class="btn btn--new-exam btn--lg" id="create-item-btn" aria-label="إنشاء اختبار أو واجب">
           <i class="fas fa-plus"></i>
           <span>إنشاء اختبار/واجب جديد +</span>
-        </button>
+        </a>
       </header>
 
       <section aria-label="نظرة البيانات">
@@ -738,64 +738,8 @@
     </main>
   </div>
 
-  <div class="modal-overlay" id="create-item-modal" aria-hidden="true">
-    <div class="modal">
-      <div class="modal__header">
-        <h2>اختر نوع العنصر</h2>
-        <button class="modal__close" type="button" data-modal-close aria-label="إغلاق">&times;</button>
-      </div>
-      <div class="modal__body">
-        <p style="color:var(--color-gray-600);font-size:var(--font-size-sm);">هل تريد إنشاء <strong>اختبار</strong> أم <strong>واجب</strong>؟</p>
-        <div class="dashboard-selector">
-          <button class="dashboard-selector__item dashboard-selector__item--teacher" type="button" data-create-kind="exam">
-            <i class="fas fa-file-lines"></i>
-            <span class="dashboard-selector__name">اختبار</span>
-            <small class="dashboard-selector__meta">مناسبة التقييم الرسمي والاختبارات الزمنية.</small>
-          </button>
-          <button class="dashboard-selector__item dashboard-selector__item--teacher-personal" type="button" data-create-kind="assignment">
-            <i class="fas fa-clipboard-check"></i>
-            <span class="dashboard-selector__name">واجب</span>
-            <small class="dashboard-selector__meta">نشاط تدريبي بنفس التدفق مع تصنيف Assignment.</small>
-          </button>
-        </div>
-      </div>
-      <div class="modal__footer" style="padding:var(--space-4);border-top:1px solid var(--color-gray-200);display:flex;justify-content:flex-end;">
-        <button class="btn btn--outline" type="button" data-modal-close>إلغاء</button>
-      </div>
-    </div>
-  </div>
-
   <script src="shared-layout.js"></script>
   <script src="tenant-mode.js"></script>
-  <script>
-  (function(){
-    'use strict';
-
-    function closeCreateModal() {
-      var overlay = document.getElementById('create-item-modal');
-      if (!overlay) return;
-      overlay.classList.remove('modal-overlay--active');
-      overlay.setAttribute('aria-hidden', 'true');
-      document.body.style.overflow = '';
-    }
-
-    function goToWizard(kind) {
-      var safeKind = (kind === 'assignment') ? 'assignment' : 'exam';
-      try {
-        localStorage.setItem('mitests-create-item-kind', safeKind);
-      } catch (e) {}
-      closeCreateModal();
-      window.location.href = 'exam-wizard.html?kind=' + encodeURIComponent(safeKind);
-    }
-
-    var buttons = document.querySelectorAll('[data-create-kind]');
-    for (var i = 0; i < buttons.length; i++) {
-      buttons[i].addEventListener('click', function () {
-        goToWizard(this.getAttribute('data-create-kind'));
-      });
-    }
-  })();
-  </script>
   <script>
   (function(){
     'use strict';
