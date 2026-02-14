@@ -11,6 +11,30 @@
     .teacher-navbar{border-bottom:1px solid var(--color-gray-200)} body.rtl .main-content .teacher-navbar{right:var(--sidebar-width);left:0} body.ltr .main-content .teacher-navbar{left:var(--sidebar-width);right:0} body.rtl .main-content.main-content--expanded .teacher-navbar{right:var(--sidebar-collapsed-width)} body.ltr .main-content.main-content--expanded .teacher-navbar{left:var(--sidebar-collapsed-width)} .teacher-navbar .navbar__brand-icon{background:linear-gradient(135deg,var(--color-teacher),var(--color-primary-400))} .btn--teacher{background:var(--color-teacher);border-color:var(--color-teacher);color:var(--color-white)} .sidebar__item:hover,.sidebar__item--active{background:rgba(53,86,178,.25)} .sidebar__item--active{border-inline-start:3px solid var(--color-teacher)}
     .main{padding:calc(var(--navbar-height) + var(--space-6)) var(--space-6) var(--space-8);display:grid;gap:var(--space-4)} .card-block{background:var(--color-white);border:1px solid var(--color-gray-200);border-top:4px solid var(--color-teacher);border-radius:var(--border-radius-md);box-shadow:var(--shadow-sm);padding:var(--space-4);display:grid;gap:var(--space-3)} .new-post{border:1px solid var(--color-primary-200);background:var(--color-primary-100);border-radius:var(--border-radius-md);padding:var(--space-4);display:grid;gap:var(--space-2)} textarea{width:100%;min-height:100px;resize:vertical;border:1px solid var(--color-primary-300);border-radius:var(--border-radius-sm);padding:var(--space-3);font-family:inherit}
     .post{border:1px solid var(--color-gray-200);border-radius:var(--border-radius-md);padding:var(--space-4);display:grid;gap:var(--space-2)} .post__meta{display:flex;justify-content:space-between;color:var(--color-gray-500);font-size:var(--font-size-sm)}
+    /* Chat Specific Styles */
+    .chat-layout { display: grid; grid-template-columns: 320px 1fr; height: 100%; background: var(--color-white); }
+    @media (max-width: 768px) { .chat-layout { grid-template-columns: 80px 1fr; } .chat-sidebar .search-box, .chat-sidebar h3 { display: none; } .contact-item { padding: var(--space-3); justify-content: center; } .contact-info { display: none; } }
+    .chat-sidebar { border-left: 1px solid var(--color-gray-200); display: flex; flex-direction: column; background: var(--color-gray-50); } body.ltr .chat-sidebar { border-right: 1px solid var(--color-gray-200); border-left: none; }
+    .sidebar-header { padding: var(--space-4); display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--color-gray-200); }
+    .search-box { margin: var(--space-3); background: var(--color-white); border: 1px solid var(--color-gray-300); border-radius: var(--border-radius-full); padding: 8px 12px; display: flex; align-items: center; gap: var(--space-2); } .search-box input { border: none; outline: none; width: 100%; font-family: inherit; }
+    .contacts-list { flex: 1; overflow-y: auto; }
+    .contact-item { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-3) var(--space-4); cursor: pointer; transition: background 0.2s; border-bottom: 1px solid var(--color-gray-100); } .contact-item:hover, .contact-item.active { background: var(--color-primary-100); }
+    .avatar-circle { width: 40px; height: 40px; background: var(--color-primary-200); color: var(--color-primary-700); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0; }
+    .contact-info h4 { font-size: 0.9rem; margin: 0; color: var(--color-gray-800); } .contact-info p { font-size: 0.75rem; margin: 0; color: var(--color-gray-500); }
+    .chat-area { display: flex; flex-direction: column; height: 100%; background: #fdfdfd; position: relative; }
+    .empty-chat { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: var(--color-gray-400); } .empty-icon { font-size: 4rem; margin-bottom: var(--space-4); color: var(--color-primary-200); }
+    .active-chat { display: flex; flex-direction: column; height: 100%; }
+    .chat-header { padding: var(--space-3) var(--space-5); border-bottom: 1px solid var(--color-gray-200); background: var(--color-white); display: flex; justify-content: space-between; align-items: center; }
+    .chat-user-info { display: flex; align-items: center; gap: var(--space-3); }
+    .status-text { font-size: 0.75rem; color: #16a34a; }
+    .messages-container { flex: 1; overflow-y: auto; padding: var(--space-5); display: flex; flex-direction: column; gap: var(--space-3); }
+    .message { max-width: 70%; padding: var(--space-3) var(--space-4); border-radius: var(--border-radius-md); font-size: 0.9rem; line-height: 1.5; position: relative; }
+    .message.received { align-self: flex-start; background: var(--color-white); border: 1px solid var(--color-gray-200); border-top-right-radius: 0; }
+    .message.sent { align-self: flex-end; background: var(--color-primary-100); color: var(--color-gray-900); border-top-left-radius: 0; }
+    .msg-time { font-size: 0.65rem; color: var(--color-gray-500); display: block; margin-top: 4px; text-align: right; }
+    .chat-input-area { padding: var(--space-3) var(--space-5); background: var(--color-white); border-top: 1px solid var(--color-gray-200); display: flex; align-items: center; gap: var(--space-3); }
+    .chat-input-area textarea { flex: 1; resize: none; border: 1px solid var(--color-gray-300); border-radius: 20px; padding: 10px 16px; font-family: inherit; max-height: 100px; } .chat-input-area textarea:focus { border-color: var(--color-teacher); outline: none; }
+
     @media (max-width:1023px){ body.rtl .main-content .teacher-navbar{right:var(--sidebar-collapsed-width)} body.ltr .main-content .teacher-navbar{left:var(--sidebar-collapsed-width)} body.rtl .main-content{margin-right:var(--sidebar-collapsed-width)} body.ltr .main-content{margin-left:var(--sidebar-collapsed-width)} .sidebar{width:var(--sidebar-collapsed-width)} .sidebar .sidebar__brand-text,.sidebar .sidebar__item span,.sidebar .sidebar__toggle span{display:none} }
     @media (max-width:767px){ .sidebar{display:none} body.rtl .main-content,body.ltr .main-content{margin:0} body.rtl .main-content .teacher-navbar,body.ltr .main-content .teacher-navbar{right:0;left:0} .main{padding-inline:var(--space-4)} }
   </style>
@@ -18,10 +42,216 @@
 <body class="rtl">
   <aside class="sidebar" id="sidebar" aria-label="Sidebar navigation"><div class="sidebar__header"><div class="sidebar__logo">M</div><span class="sidebar__brand-text">سراج - المعلم</span></div><nav class="sidebar__nav"><a class="sidebar__item" href="teacher-dashboard.html"><i class="fas fa-gauge"></i><span>نظرة عامة</span></a><a class="sidebar__item" href="teacher-exams.html"><i class="fas fa-file-lines"></i><span>اختباراتي</span></a><a class="sidebar__item" href="teacher-group.html"><i class="fas fa-users"></i><span>المجموعات</span></a><a class="sidebar__item" href="teacher-question-bank.html"><i class="fas fa-database"></i><span>بنك الأسئلة</span></a><a class="sidebar__item sidebar__item--active" href="teacher-community.html"><i class="fas fa-comments"></i><span>المجتمع</span></a><a class="sidebar__item" href="teacher-settings.html"><i class="fas fa-gear"></i><span>الإعدادات</span></a></nav><button class="sidebar__toggle" id="sidebar-toggle" aria-label="Toggle sidebar"><i class="fas fa-angles-right"></i><span>تصغير</span></button></aside>
   <div class="main-content" id="main-content"><nav class="navbar teacher-navbar" role="navigation" aria-label="Teacher top navigation"><a href="teacher-community.html" class="navbar__brand"><div class="navbar__brand-icon"><i class="fas fa-comments"></i></div><span class="navbar__brand-text">مجتمع المعلمين</span></a><div class="navbar__actions"><div class="lang-switcher" role="group" aria-label="Language selector"><button class="lang-switcher__btn active" data-lang="ar" aria-label="Arabic">&#1593;</button><button class="lang-switcher__btn" data-lang="he" aria-label="Hebrew">&#1506;&#1489;</button><button class="lang-switcher__btn" data-lang="en" aria-label="English">En</button></div><div class="avatar-dropdown"><button class="avatar-btn" type="button" data-avatar-toggle="teacher-avatar-menu" aria-label="قائمة حساب المعلم"><i class="fas fa-user"></i></button><div class="avatar-menu" id="teacher-avatar-menu" data-avatar-menu><span class="avatar-menu__label">حساب المعلم</span><a class="avatar-menu__link" href="teacher-profile.html"><i class="fas fa-id-card"></i><span>الملف الشخصي</span></a><a class="avatar-menu__link" href="teacher-settings.html"><i class="fas fa-gear"></i><span>الإعدادات</span></a></div></div><a href="index.html" class="btn btn--teacher btn--sm"><i class="fas fa-right-from-bracket"></i><span>تسجيل الخروج</span></a></div></nav>
-    <main class="main"><section class="card-block"><h1>مجتمع المعلمين</h1><div class="new-post"><textarea placeholder="شارك تحديثًا أو موردًا تعليميًا..."></textarea><button class="btn btn--teacher btn--sm" type="button">نشر المنشور</button></div></section><section class="card-block"><article class="post"><div class="post__meta"><strong>إدارة المدرسة</strong><span>منذ ساعة</span></div><p>تمت إضافة قوالب جديدة لاختبارات منتصف الفصل.</p></article><article class="post"><div class="post__meta"><strong>نور الخطيب - الرياضيات</strong><span>اليوم 09:20</span></div><p>شاركت Rubric لتصحيح الأسئلة المفتوحة في الجبر.</p></article></section></main>
+    <main class="main" style="height: calc(100vh - var(--navbar-height)); padding:0; overflow:hidden;">
+      <div class="chat-layout">
+        <!-- Sidebar: Contacts -->
+        <aside class="chat-sidebar">
+          <div class="sidebar-header">
+            <h3>المحادثات</h3>
+            <button class="btn btn--ghost btn--icon" title="محادثة جديدة"><i class="fas fa-edit"></i></button>
+          </div>
+          <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" placeholder="بحث عن معلم أو مجموعة...">
+          </div>
+          <div class="contacts-list" id="contacts-list">
+            <!-- Injected via JS -->
+          </div>
+        </aside>
+
+        <!-- Main Chat Area -->
+        <section class="chat-area" id="chat-area">
+          <!-- Empty State -->
+          <div class="empty-chat" id="empty-state">
+            <div class="empty-icon"><i class="fas fa-comments"></i></div>
+            <h3>اختر محادثة للبدء</h3>
+            <p>تواصل مع زملائك المعلمين أو مجموعاتك الدراسية مباشرة.</p>
+          </div>
+
+          <!-- Active Chat (Hidden by default) -->
+          <div class="active-chat hidden" id="active-chat">
+            <header class="chat-header">
+              <div class="chat-user-info">
+                <div class="user-avatar" id="chat-avatar">AB</div>
+                <div>
+                  <h3 id="chat-name">اسم المعلم</h3>
+                  <span class="status-text" id="chat-status">متصل</span>
+                </div>
+              </div>
+              <div class="chat-actions">
+                <button class="btn btn--ghost btn--icon"><i class="fas fa-phone"></i></button>
+                <button class="btn btn--ghost btn--icon"><i class="fas fa-video"></i></button>
+                <button class="btn btn--ghost btn--icon"><i class="fas fa-ellipsis-v"></i></button>
+              </div>
+            </header>
+            
+            <div class="messages-container" id="messages-container">
+              <!-- Messages injected here -->
+            </div>
+
+            <footer class="chat-input-area">
+              <button class="btn btn--ghost btn--icon"><i class="fas fa-paperclip"></i></button>
+              <textarea id="message-input" placeholder="اكتب رسالتك هنا..." rows="1"></textarea>
+              <button class="btn btn--teacher btn--icon" id="send-btn"><i class="fas fa-paper-plane"></i></button>
+            </footer>
+          </div>
+        </section>
+      </div>
+    </main>
   </div>
   <script src="shared-layout.js"></script>
   <script src="tenant-mode.js"></script>
+  <script>
+    (function() {
+      'use strict';
+      
+      // Mock Data
+      const contacts = [
+        { id: 'g1', name: 'معلمي الرياضيات - الصف التاسع', type: 'group', avatar: 'M9', lastMsg: 'هل راجع أحدكم الاختبار الجديد؟' },
+        { id: 't1', name: 'أحمد ياسين', type: 'user', avatar: 'AY', lastMsg: 'تمام، سأرسل الملف غدًا.' },
+        { id: 't2', name: 'سارة محمد', type: 'user', avatar: 'SM', lastMsg: 'شكرًا لك!' },
+        { id: 'g2', name: 'لجنة العلوم', type: 'group', avatar: 'SC', lastMsg: 'الاجتماع الساعة 10:00' },
+        { id: 't3', name: 'خالد عمر', type: 'user', avatar: 'KO', lastMsg: 'هل يمكن مشاركة قالب الاختبار؟' }
+      ];
+
+      // State
+      let activeChatId = null;
+      let messages = {}; // { chatId: [msg1, msg2] }
+
+      // Elements
+      const contactsList = document.getElementById('contacts-list');
+      const chatArea = document.getElementById('chat-area');
+      const emptyState = document.getElementById('empty-state');
+      const activeChat = document.getElementById('active-chat');
+      const chatName = document.getElementById('chat-name');
+      const chatAvatar = document.getElementById('chat-avatar');
+      const messagesContainer = document.getElementById('messages-container');
+      const msgInput = document.getElementById('message-input');
+      const sendBtn = document.getElementById('send-btn');
+
+      // Init
+      function init() {
+        loadMessages();
+        renderContacts();
+        
+        sendBtn.addEventListener('click', sendMessage);
+        msgInput.addEventListener('keypress', function(e) {
+          if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            sendMessage();
+          }
+        });
+      }
+
+      function loadMessages() {
+        try {
+          const stored = localStorage.getItem('mitests-chat-history');
+          if (stored) messages = JSON.parse(stored);
+        } catch(e) {}
+      }
+
+      function saveMessages() {
+        localStorage.setItem('mitests-chat-history', JSON.stringify(messages));
+      }
+
+      function renderContacts() {
+        contactsList.innerHTML = '';
+        contacts.forEach(c => {
+          const div = document.createElement('div');
+          div.className = `contact-item ${activeChatId === c.id ? 'active' : ''}`;
+          div.onclick = () => openChat(c.id);
+          div.innerHTML = `
+            <div class="avatar-circle">${c.avatar}</div>
+            <div class="contact-info">
+              <h4>${c.name}</h4>
+              <p>${c.lastMsg}</p>
+            </div>
+          `;
+          contactsList.appendChild(div);
+        });
+      }
+
+      function openChat(id) {
+        activeChatId = id;
+        renderContacts(); // update active class
+        
+        const contact = contacts.find(c => c.id === id);
+        if (!contact) return;
+
+        emptyState.classList.add('hidden');
+        activeChat.classList.remove('hidden');
+        
+        chatName.textContent = contact.name;
+        chatAvatar.textContent = contact.avatar;
+        
+        renderMessages(id);
+      }
+
+      function renderMessages(chatId) {
+        messagesContainer.innerHTML = '';
+        const chatMsgs = messages[chatId] || [];
+        
+        chatMsgs.forEach(m => {
+          appendMessageToDom(m);
+        });
+        
+        scrollToBottom();
+      }
+
+      function appendMessageToDom(msg) {
+         const div = document.createElement('div');
+         div.className = `message ${msg.sender === 'me' ? 'sent' : 'received'}`;
+         div.innerHTML = `
+           ${msg.text}
+           <span class="msg-time">${new Date(msg.ts).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+         `;
+         messagesContainer.appendChild(div);
+      }
+
+      function sendMessage() {
+        const text = msgInput.value.trim();
+        if (!text || !activeChatId) return;
+
+        const msg = {
+          id: Date.now(),
+          text: text,
+          sender: 'me',
+          ts: new Date().toISOString()
+        };
+
+        if (!messages[activeChatId]) messages[activeChatId] = [];
+        messages[activeChatId].push(msg);
+        
+        appendMessageToDom(msg);
+        saveMessages();
+        msgInput.value = '';
+        scrollToBottom();
+
+        // Simulate reply
+        setTimeout(() => {
+          const replies = ['شكرًا لك', 'سأراجع الأمر', 'ممتاز', 'هل يمكننا التحدث لاحقًا؟', 'تم الاستلام'];
+          const randomReply = replies[Math.floor(Math.random() * replies.length)];
+          const replyMsg = {
+             id: Date.now() + 1,
+             text: randomReply,
+             sender: 'other',
+             ts: new Date().toISOString()
+          };
+          messages[activeChatId].push(replyMsg);
+          appendMessageToDom(replyMsg);
+          saveMessages();
+          scrollToBottom();
+        }, 1500);
+      }
+
+      function scrollToBottom() {
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      }
+
+      init();
+
+    })();
+  </script>
 </body>
 </html>
 

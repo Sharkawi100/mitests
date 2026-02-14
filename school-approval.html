@@ -22,23 +22,88 @@
   <script src="shared-layout.js"></script>
   <script>
   (function(){
-    var table = document.querySelector('.data-table');
-    if (!table) return;
-    table.addEventListener('click', function(e) {
-      var btn = e.target.closest('button');
-      if (!btn || btn.disabled) return;
-      var row = btn.closest('tr');
-      if (!row) return;
-      var cells = row.querySelectorAll('td');
-      // cells[2] = status, cells[3] = action
-      if (cells.length >= 4) {
-        cells[2].innerHTML = '<span style="color:#15803d;font-weight:700;">✅ تم الاعتماد</span>';
-        btn.disabled = true;
-        btn.textContent = 'تم';
-        btn.style.opacity = '0.5';
-        btn.style.cursor = 'default';
+    'use strict';
+    
+    const tableBody = document.querySelector('.data-table tbody');
+
+    function getAllPendingExams() {
+      let pending = [];
+      // improved scan: check all keys starting with mitests-teacher-exams:
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key.startsWith('mitests-teacher-exams:')) {
+           try {
+             const exams = JSON.parse(localStorage.getItem(key)) || [];
+             exams.forEach((exam, index) => {
+               if (exam.isPublic && exam.approvalStatus === 'pending') {
+                 pending.push({
+                   ...exam,
+                   storageKey: key,
+                   index: index,
+                   teacherName: 'معلم (' + key.split(':').pop() + ')' // simplified teacher name
+                 });
+               }
+             });
+           } catch(e) {}
+        }
       }
-    });
+      return pending;
+    }
+
+    function render() {
+      const items = getAllPendingExams();
+      tableBody.innerHTML = '';
+      
+      if (items.length === 0) {
+        tableBody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:#6b7280;">لا توجد عناصر بانتظار الاعتماد.</td></tr>';
+        return;
+      }
+
+      items.forEach(item => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${item.teacherName}</td>
+          <td>${item.title} <span style="font-size:0.75rem; color:#6b7280;">(${item.subject || 'عام'})</span></td>
+          <td><span style="background:#fff7ed; color:#9a3412; padding:2px 8px; border-radius:12px; font-size:0.75rem; font-weight:700;">قيد المراجعة</span></td>
+          <td>
+            <div style="display:flex; gap:0.5rem;">
+              <button class="btn btn--school btn--sm" onclick="approveExam('${item.storageKey}', ${item.index})">اعتماد</button>
+              <button class="btn btn--outline btn--sm" onclick="rejectExam('${item.storageKey}', ${item.index})" style="color:#ef4444; border-color:#ef4444;">رفض</button>
+            </div>
+          </td>
+        `;
+        tableBody.appendChild(tr);
+      });
+    }
+
+    window.approveExam = function(key, index) {
+      if(!confirm('هل أنت متأكد من اعتماد هذا الاختبار؟ سيظهر في البنك العام.')) return;
+      try {
+        const exams = JSON.parse(localStorage.getItem(key)) || [];
+        if (exams[index]) {
+          exams[index].approvalStatus = 'approved';
+          // Add to public bank (mocking by just keeping it in teacher exams with approved status, 
+          // public bank will query all approved exams)
+        }
+        localStorage.setItem(key, JSON.stringify(exams));
+        render();
+      } catch(e) {}
+    };
+
+    window.rejectExam = function(key, index) {
+      if(!confirm('هل تريد رفض هذا الاختبار؟')) return;
+      try {
+        const exams = JSON.parse(localStorage.getItem(key)) || [];
+        if (exams[index]) {
+          exams[index].approvalStatus = 'rejected';
+          exams[index].isPublic = false; // Reset public flag
+        }
+        localStorage.setItem(key, JSON.stringify(exams));
+        render();
+      } catch(e) {}
+    };
+
+    render();
   })();
   </script>
 </body>

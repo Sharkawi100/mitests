@@ -108,7 +108,28 @@
             <h1>قائمة الاختبارات</h1>
             <p>أي اختبار يتم حذفه ينتقل إلى سلة المحذوفات لمدة 30 يومًا قبل الحذف النهائي التلقائي.</p>
           </div>
-          <a href="exam-wizard.html?kind=exam" class="btn btn--teacher"><i class="fas fa-calendar-plus"></i> جدولة اختبار جديد</a>
+          <div class="dropdown-wrapper" style="position:relative;">
+            <button type="button" class="btn btn--teacher" id="create-exam-btn" aria-haspopup="true" aria-expanded="false">
+              <i class="fas fa-plus"></i> إنشاء جديد
+            </button>
+            <div class="dropdown-menu" id="create-exam-menu" role="menu" style="display:none; position:absolute; top:100%; left:0; background:#fff; border:1px solid #e5e7eb; border-radius:8px; box-shadow:0 4px 6px -1px rgba(0,0,0,0.1); z-index:50; min-width:200px; margin-top:4px;">
+              <a href="exam-wizard.html?kind=exam" class="dropdown-item" role="menuitem" style="display:flex; align-items:center; gap:8px; padding:12px 16px; text-decoration:none; color:#374151; transition:background 0.2s;">
+                <i class="fas fa-wand-magic-sparkles" style="color:var(--color-teacher);"></i>
+                <div>
+                  <div style="font-weight:600;">معالج الذكاء الاصطناعي</div>
+                  <div style="font-size:12px; color:#6b7280;">إنشاء سريع بمساعدة AI</div>
+                </div>
+              </a>
+              <div style="height:1px; background:#e5e7eb; margin:0;"></div>
+              <a href="exam-editor.html?kind=exam" class="dropdown-item" role="menuitem" style="display:flex; align-items:center; gap:8px; padding:12px 16px; text-decoration:none; color:#374151; transition:background 0.2s;">
+                <i class="fas fa-pen-to-square" style="color:var(--color-teacher);"></i>
+                <div>
+                  <div style="font-weight:600;">إنشاء يدوي</div>
+                  <div style="font-size:12px; color:#6b7280;">بناء الاختبار من الصفر</div>
+                </div>
+              </a>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -699,6 +720,23 @@
         if (action === 'share-exam') shareExam(examId);
         if (action === 'duplicate-shared') duplicateSharedExam(examId);
       });
+
+      var createBtn = document.getElementById('create-exam-btn');
+      var createMenu = document.getElementById('create-exam-menu');
+      if (createBtn && createMenu) {
+        createBtn.addEventListener('click', function(e) {
+          e.stopPropagation();
+          var isExpanded = createBtn.getAttribute('aria-expanded') === 'true';
+          createBtn.setAttribute('aria-expanded', !isExpanded);
+          createMenu.style.display = isExpanded ? 'none' : 'block';
+        });
+        document.addEventListener('click', function(e) {
+          if (!createBtn.contains(e.target) && !createMenu.contains(e.target)) {
+            createBtn.setAttribute('aria-expanded', 'false');
+            createMenu.style.display = 'none';
+          }
+        });
+      }
 
       loadState();
       renderAll();

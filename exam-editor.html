@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mitests - محرر الاختبار</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .teacher-navbar{border-bottom:1px solid var(--color-gray-200)}
+    body.rtl .main-content .teacher-navbar{right:var(--sidebar-width);left:0}
+    body.ltr .main-content .teacher-navbar{left:var(--sidebar-width);right:0}
+    body.rtl .main-content.main-content--expanded .teacher-navbar{right:var(--sidebar-collapsed-width)}
+    body.ltr .main-content.main-content--expanded .teacher-navbar{left:var(--sidebar-collapsed-width)}
+    .teacher-navbar .navbar__brand-icon{background:linear-gradient(135deg,var(--color-teacher),var(--color-primary-400))}
+    .btn--teacher{background:var(--color-teacher);border-color:var(--color-teacher);color:var(--color-white)}
+    .btn--teacher:hover{background:var(--color-primary-600);border-color:var(--color-primary-600);color:var(--color-white)}
+    .sidebar__item:hover,.sidebar__item--active{background:rgba(53,86,178,.25);color:var(--color-white)}
+    .sidebar__item--active{border-inline-start:3px solid var(--color-teacher)}
+
+    /* Editor Specific Styles */
+    .editor-layout {
+      display: grid;
+      grid-template-columns: 300px 1fr;
+      gap: var(--space-6);
+      align-items: start;
+    }
+    @media (max-width: 1024px) {
+      .editor-layout { grid-template-columns: 1fr; }
+    }
+
+    .settings-panel {
+      background: var(--color-white);
+      border-radius: var(--border-radius-md);
+      box-shadow: var(--shadow-sm);
+      padding: var(--space-4);
+      position: sticky;
+      top: calc(var(--navbar-height) + var(--space-4));
+    }
+    .questions-panel {
+      display: grid;
+      gap: var(--space-4);
+    }
+    
+    .question-card {
+      background: var(--color-white);
+      border: 1px solid var(--color-gray-200);
+      border-radius: var(--border-radius-md);
+      padding: var(--space-5);
+      position: relative;
+      transition: box-shadow 0.2s;
+    }
+    .question-card:hover {
+      box-shadow: var(--shadow-md);
+      border-color: var(--color-primary-200);
+    }
+    .question-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: var(--space-3);
+      padding-bottom: var(--space-3);
+      border-bottom: 1px solid var(--color-gray-100);
+    }
+    .question-number {
+      font-weight: 700;
+      color: var(--color-teacher);
+      background: var(--color-primary-100);
+      width: 28px;
+      height: 28px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      font-size: var(--font-size-sm);
+    }
+    .question-actions {
+      display: flex;
+      gap: var(--space-2);
+    }
+    .q-btn {
+      color: var(--color-gray-400);
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: var(--font-size-lg);
+      padding: 4px;
+      transition: color 0.2s;
+    }
+    .q-btn:hover { color: var(--color-primary-600); }
+    .q-btn.delete:hover { color: var(--color-admin); }
+
+    .field-group { margin-bottom: var(--space-3); }
+    .field-label { display: block; font-size: var(--font-size-sm); font-weight: 600; margin-bottom: 4px; color: var(--color-gray-700); }
+    .input-control { width: 100%; padding: 8px 12px; border: 1px solid var(--color-gray-300); border-radius: var(--border-radius-sm); font-family: inherit; }
+    .input-control:focus { outline: none; border-color: var(--color-teacher); box-shadow: 0 0 0 3px rgba(53,86,178,0.1); }
+    
+    .options-list { margin-top: var(--space-3); display: grid; gap: var(--space-2); }
+    .option-item { display: flex; align-items: center; gap: var(--space-2); }
+    .option-radio { accent-color: var(--color-teacher); width: 18px; height: 18px; }
+
+    .add-q-btn {
+      width: 100%;
+      padding: var(--space-4);
+      border: 2px dashed var(--color-primary-300);
+      background: var(--color-primary-100);
+      color: var(--color-primary-700);
+      border-radius: var(--border-radius-md);
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .add-q-btn:hover {
+      background: var(--color-primary-200);
+      border-color: var(--color-primary-500);
+    }
+
+    .public-toggle-wrapper {
+      background: var(--color-amber-100);
+      border: 1px solid var(--color-amber-500);
+      padding: var(--space-3);
+      border-radius: var(--border-radius-sm);
+      margin-top: var(--space-4);
+    }
+    .toggle-switch {
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      gap: var(--space-2);
+    }
+    .toggle-switch input { display: none; }
+    .toggle-track {
+      width: 40px; height: 20px; background: var(--color-gray-300);
+      border-radius: 20px; position: relative; transition: background 0.3s;
+    }
+    .toggle-thumb {
+      width: 16px; height: 16px; background: white; border-radius: 50%;
+      position: absolute; top: 2px; left: 2px; transition: transform 0.3s;
+    }
+    body.rtl .toggle-thumb { right: 2px; left: auto; }
+    .toggle-switch input:checked + .toggle-track { background: var(--color-school); }
+    .toggle-switch input:checked + .toggle-track .toggle-thumb { transform: translateX(20px); }
+    body.rtl .toggle-switch input:checked + .toggle-track .toggle-thumb { transform: translateX(-20px); }
+
+    /* Floating Save Bar for Mobile */
+    .floating-actions {
+      display: none;
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: white; padding: var(--space-3);
+      box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+      z-index: 100;
+      justify-content: space-between;
+    }
+    @media (max-width: 768px) { .floating-actions { display: flex; } }
+  </style>
+</head>
+<body class="rtl">
+  <aside class="sidebar" id="sidebar" aria-label="Sidebar navigation">
+    <div class="sidebar__header"><div class="sidebar__logo">M</div><span class="sidebar__brand-text">سراج - المعلم</span></div>
+    <nav class="sidebar__nav">
+      <a class="sidebar__item" href="teacher-dashboard.html"><i class="fas fa-gauge"></i><span>نظرة عامة</span></a>
+      <a class="sidebar__item sidebar__item--active" href="teacher-exams.html"><i class="fas fa-file-lines"></i><span>اختباراتي</span></a>
+      <a class="sidebar__item" href="teacher-tasks.html"><i class="fas fa-list-check"></i><span>مهام المعلم</span></a>
+      <a class="sidebar__item" href="teacher-group.html"><i class="fas fa-users"></i><span>المجموعات</span></a>
+      <a class="sidebar__item" href="teacher-question-bank.html"><i class="fas fa-database"></i><span>بنك الأسئلة</span></a>
+      <a class="sidebar__item" href="teacher-community.html"><i class="fas fa-comments"></i><span>المجتمع</span></a>
+      <a class="sidebar__item" href="teacher-settings.html"><i class="fas fa-gear"></i><span>الإعدادات</span></a>
+    </nav>
+    <button class="sidebar__toggle" id="sidebar-toggle" aria-label="Toggle sidebar"><i class="fas fa-angles-right"></i><span>تصغير</span></button>
+  </aside>
+
+  <div class="main-content" id="main-content">
+    <nav class="navbar teacher-navbar" role="navigation">
+      <a href="teacher-dashboard.html" class="navbar__brand"><div class="navbar__brand-icon"><i class="fas fa-pen-to-square"></i></div><span class="navbar__brand-text">محرر الاختبار</span></a>
+      <div class="navbar__actions">
+        <a href="teacher-exams.html" class="btn btn--outline btn--sm">إلغاء</a>
+        <button type="button" class="btn btn--teacher btn--sm" id="save-exam-btn"><i class="fas fa-save"></i> حفظ الاختبار</button>
+      </div>
+    </nav>
+
+    <main class="container section">
+      <div class="editor-layout">
+        <!-- Sidebar Settings -->
+        <aside class="settings-panel">
+          <h3 class="section-title" style="font-size:1.1rem; margin-bottom:1rem;">إعدادات الاختبار</h3>
+          
+          <div class="field-group">
+            <label class="field-label" for="exam-title">عنوان الاختبار</label>
+            <input type="text" id="exam-title" class="input-control" placeholder="مثال: اختبار الوحدة الأولى">
+          </div>
+
+          <div class="field-group">
+            <label class="field-label" for="exam-grade">الصف</label>
+            <select id="exam-grade" class="input-control">
+              <option value="">اختر الصف</option>
+              <option value="الصف السابع">الصف السابع</option>
+              <option value="الصف الثامن">الصف الثامن</option>
+              <option value="الصف التاسع">الصف التاسع</option>
+              <option value="الصف العاشر">الصف العاشر</option>
+            </select>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label" for="exam-subject">المادة</label>
+            <select id="exam-subject" class="input-control">
+              <option value="">اختر المادة</option>
+              <option value="اللغة العربية">اللغة العربية</option>
+              <option value="اللغة الإنجليزية">اللغة الإنجليزية</option>
+              <option value="الرياضيات">الرياضيات</option>
+              <option value="العلوم">العلوم</option>
+            </select>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label" for="exam-duration">المدة (دقائق)</label>
+            <input type="number" id="exam-duration" class="input-control" value="45" min="5">
+          </div>
+
+          <div class="field-group">
+            <label class="field-label" for="exam-date">تاريخ الاختبار</label>
+            <input type="date" id="exam-date" class="input-control">
+          </div>
+
+          <div class="public-toggle-wrapper">
+             <label class="toggle-switch">
+               <input type="checkbox" id="public-toggle">
+               <div class="toggle-track"><div class="toggle-thumb"></div></div>
+               <span style="font-size:0.9rem; font-weight:600; color:var(--color-gray-800);">مشاركة في بنك الأسئلة العام</span>
+             </label>
+             <p style="font-size:0.75rem; color:var(--color-gray-600); margin-top:0.5rem; line-height:1.4;">
+               عند التفعيل، سيتم إرسال الاختبار للمراجعة من قبل إدارة المدرسة، ثم إتاحته في بنك الأسئلة العام لجميع الطلاب والمعلمين.
+             </p>
+          </div>
+        </aside>
+
+        <!-- Question Editor -->
+        <div class="questions-panel" id="questions-container">
+          <!-- Questions will be injected here -->
+        </div>
+      </div>
+      
+      <div style="margin-top: 2rem;">
+        <button type="button" class="add-q-btn" id="add-question-btn">
+          <i class="fas fa-plus-circle"></i> إضافة سؤال جديد
+        </button>
+      </div>
+    </main>
+  </div>
+
+  <div class="floating-actions">
+    <button type="button" class="btn btn--teacher" id="mob-save-btn" style="width:100%">حفظ الاختبار</button>
+  </div>
+
+  <script src="shared-layout.js"></script>
+  <script src="tenant-mode.js"></script>
+  <script>
+    (function() {
+      'use strict';
+
+      // State
+      let questions = [];
+      
+      // DOM Elements
+      const questionsContainer = document.getElementById('questions-container');
+      const addBtn = document.getElementById('add-question-btn');
+      const saveBtn = document.getElementById('save-exam-btn');
+      const mobSaveBtn = document.getElementById('mob-save-btn');
+
+      // Initialize
+      function init() {
+        // Add one empty question by default
+        addQuestion();
+      }
+
+      function createQuestionId() {
+        return 'q-' + Date.now() + Math.random().toString(36).substr(2, 5);
+      }
+
+      function renderQuestion(q, index) {
+        const div = document.createElement('div');
+        div.className = 'question-card';
+        div.dataset.id = q.id;
+        div.innerHTML = `
+          <div class="question-header">
+            <div style="display:flex; align-items:center; gap:0.75rem;">
+              <span class="question-number">${index + 1}</span>
+              <select class="input-control" style="width:auto; padding:4px 8px;" onchange="updateQuestionType('${q.id}', this.value)">
+                <option value="MC" ${q.type === 'MC' ? 'selected' : ''}>اختيار من متعدد</option>
+                <option value="Open" ${q.type === 'Open' ? 'selected' : ''}>سؤال مفتوح</option>
+              </select>
+            </div>
+            <div class="question-actions">
+               <button class="q-btn delete" onclick="deleteQuestion('${q.id}')" title="حذف السؤال"><i class="fas fa-trash"></i></button>
+            </div>
+          </div>
+          <div class="field-group">
+            <textarea class="input-control" rows="3" placeholder="نص السؤال..." oninput="updateQuestionText('${q.id}', this.value)">${q.text || ''}</textarea>
+          </div>
+          ${q.type === 'MC' ? renderOptions(q) : ''}
+          <div style="margin-top:1rem; display:flex; align-items:center; gap:0.5rem; justify-content:flex-end;">
+             <span style="font-size:0.85rem; color:var(--color-gray-500);">الدرجة:</span>
+             <input type="number" class="input-control" style="width:60px; text-align:center;" value="${q.points || 1}" min="1" onchange="updateQuestionPoints('${q.id}', this.value)">
+          </div>
+        `;
+        return div;
+      }
+
+      function renderOptions(q) {
+        let html = '<div class="options-list">';
+        (q.options || ['']).forEach((opt, idx) => {
+          html += `
+            <div class="option-item">
+              <input type="radio" name="radio-${q.id}" class="option-radio" disabled>
+              <input type="text" class="input-control" placeholder="الخيار ${idx+1}" value="${opt}" oninput="updateOption('${q.id}', ${idx}, this.value)">
+              ${idx > 1 ? `<button class="q-btn delete" onclick="removeOption('${q.id}', ${idx})" style="font-size:0.9rem;"><i class="fas fa-times"></i></button>` : ''}
+            </div>
+          `;
+        });
+        html += `<button type="button" class="btn btn--ghost btn--sm" onclick="addOption('${q.id}')" style="align-self:start;"><i class="fas fa-plus"></i> إضافة خيار</button>`;
+        html += '</div>';
+        return html;
+      }
+
+      // Global Handlers (attached to window for inline onclick access)
+      window.addQuestion = function() {
+        questions.push({
+          id: createQuestionId(),
+          type: 'MC',
+          text: '',
+          options: ['', '', '', ''],
+          points: 1
+        });
+        renderAllQuestions();
+      };
+
+      window.deleteQuestion = function(id) {
+        if(questions.length <= 1) {
+          alert("يجب أن يحتوي الاختبار على سؤال واحد على الأقل.");
+          return;
+        }
+        if(confirm("هل أنت متأكد من حذف هذا السؤال؟")) {
+          questions = questions.filter(q => q.id !== id);
+          renderAllQuestions();
+        }
+      };
+
+      window.updateQuestionType = function(id, type) {
+        const q = questions.find(x => x.id === id);
+        if(q) {
+          q.type = type;
+          if(type === 'MC' && (!q.options || q.options.length === 0)) {
+            q.options = ['', '', '', ''];
+          }
+          renderAllQuestions();
+        }
+      };
+
+      window.updateQuestionText = function(id, text) {
+        const q = questions.find(x => x.id === id);
+        if(q) q.text = text;
+      };
+
+      window.updateQuestionPoints = function(id, points) {
+        const q = questions.find(x => x.id === id);
+        if(q) q.points = parseInt(points) || 1;
+      };
+
+      window.updateOption = function(qId, optIdx, val) {
+        const q = questions.find(x => x.id === qId);
+        if(q && q.options) q.options[optIdx] = val;
+      };
+
+      window.addOption = function(qId) {
+        const q = questions.find(x => x.id === qId);
+        if(q) {
+           q.options.push('');
+           renderAllQuestions();
+        }
+      };
+
+      window.removeOption = function(qId, optIdx) {
+        const q = questions.find(x => x.id === qId);
+        if(q) {
+           q.options.splice(optIdx, 1);
+           renderAllQuestions();
+        }
+      };
+
+      function renderAllQuestions() {
+        questionsContainer.innerHTML = '';
+        questions.forEach((q, index) => {
+          questionsContainer.appendChild(renderQuestion(q, index));
+        });
+      }
+
+      addBtn.addEventListener('click', window.addQuestion);
+      
+      function saveExam() {
+        // Validation
+        const title = document.getElementById('exam-title').value.trim();
+        if(!title) { alert("يرجى إدخال عنوان الاختبار"); return; }
+        
+        const date = document.getElementById('exam-date').value;
+        if(!date) { alert("يرجى تحديد تاريخ الاختبار"); return; }
+
+        const isPublic = document.getElementById('public-toggle').checked;
+        
+        // Scope Logic
+        let scope = 'school:SCH-001'; 
+        // Simplified scope logic matching other files
+        try {
+           const type = localStorage.getItem('mitests-tenant-type');
+           const pid = localStorage.getItem('mitests-school-id') || 'SCH-001';
+           if (type === 'personal_teacher') scope = 'personal:default';
+           else scope = 'school:' + pid;
+        } catch(e) {}
+
+        const examData = {
+          id: 'ex-' + Date.now(),
+          kind: 'exam',
+          title: title,
+          grade: document.getElementById('exam-grade').value,
+          subject: document.getElementById('exam-subject').value,
+          durationMinutes: document.getElementById('exam-duration').value || 45,
+          scheduledAt: new Date(date + 'T09:00:00').toISOString(), // Default 9 AM
+          sourceType: 'manual',
+          sourcePlan: 'تم إنشاؤه يدويًا',
+          status: 'published', // Simplified for demo
+          questions: questions,
+          isPublic: isPublic,
+          approvalStatus: isPublic ? 'pending' : 'none',
+          createdAt: new Date().toISOString()
+        };
+
+        const key = 'mitests-teacher-exams:' + scope;
+        let exams = [];
+        try {
+           exams = JSON.parse(localStorage.getItem(key)) || [];
+        } catch(e) { exams = []; }
+        
+        exams.unshift(examData);
+        localStorage.setItem(key, JSON.stringify(exams));
+
+        let msg = "تم حفظ الاختبار بنجاح!";
+        if(isPublic) msg += "\nتم إرسال الاختبار للمراجعة لإضافته لبنك الأسئلة العام.";
+        
+        alert(msg);
+        window.location.href = 'teacher-exams.html';
+      }
+
+      saveBtn.addEventListener('click', saveExam);
+      mobSaveBtn.addEventListener('click', saveExam);
+
+      init();
+
+    })();
+  </script>
+</body>
+</html>

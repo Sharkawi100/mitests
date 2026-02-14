@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mitests - بنك الاختبارات العام</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    /* Public Bank Styles */
+    .bank-header {
+      background: linear-gradient(135deg, var(--color-primary-900), var(--color-primary-700));
+      color: white;
+      padding: var(--space-8) var(--space-6);
+      border-bottom-left-radius: 30px;
+      border-bottom-right-radius: 30px;
+      margin-bottom: var(--space-8);
+      text-align: center;
+    }
+    .bank-search-bar {
+      background: white;
+      padding: var(--space-3);
+      border-radius: var(--border-radius-full);
+      max-width: 800px;
+      margin: var(--space-6) auto 0;
+      display: flex;
+      gap: var(--space-2);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    }
+    .search-input {
+      flex: 1;
+      border: none;
+      padding: 8px 16px;
+      font-size: 1rem;
+      font-family: inherit;
+      outline: none;
+    }
+    .search-select {
+      border: none;
+      background: var(--color-gray-100);
+      border-radius: var(--border-radius-full);
+      padding: 0 16px;
+      font-family: inherit;
+      color: var(--color-gray-700);
+      cursor: pointer;
+      outline: none;
+    }
+    .search-btn {
+      background: var(--color-secondary-500);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 48px; height: 48px;
+      cursor: pointer;
+      font-size: 1.2rem;
+      transition: transform 0.2s;
+    }
+    .search-btn:hover { transform: scale(1.05); background: var(--color-secondary-600); }
+
+    .exams-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: var(--space-6);
+    }
+    .exam-card {
+      background: white;
+      border-radius: var(--border-radius-md);
+      overflow: hidden;
+      border: 1px solid var(--color-gray-200);
+      transition: transform 0.2s, box-shadow 0.2s;
+      display: flex;
+      flex-direction: column;
+    }
+    .exam-card:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--shadow-lg);
+    }
+    .exam-card-header {
+      background: var(--color-primary-50);
+      padding: var(--space-4);
+      border-bottom: 1px solid var(--color-primary-100);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .exam-subject-badge {
+      background: var(--color-white);
+      color: var(--color-primary-600);
+      padding: 4px 10px;
+      border-radius: 99px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      box-shadow: var(--shadow-sm);
+    }
+    .exam-card-body {
+      padding: var(--space-5);
+      flex: 1;
+    }
+    .exam-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--color-gray-900);
+      margin-bottom: var(--space-2);
+      line-height: 1.4;
+    }
+    .exam-meta {
+      display: flex;
+      gap: var(--space-3);
+      color: var(--color-gray-500);
+      font-size: 0.85rem;
+      margin-bottom: var(--space-4);
+    }
+    .exam-meta i { color: var(--color-primary-400); }
+    .exam-card-footer {
+      padding: var(--space-4);
+      border-top: 1px solid var(--color-gray-100);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    @media (max-width: 768px) {
+      .bank-search-bar { flex-direction: column; background: transparent; box-shadow: none; }
+      .search-input, .search-select { width: 100%; border-radius: var(--border-radius-md); padding: 12px; background: white; box-shadow: var(--shadow-sm); }
+      .search-btn { width: 100%; border-radius: var(--border-radius-md); }
+    }
+  </style>
+</head>
+<body class="rtl">
+  
+  <nav class="navbar" style="position:sticky; top:0;">
+    <a href="index.html" class="navbar__brand"><div class="navbar__brand-icon"><i class="fas fa-globe"></i></div><span class="navbar__brand-text">Mitests - البنك العام</span></a>
+    
+    <div class="navbar__actions">
+       <a href="index.html" class="btn btn--ghost">العودة للرئيسية</a>
+       <a href="student-dashboard.html" class="btn btn--student btn--sm hidden" id="nav-student">لوحة الطالب</a>
+       <a href="teacher-dashboard.html" class="btn btn--teacher btn--sm hidden" id="nav-teacher">لوحة المعلم</a>
+    </div>
+  </nav>
+
+  <header class="bank-header">
+    <div class="container">
+      <h1 style="font-size:2.5rem; margin-bottom:0.5rem;">استكشف آلاف الاختبارات</h1>
+      <p style="opacity:0.9;">مكتبة متكاملة من الاختبارات المعتمدة من أفضل المدارس والمعلمين.</p>
+      
+      <div class="bank-search-bar">
+        <input type="text" class="search-input" id="search-keyword" placeholder="ابحث عن موضوع أو عنوان...">
+        <select class="search-select" id="filter-grade">
+          <option value="">كل الصفوف</option>
+          <option value="الصف السابع">الصف السابع</option>
+          <option value="الصف الثامن">الصف الثامن</option>
+          <option value="الصف التاسع">الصف التاسع</option>
+          <option value="الصف العاشر">الصف العاشر</option>
+        </select>
+        <select class="search-select" id="filter-subject">
+          <option value="">كل المواد</option>
+          <option value="اللغة العربية">اللغة العربية</option>
+          <option value="اللغة الإنجليزية">اللغة الإنجليزية</option>
+          <option value="الرياضيات">الرياضيات</option>
+          <option value="العلوم">العلوم</option>
+        </select>
+        <button class="search-btn" id="do-search"><i class="fas fa-search"></i></button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container section" style="padding-top:0;">
+    <div class="exams-grid" id="exams-grid">
+      <!-- Exams injected here -->
+    </div>
+  </main>
+
+  <footer class="text-center" style="padding: 2rem; color: var(--color-gray-500); font-size: 0.9rem;">
+    &copy; 2026 Mitests. جميع الحقوق محفوظة.
+  </footer>
+
+  <script src="shared-layout.js"></script>
+  <script>
+    (function() {
+      'use strict';
+      
+      // Determine user role for navbar
+      const tenantType = localStorage.getItem('mitests-tenant-type');
+      if (tenantType === 'student') document.getElementById('nav-student').classList.remove('hidden');
+      else document.getElementById('nav-teacher').classList.remove('hidden'); // default/fallback
+
+      // Search Elements
+      const keywordInput = document.getElementById('search-keyword');
+      const gradeSelect = document.getElementById('filter-grade');
+      const subjectSelect = document.getElementById('filter-subject');
+      const searchBtn = document.getElementById('do-search');
+      const grid = document.getElementById('exams-grid');
+
+      function getAllPublicExams() {
+        let publicExams = [];
+        // Scan all teacher storage
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (key.startsWith('mitests-teacher-exams:')) {
+             try {
+               const exams = JSON.parse(localStorage.getItem(key)) || [];
+               exams.forEach(exam => {
+                 // Only approved public exams
+                 if (exam.isPublic && exam.approvalStatus === 'approved') {
+                   // Mock author name based on scope if not present
+                   const authorName = exam.authorName || 'معلم (' + key.split(':').pop() + ')';
+                   publicExams.push({ ...exam, authorName });
+                 }
+               });
+             } catch(e) {}
+          }
+        }
+        
+        // Add some mock data if empty for demo purposes
+        if (publicExams.length === 0) {
+           return getMockPublicExams();
+        }
+        
+        return publicExams;
+      }
+
+       function getMockPublicExams() {
+        return [
+          {
+            id: 'mock-1', title: 'اختبار الجبر الخطي - الوحدة الأولى',
+            subject: 'الرياضيات', grade: 'الصف التاسع',
+            durationMinutes: 45, authorName: 'أ. محمد سامي',
+            questions: [1,2,3,4,5]
+          },
+          {
+            id: 'mock-2', title: 'قواعد النحو والصرف',
+            subject: 'اللغة العربية', grade: 'الصف العاشر',
+            durationMinutes: 60, authorName: 'أ. ليلى أحمد',
+            questions: [1,2,3]
+          },
+          {
+            id: 'mock-3', title: 'Photosynthesis & Plants',
+            subject: 'العلوم', grade: 'الصف الثامن',
+            durationMinutes: 30, authorName: 'Dr. Sarah',
+            questions: [1,2,3,4]
+          }
+        ];
+      }
+
+      function renderExams() {
+        const all = getAllPublicExams();
+        const kw = keywordInput.value.toLowerCase();
+        const gr = gradeSelect.value;
+        const sub = subjectSelect.value;
+
+        const filtered = all.filter(ex => {
+           const matchKw = !kw || (ex.title && ex.title.toLowerCase().includes(kw));
+           const matchGr = !gr || ex.grade === gr;
+           const matchSub = !sub || ex.subject === sub;
+           return matchKw && matchGr && matchSub;
+        });
+
+        grid.innerHTML = '';
+        if(filtered.length === 0) {
+          grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:3rem; color:var(--color-gray-500);">لا توجد نتائج مطابقة لبحثك.</div>';
+          return;
+        }
+
+        filtered.forEach(ex => {
+          const card = document.createElement('div');
+          card.className = 'exam-card';
+          card.innerHTML = `
+            <div class="exam-card-header">
+              <span class="exam-subject-badge">${ex.subject || 'عام'}</span>
+              <span style="font-size:0.8rem; color:var(--color-gray-500);">${ex.grade || ''}</span>
+            </div>
+            <div class="exam-card-body">
+              <h3 class="exam-title">${ex.title}</h3>
+              <div class="exam-meta">
+                <span><i class="fas fa-clock"></i> ${ex.durationMinutes} دقيقة</span>
+                <span><i class="fas fa-question-circle"></i> ${ex.questions ? ex.questions.length : '?'} أسئلة</span>
+              </div>
+              <div style="display:flex; align-items:center; gap:8px;">
+                 <div style="width:24px; height:24px; background:#e0e7ff; color:#3730a3; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:0.7rem; font-weight:700;">${ex.authorName.charAt(0)}</div>
+                 <span style="font-size:0.85rem; color:var(--color-gray-600);">${ex.authorName}</span>
+              </div>
+            </div>
+            <div class="exam-card-footer">
+              <span style="color:var(--color-green-500); font-weight:600; font-size:0.85rem;"><i class="fas fa-check-circle"></i> معتمد</span>
+              <button class="btn btn--outline btn--sm" onclick="alert('سيتم نسخ الاختبار إلى مكتبتك قريبًا (ميزة تجريبية).')">نسخ الاختبار</button>
+            </div>
+          `;
+          grid.appendChild(card);
+        });
+      }
+
+      searchBtn.addEventListener('click', renderExams);
+      keywordInput.addEventListener('keyup', (e) => { if(e.key === 'Enter') renderExams(); });
+      gradeSelect.addEventListener('change', renderExams);
+      subjectSelect.addEventListener('change', renderExams);
+
+      // Initial Render
+      renderExams();
+    })();
+  </script>
+</body>
+</html>
