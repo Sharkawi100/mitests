@@ -273,6 +273,21 @@
       function init() {
         // Add one empty question by default
         addQuestion();
+
+        // Hydrate from manual Init if exists
+        try {
+          const rawInit = localStorage.getItem('mitests-manual-exam-init');
+          if (rawInit) {
+            const initData = JSON.parse(rawInit);
+            if(initData.title) document.getElementById('exam-title').value = initData.title;
+            if(initData.grade) document.getElementById('exam-grade').value = initData.grade;
+            if(initData.subject) document.getElementById('exam-subject').value = initData.subject;
+            if(initData.date) document.getElementById('exam-date').value = initData.date;
+            
+            // Clear it so it doesn't persist forever
+            localStorage.removeItem('mitests-manual-exam-init');
+          }
+        } catch(e) {}
       }
 
       function createQuestionId() {

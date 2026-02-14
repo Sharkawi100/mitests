@@ -105,14 +105,16 @@
 
         <section class="panel" data-sp="2">
           <h2>مصدر المحتوى</h2>
-          <div class="srcs">
+          <div class="srcs" style="grid-template-columns: repeat(2, 1fr);">
             <button type="button" class="src on" data-src="up"><i class="fas fa-file-arrow-up"></i><h3>أ. رفع ملف</h3><p>PDF / Docs</p></button>
             <button type="button" class="src" data-src="ai"><i class="fas fa-pen-fancy"></i><h3>ب. توليد نص بالذكاء الاصطناعي</h3><p>الموضوع / النوع / طول النص</p></button>
             <button type="button" class="src" data-src="nt"><i class="fas fa-wand-magic-sparkles"></i><h3>ج. اختبار بدون نص</h3><p>توليد AI مباشر بدون قطعة قراءة</p></button>
+            <button type="button" class="src" data-src="manual"><i class="fas fa-pen-to-square"></i><h3>د. إدخال يدوي</h3><p>كتابة الأسئلة يدوياً بدون AI</p></button>
           </div>
           <div class="srcp on" data-srcp="up"><div class="drop" id="drop-zone"><input type="file" id="file-input" accept=".pdf,.doc,.docx" hidden><i class="fas fa-cloud-arrow-up"></i><p><strong>اسحب الملف هنا أو اضغط للاختيار</strong><br>PDF / Docs</p></div><div id="file-preview" class="file-preview hidden"></div><div id="file-ai-panel" class="file-ai-panel hidden"><div class="file-ai-status" id="file-ai-status">سيتم تحليل الملف بعد الرفع.</div><label class="field">إجراء مقترح من AI<select id="file-ai-action"><option value="convert_db">تحويل المحتوى إلى قاعدة الأسئلة</option><option value="similar_exam">توليد اختبار مشابه لنفس المستوى</option><option value="extract_outcomes">استخراج نواتج التعلم وبناء مخطط اختبار</option><option value="homework_variant">إنشاء نسخة واجب مختصرة من نفس الملف</option><option value="mix_strategy">استراتيجية هجينة (استخراج + توليد)</option></select></label><ul id="file-ai-list" class="file-ai-list"></ul></div></div>
           <div class="srcp" data-srcp="ai"><div class="grid2"><div class="field"><label for="at">الموضوع</label><input id="at"></div><div class="field"><label for="ag">النمط</label><select id="ag"><option value="">اختر النمط</option><option>قصة</option><option>حوار</option><option>قطعة علمية</option><option>مقال</option></select></div><div class="field full"><label for="al">طول النص</label><select id="al"><option value="">اختر الطول</option><option value="short">قصير (حتى 300 كلمة)</option><option value="medium">متوسط (300-600 كلمة)</option><option value="long">طويل (أكثر من 600 كلمة)</option></select></div></div></div>
           <div class="srcp" data-srcp="nt"><div class="no-text-box"><p><strong>توليد اختبار بدون نص</strong><br>يستخدم AI لبناء اختبار مباشر بدون قطعة قراءة. مناسب للرياضيات، المفاهيم العلمية، أو اختبارات المهارات.</p><div class="grid2"><div class="field"><label for="nt-goal">هدف الاختبار</label><input id="nt-goal" placeholder="مثال: قياس إتقان الكسور والنسب"></div><div class="field"><label for="nt-focus">التركيز</label><select id="nt-focus"><option value="">اختر التركيز</option><option value="concepts">مفاهيم أساسية</option><option value="application">تطبيق عملي</option><option value="mixed">مختلط</option></select></div><div class="field full"><label for="nt-extra">تعليمات إضافية للذكاء الاصطناعي</label><textarea id="nt-extra" placeholder="مثال: اجعل 30% من الأسئلة تحديات قصيرة بدون نص."></textarea><small class="field-help">يقترح النظام أسئلة مباشرة بدون نص تمهيدي مع الحفاظ على مستوى الصف والصعوبة.</small></div></div></div></div>
+          <div class="srcp" data-srcp="manual"><div class="no-text-box" style="background:var(--color-primary-50); border-color:var(--color-teacher);"><p><strong>الإدخال اليدوي</strong><br>سيتم نقلك إلى محرر الاختبار التقليدي لإضافة الأسئلة وكتابتها بنفسك. سيتم حفظ العنوان والصف والمادة التي اخترتها.</p><button type="button" class="btn btn--teacher" id="go-manual-btn">الانتقال للمحرر اليدوي الآن <i class="fas fa-arrow-left"></i></button></div></div>
         </section>
 
         <section class="panel" data-sp="3">
@@ -596,7 +598,7 @@
 
         var src = document.querySelector('.src.on');
         var sourceKey = src ? src.dataset.src : '';
-        var srcMap = { up: 'رفع ملف', ai: 'توليد نص AI', nt: 'اختبار بدون نص (AI)' };
+        var srcMap = { up: 'رفع ملف', ai: 'توليد نص AI', nt: 'اختبار بدون نص (AI)', manual: 'إدخال يدوي' };
 
         document.getElementById('stk').textContent = getKindLabel();
         document.getElementById('st').textContent = val('et') || 'غير محدد';
@@ -775,6 +777,24 @@
           window.location.href = 'exam-assessment.html?kind=' + encodeURIComponent(itemKind) + '&title=' + encodeURIComponent(itemTitle);
         }, 2400);
       });
+
+      var goManualBtn = document.getElementById('go-manual-btn');
+      if(goManualBtn) {
+        goManualBtn.addEventListener('click', function() {
+           // Save metadata to localStorage to be picked up by editor
+           try {
+             var meta = {
+               title: val('et'),
+               grade: gradeSelect.value,
+               subject: subjectSelect.value,
+               date: scheduleDateInput.value,
+               time: scheduleTimeInput.value
+             };
+             localStorage.setItem('mitests-manual-exam-init', JSON.stringify(meta));
+           } catch(e) {}
+           window.location.href = 'exam-editor.html';
+        });
+      }
 
       draftBtn.addEventListener('click', function () {
         try {
