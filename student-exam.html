@@ -602,7 +602,9 @@
       document.addEventListener('visibilitychange', function () {
         if (document.hidden) {
           tabViolations += 1;
-          showWarningModal();
+          if (tabViolations >= 2) {
+             showWarningModal();
+          }
         }
       });
 

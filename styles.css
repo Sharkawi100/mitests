@@ -1626,3 +1626,54 @@ body.ltr .chat-widget {
     right: var(--space-4);
   }
 }
+/* ==========================================================================
+   MOBILE NAVIGATION (Added via Shared Layout)
+   ========================================================================== */
+
+@media (max-width: 767px) {
+  /* Enforce sidebar visibility when active */
+  .sidebar.sidebar--mobile-open {
+    display: flex !important;
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    width: var(--sidebar-width);
+    z-index: 1000;
+    box-shadow: 4px 0 10px rgba(0,0,0,0.1);
+  }
+
+  body.rtl .sidebar.sidebar--mobile-open { right: 0; }
+  body.ltr .sidebar.sidebar--mobile-open { left: 0; }
+
+  /* Overlay backdrop */
+  .sidebar-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 999;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s;
+  }
+
+  .sidebar-backdrop.active {
+    opacity: 1;
+    visibility: visible;
+  }
+}
+
+/* Navbar hamburger button - injected by JS */
+.mobile-nav-toggle {
+  display: none;
+  background: none;
+  border: none;
+  color: var(--color-gray-600);
+  font-size: 1.25rem;
+  padding: 0.5rem;
+  cursor: pointer;
+  margin-inline-end: 0.5rem;
+}
+
+@media (max-width: 767px) {
+  .mobile-nav-toggle { display: block; }
+}

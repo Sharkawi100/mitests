@@ -155,6 +155,19 @@
       justify-content: space-between;
     }
     @media (max-width: 768px) { .floating-actions { display: flex; } }
+    
+    .conflict-alert-icon {
+      color: #dc2626;
+      background: #fee2e2;
+      border-radius: 50%;
+      width: 24px; height: 24px;
+      display: none; /* hidden by default */
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      cursor: pointer;
+      margin-inline-start: 8px;
+    }
   </style>
 </head>
 <body class="rtl">
@@ -176,6 +189,7 @@
     <nav class="navbar teacher-navbar" role="navigation">
       <a href="teacher-dashboard.html" class="navbar__brand"><div class="navbar__brand-icon"><i class="fas fa-pen-to-square"></i></div><span class="navbar__brand-text">محرر الاختبار</span></a>
       <div class="navbar__actions">
+        <button type="button" class="btn btn--outline btn--sm" id="preview-exam-btn"><i class="fas fa-eye"></i> معاينة</button>
         <a href="teacher-exams.html" class="btn btn--outline btn--sm">إلغاء</a>
         <button type="button" class="btn btn--teacher btn--sm" id="save-exam-btn"><i class="fas fa-save"></i> حفظ الاختبار</button>
       </div>
@@ -220,8 +234,12 @@
           </div>
 
           <div class="field-group">
-            <label class="field-label" for="exam-date">تاريخ الاختبار</label>
-            <input type="date" id="exam-date" class="input-control">
+            <label class="field-label" for="exam-date">
+              تاريخ ووقت الاختبار 
+              <span id="conflict-alert" class="conflict-alert-icon" title="يوجد تعارض في المواعيد"><i class="fas fa-exclamation"></i></span>
+            </label>
+            <input type="date" id="exam-date" class="input-control" style="margin-bottom:0.5rem;">
+            <input type="time" id="exam-time" class="input-control">
           </div>
 
           <div class="public-toggle-wrapper">
@@ -233,6 +251,12 @@
              <p style="font-size:0.75rem; color:var(--color-gray-600); margin-top:0.5rem; line-height:1.4;">
                عند التفعيل، سيتم إرسال الاختبار للمراجعة من قبل إدارة المدرسة، ثم إتاحته في بنك الأسئلة العام لجميع الطلاب والمعلمين.
              </p>
+          </div>
+
+          <div style="margin-top:2rem; padding-top:1rem; border-top:1px solid #eee;">
+             <button type="button" class="btn btn--outline btn--sm" id="save-to-bank-btn" style="width:100%; color:var(--color-primary-600); border-color:var(--color-primary-200);">
+               <i class="fas fa-box-archive"></i> حفظ الأسئلة للبنك
+             </button>
           </div>
         </aside>
 
@@ -254,6 +278,27 @@
     <button type="button" class="btn btn--teacher" id="mob-save-btn" style="width:100%">حفظ الاختبار</button>
   </div>
 
+  <!-- Preview Modal -->
+  <div class="modal-overlay" id="preview-modal" style="display:none; z-index:200;">
+    <div class="modal-card" style="max-width:800px; width:95%; height:90vh; display:flex; flex-direction:column;">
+      <div class="modal-header" style="background:var(--color-gray-50); border-bottom:1px solid var(--color-gray-200);">
+         <div style="display:flex; align-items:center; gap:1rem;">
+           <span style="font-weight:bold; font-size:1.1rem;" id="preview-title">معاينة الاختبار</span>
+           <span class="status-pill status-pill--active">وضع الطالب</span>
+         </div>
+         <button type="button" class="close-modal"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="modal-body" style="flex:1; overflow-y:auto; padding:2rem; background:var(--color-gray-50);">
+         <div class="exam-paper" id="preview-paper" style="background:white; padding:3rem; border-radius:8px; box-shadow:var(--shadow-sm); max-width:700px; margin:0 auto;">
+            <!-- Questions rendered here -->
+         </div>
+      </div>
+      <div class="modal-footer" style="justify-content:center;">
+         <button type="button" class="btn btn--ghost close-modal-btn">إغلاق المعاينة</button>
+      </div>
+    </div>
+  </div>
+
   <script src="shared-layout.js"></script>
   <script src="tenant-mode.js"></script>
   <script>
@@ -268,26 +313,109 @@
       const addBtn = document.getElementById('add-question-btn');
       const saveBtn = document.getElementById('save-exam-btn');
       const mobSaveBtn = document.getElementById('mob-save-btn');
+      const dateInput = document.getElementById('exam-date');
+      const timeInput = document.getElementById('exam-time');
+      const conflictAlert = document.getElementById('conflict-alert');
 
-      // Initialize
-      function init() {
-        // Add one empty question by default
-        addQuestion();
+      // Helper to get scope
+      function getScope() {
+         let scope = 'school:SCH-001'; 
+         try {
+            const type = localStorage.getItem('mitests-tenant-type');
+            const pid = localStorage.getItem('mitests-school-id') || 'SCH-001';
+            if (type === 'personal_teacher') scope = 'personal:default';
+            else scope = 'school:' + pid;
+         } catch(e) {}
+         return scope;
+      }
 
-        // Hydrate from manual Init if exists
-        try {
-          const rawInit = localStorage.getItem('mitests-manual-exam-init');
-          if (rawInit) {
-            const initData = JSON.parse(rawInit);
-            if(initData.title) document.getElementById('exam-title').value = initData.title;
-            if(initData.grade) document.getElementById('exam-grade').value = initData.grade;
-            if(initData.subject) document.getElementById('exam-subject').value = initData.subject;
-            if(initData.date) document.getElementById('exam-date').value = initData.date;
+      function checkLockStatus(title) {
+        if(!title) return;
+        const scope = getScope();
+        const key = 'mitests-teacher-review-queue:' + scope;
+        let queue = [];
+        try { queue = JSON.parse(localStorage.getItem(key)) || []; } catch(e) {}
+        
+        // Check if matching submissions exist
+        const locked = queue.some(item => item.title === title);
+        
+        if(locked) {
+           document.querySelectorAll('input, select, textarea, button').forEach(el => el.disabled = true);
+           // Show banner
+           const banner = document.createElement('div');
+           banner.className = 'locked-banner';
+           banner.style.background = '#fee2e2';
+           banner.style.color = '#991b1b';
+           banner.style.padding = '1rem';
+           banner.style.marginBottom = '1rem';
+           banner.style.borderRadius = '8px';
+           banner.style.border = '1px solid #f87171';
+           banner.style.fontWeight = 'bold';
+           banner.innerHTML = '<i class="fas fa-lock"></i> تنبيه: هذا الاختبار يحتوي على تسليمات طلابية ولا يمكن تعديله.';
+           const main = document.querySelector('main');
+           if(main) main.prepend(banner);
+        }
+      }
+
+      function loadExam(id) {
+         const scope = getScope();
+         const key = 'mitests-teacher-exams:' + scope;
+         let exams = [];
+         try { exams = JSON.parse(localStorage.getItem(key)) || []; } catch(e) {}
+         const exam = exams.find(x => x.id === id);
+         
+         if(exam) {
+            document.getElementById('exam-title').value = exam.title || '';
+            document.getElementById('exam-grade').value = exam.grade || '';
+            document.getElementById('exam-subject').value = exam.subject || '';
+            document.getElementById('exam-duration').value = exam.durationMinutes || 45;
             
-            // Clear it so it doesn't persist forever
-            localStorage.removeItem('mitests-manual-exam-init');
-          }
-        } catch(e) {}
+            if(exam.scheduledAt) {
+               const dt = new Date(exam.scheduledAt);
+               if(!isNaN(dt.getTime())) {
+                   document.getElementById('exam-date').value = dt.toISOString().split('T')[0];
+                   const hours = String(dt.getHours()).padStart(2, '0');
+                   const mins = String(dt.getMinutes()).padStart(2, '0');
+                   document.getElementById('exam-time').value = hours + ':' + mins;
+               }
+            }
+            
+            document.getElementById('public-toggle').checked = !!exam.isPublic;
+            
+            questions = exam.questions || [];
+            if(questions.length === 0) addQuestion();
+            else renderAllQuestions();
+            
+            checkLockStatus(exam.title);
+         } else {
+            alert('الاختبار غير موجود');
+            window.location.href = 'teacher-exams.html';
+         }
+      }
+
+      function init() {
+         const urlParams = new URLSearchParams(window.location.search);
+         const id = urlParams.get('id');
+         
+         if(id) {
+            loadExam(id);
+         } else {
+            addQuestion();
+            // Hydrate from manual Init if exists
+            try {
+              const rawInit = localStorage.getItem('mitests-manual-exam-init');
+              if (rawInit) {
+                const initData = JSON.parse(rawInit);
+                if(initData.title) document.getElementById('exam-title').value = initData.title;
+                if(initData.grade) document.getElementById('exam-grade').value = initData.grade;
+                if(initData.subject) document.getElementById('exam-subject').value = initData.subject;
+                if(initData.date) document.getElementById('exam-date').value = initData.date;
+                if(initData.time) document.getElementById('exam-time').value = initData.time;
+                localStorage.removeItem('mitests-manual-exam-init');
+              }
+            } catch(e) {}
+         }
+         checkConflicts();
       }
 
       function createQuestionId() {
@@ -404,46 +532,192 @@
         }
       };
 
-      function renderAllQuestions() {
-        questionsContainer.innerHTML = '';
-        questions.forEach((q, index) => {
-          questionsContainer.appendChild(renderQuestion(q, index));
-        });
-      }
+      // Preview Logic
+      const previewModal = document.getElementById('preview-modal');
+      const previewBtn = document.getElementById('preview-exam-btn');
+      const closePreviewBtns = document.querySelectorAll('.close-modal, .close-modal-btn');
+
+      previewBtn.addEventListener('click', () => {
+         const title = document.getElementById('exam-title').value || 'معاينة الاختبار';
+         document.getElementById('preview-title').textContent = title;
+         const paper = document.getElementById('preview-paper');
+         paper.innerHTML = '';
+         
+         // Render Header
+         const header = document.createElement('div');
+         header.style.textAlign = 'center';
+         header.style.marginBottom = '2rem';
+         header.style.borderBottom = '2px solid #eee';
+         header.style.paddingBottom = '1rem';
+         header.innerHTML = `
+            <h2 style="margin:0 0 0.5rem 0;">${title}</h2>
+            <div style="color:var(--color-gray-600); display:flex; justify-content:center; gap:1.5rem; font-size:0.9rem;">
+               <span><i class="fas fa-clock"></i> ${document.getElementById('exam-duration').value} دقيقة</span>
+               <span><i class="fas fa-layer-group"></i> ${document.getElementById('exam-grade').value || 'غير محدد'}</span>
+               <span><i class="fas fa-book"></i> ${document.getElementById('exam-subject').value || 'عام'}</span>
+            </div>
+         `;
+         paper.appendChild(header);
+
+         // Render Questions
+         if(questions.length === 0) {
+            paper.innerHTML += '<p style="text-align:center; color:#888;">لا توجد أسئلة للعرض.</p>';
+         } else {
+            questions.forEach((q, idx) => {
+               const qDiv = document.createElement('div');
+               qDiv.style.marginBottom = '2rem';
+               qDiv.innerHTML = `
+                  <div style="display:flex; gap:0.5rem; margin-bottom:0.5rem; font-weight:bold;">
+                     <span style="color:var(--color-teacher);">${idx + 1}.</span>
+                     <div>${q.text || '(نص السؤال فارغ)'} <span style="font-weight:normal; color:#888; font-size:0.85rem;">(${q.points} درجات)</span></div>
+                  </div>
+               `;
+               
+               if(q.type === 'MC') {
+                  const optsDiv = document.createElement('div');
+                  optsDiv.style.marginRight = '1.5rem';
+                  (q.options || []).forEach(opt => {
+                     const row = document.createElement('div');
+                     row.style.marginBottom = '0.5rem';
+                     row.innerHTML = `<label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer;"><input type="radio" name="p-${q.id}" disabled> ${opt}</label>`;
+                     optsDiv.appendChild(row);
+                  });
+                  qDiv.appendChild(optsDiv);
+               } else {
+                  qDiv.innerHTML += `<textarea style="width:100%; padding:0.5rem; border:1px solid #ddd; border-radius:4px; margin-top:0.5rem;" rows="3" placeholder="إجابة الطالب..." disabled></textarea>`;
+               }
+               paper.appendChild(qDiv);
+            });
+         }
+
+         previewModal.style.display = 'flex';
+      });
+
+      closePreviewBtns.forEach(b => b.addEventListener('click', () => {
+         previewModal.style.display = 'none';
+      }));
+
+      // Save to Bank Logic
+      document.getElementById('save-to-bank-btn').addEventListener('click', () => {
+         if(questions.length === 0) { alert('لا توجد أسئلة لحفظها.'); return; }
+         
+         const scope = getScope();
+         const key = 'mitests-teacher-questions:' + scope;
+         let bank = [];
+         try { bank = JSON.parse(localStorage.getItem(key)) || []; } catch(e) {}
+         
+         let addedCount = 0;
+         questions.forEach(q => {
+             // Simple duplicate check by text
+             const exists = bank.some(bq => bq.body === q.text);
+             if(!exists && q.text) {
+                 bank.push({
+                    id: 'qb-' + Date.now() + Math.random().toString(36).substr(2, 4),
+                    title: 'سؤال من ' + (document.getElementById('exam-title').value || 'اختبار'),
+                    body: q.text,
+                    subject: document.getElementById('exam-subject').value || 'عام',
+                    bloom: 'غير محدد',
+                    difficulty: 'متوسط',
+                    type: q.type,
+                    options: q.options,
+                    points: q.points,
+                    createdAt: new Date().toISOString()
+                 });
+                 addedCount++;
+             }
+         });
+         
+         if(addedCount > 0) {
+             localStorage.setItem(key, JSON.stringify(bank));
+             alert(`تم حفظ ${addedCount} سؤال في بنك الأسئلة الخاص بك بنجاح.`);
+         } else {
+             alert('لم يتم حفظ أي أسئلة جديدة (قد تكون مكررة أو فارغة).');
+         }
+      });
+
+
 
       addBtn.addEventListener('click', window.addQuestion);
       
+      function checkConflicts() {
+        if(!dateInput.value || !timeInput.value) {
+           conflictAlert.style.display = 'none';
+           return;
+        }
+
+        const selectedDateTime = new Date(dateInput.value + 'T' + timeInput.value);
+        if(isNaN(selectedDateTime.getTime())) return;
+
+        const scope = getScope();
+        const key = 'mitests-teacher-exams:' + scope;
+        let exams = [];
+        try { exams = JSON.parse(localStorage.getItem(key)) || []; } catch(e) {}
+
+        // Exclude current exam from conflict check if editing
+        const urlParams = new URLSearchParams(window.location.search);
+        const currentId = urlParams.get('id');
+
+        const conflics = exams.filter(ex => {
+           if(currentId && ex.id === currentId) return false;
+           if(!ex.scheduledAt || ex.deletedAt) return false;
+           const exDate = new Date(ex.scheduledAt);
+           const diffMs = Math.abs(selectedDateTime - exDate);
+           const diffHours = diffMs / (1000 * 60 * 60);
+           return diffHours < 24;
+        });
+
+        if(conflics.length > 0) {
+           conflictAlert.style.display = 'flex';
+           conflictAlert.onclick = () => {
+             let msg = "تنبيه: الاختبارات التالية مجدولة خلال 24 ساعة من الموعد المحدد:\n\n";
+             conflics.forEach(c => {
+                const d = new Date(c.scheduledAt).toLocaleString('ar-EG');
+                msg += `- ${c.title} (${d})\n`;
+             });
+             alert(msg);
+           };
+        } else {
+           conflictAlert.style.display = 'none';
+        }
+      }
+
+      dateInput.addEventListener('change', checkConflicts);
+      timeInput.addEventListener('change', checkConflicts);
+
       function saveExam() {
         // Validation
         const title = document.getElementById('exam-title').value.trim();
         if(!title) { alert("يرجى إدخال عنوان الاختبار"); return; }
         
-        const date = document.getElementById('exam-date').value;
-        if(!date) { alert("يرجى تحديد تاريخ الاختبار"); return; }
+        const date = dateInput.value;
+        const time = timeInput.value;
+        
+        if(!date || !time) { alert("يرجى تحديد تاريخ ووقت الاختبار"); return; }
+
+        // Future Date Check
+        const scheduledDate = new Date(date + 'T' + time);
+        if(scheduledDate < new Date()) {
+           alert("خطأ: لا يمكن جدولة الاختبار في تاريخ سابق. يرجى اختيار موعد مستقبلي.");
+           return;
+        }
 
         const isPublic = document.getElementById('public-toggle').checked;
+        const scope = getScope();
         
-        // Scope Logic
-        let scope = 'school:SCH-001'; 
-        // Simplified scope logic matching other files
-        try {
-           const type = localStorage.getItem('mitests-tenant-type');
-           const pid = localStorage.getItem('mitests-school-id') || 'SCH-001';
-           if (type === 'personal_teacher') scope = 'personal:default';
-           else scope = 'school:' + pid;
-        } catch(e) {}
+        const urlParams = new URLSearchParams(window.location.search);
+        const currentId = urlParams.get('id');
 
         const examData = {
-          id: 'ex-' + Date.now(),
+          id: currentId || ('ex-' + Date.now()),
           kind: 'exam',
           title: title,
           grade: document.getElementById('exam-grade').value,
           subject: document.getElementById('exam-subject').value,
           durationMinutes: document.getElementById('exam-duration').value || 45,
-          scheduledAt: new Date(date + 'T09:00:00').toISOString(), // Default 9 AM
+          scheduledAt: scheduledDate.toISOString(),
           sourceType: 'manual',
           sourcePlan: 'تم إنشاؤه يدويًا',
-          status: 'published', // Simplified for demo
+          status: 'published',
           questions: questions,
           isPublic: isPublic,
           approvalStatus: isPublic ? 'pending' : 'none',
@@ -456,7 +730,18 @@
            exams = JSON.parse(localStorage.getItem(key)) || [];
         } catch(e) { exams = []; }
         
-        exams.unshift(examData);
+        if(currentId) {
+            const index = exams.findIndex(x => x.id === currentId);
+            if(index !== -1) {
+                examData.createdAt = exams[index].createdAt; 
+                exams[index] = examData;
+            } else {
+                exams.unshift(examData);
+            }
+        } else {
+            exams.unshift(examData);
+        }
+        
         localStorage.setItem(key, JSON.stringify(exams));
 
         let msg = "تم حفظ الاختبار بنجاح!";

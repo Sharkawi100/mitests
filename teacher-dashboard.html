@@ -931,6 +931,39 @@
         }
         approvedList.innerHTML = approvedHtml;
       }
+      var I18N = {
+        he: {
+          dashboardHeading: 'لوحة المعلم',
+          dashboardSub: 'ברוך שובך, {name}! הנה סקירה של הקבוצות והפעילויות האחרונות.',
+          statsGroups: 'קבוצות פעילות',
+          statsExams: 'מבחנים בחודש',
+          statsAITokens: 'שימוש ב-AI (Tokens)'
+        },
+        ar: {
+          dashboardHeading: 'لوحة المعلم',
+          dashboardSub: 'مرحبًا بعودتك، {name}! إليك نظرة على مجموعاتك والأنشطة الأخيرة.',
+          statsGroups: 'مجموعات نشطة',
+          statsExams: 'اختبارات الشهر',
+          statsAITokens: 'استهلاك الذكاء الاصطناعي'
+        }
+      };
+
+      function applyLanguage(lang) {
+        var t = I18N[lang] || I18N.ar;
+        var nodes = document.querySelectorAll('[data-i18n]');
+        for (var i = 0; i < nodes.length; i++) {
+           var key = nodes[i].getAttribute('data-i18n');
+           if (t[key]) nodes[i].textContent = t[key];
+        }
+        var head = document.getElementById('dashboard-main-heading');
+        if (head) head.textContent = t.dashboardHeading;
+      }
+
+      document.addEventListener('mitests:languagechange', function (e) {
+        applyLanguage(e.detail.lang || 'ar');
+      });
+
+      applyLanguage(localStorage.getItem('mitests-language') || 'ar');
     }
   })();
   </script>

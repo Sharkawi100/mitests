@@ -467,8 +467,10 @@
             + '<td><span class="status-pill ' + getStatusClass(exam.status) + '">' + getStatusLabel(exam.status) + '</span></td>'
             + '<td>'
               + '<div class="action-buttons">'
+                + '<a href="exam-editor.html?id=' + escapeHtml(exam.id || '') + '" class="btn btn--outline btn--sm"><i class="fas fa-pen"></i> تعديل</a>'
+                + '<button type="button" class="btn btn--primary btn--sm" data-action="assign-group" data-id="' + escapeHtml(exam.id || '') + '"><i class="fas fa-users-viewfinder"></i> تعيين</button>'
+                + '<button type="button" class="btn btn--outline btn--sm" data-action="share-smart" data-id="' + escapeHtml(exam.id || '') + '"><i class="fas fa-share-nodes"></i> مشاركة</button>'
                 + '<a href="exam-report.html?title=' + encodeURIComponent(exam.title || '') + '" class="btn btn--teacher btn--sm">النتائج</a>'
-                + shareButton
                 + '<button type="button" class="btn btn--outline btn--sm" data-action="move-trash" data-id="' + escapeHtml(exam.id || '') + '"><i class="fas fa-trash"></i> حذف</button>'
               + '</div>'
             + '</td>'
@@ -515,7 +517,7 @@
 
         var incomingShares = state.shares.filter(isIncomingExamShare);
         if (!incomingShares.length) {
-          sharedBody.innerHTML = '<tr><td class="empty-cell" colspan="5">لا توجد اختبارات مشتركة موجهة إليك حاليًا.</td></tr>';
+          sharedBody.innerHTML = '<tr><td class="empty-cell" colspan="5"><div class="empty-state"><i class="fas fa-share-nodes"></i><p>لا توجد اختبارات مشتركة موجهة إليك حاليًا.</p></div></td></tr>';
           return;
         }
 
@@ -609,7 +611,7 @@
         renderAll();
       }
 
-      function shareExam(examId) {
+      function shareExam(examId, targetTeacherId) {
         if (String(state.scope || '').indexOf('school:') !== 0) {
           alert('ميزة مشاركة الاختبارات متاحة لمعلمي المدرسة فقط.');
           return;
@@ -629,20 +631,29 @@
           return;
         }
 
-        var lines = [];
-        for (var j = 0; j < recipients.length; j++) {
-          lines.push((j + 1) + '. ' + recipients[j].name);
-        }
+        var receiver = null;
 
-        var picked = window.prompt('اختر رقم المعلم الذي تريد مشاركة الاختبار معه:\n' + lines.join('\n'), '1');
-        if (picked === null) return;
-        var pickedIndex = parseInt(String(picked).trim(), 10) - 1;
-        if (isNaN(pickedIndex) || pickedIndex < 0 || pickedIndex >= recipients.length) {
-          alert('اختيار غير صحيح.');
-          return;
-        }
+        if (targetTeacherId) {
+          receiver = recipients.find(r => String(r.id) === String(targetTeacherId));
+          if (!receiver) {
+            alert('المعلم المختار غير موجود.');
+            return;
+          }
+        } else {
+          var lines = [];
+          for (var j = 0; j < recipients.length; j++) {
+            lines.push((j + 1) + '. ' + recipients[j].name);
+          }
 
-        var receiver = recipients[pickedIndex];
+          var picked = window.prompt('اختر رقم المعلم الذي تريد مشاركة الاختبار معه:\n' + lines.join('\n'), '1');
+          if (picked === null) return;
+          var pickedIndex = parseInt(String(picked).trim(), 10) - 1;
+          if (isNaN(pickedIndex) || pickedIndex < 0 || pickedIndex >= recipients.length) {
+            alert('اختيار غير صحيح.');
+            return;
+          }
+          receiver = recipients[pickedIndex];
+        }
         var share = {
           id: 'share-' + Date.now(),
           type: 'exam_share',
@@ -719,6 +730,8 @@
         if (action === 'delete-permanent') deletePermanently(examId);
         if (action === 'share-exam') shareExam(examId);
         if (action === 'duplicate-shared') duplicateSharedExam(examId);
+        if (action === 'assign-group') openAssignModal(examId);
+        if (action === 'share-smart') openShareSmartModal(examId);
       });
 
       var createBtn = document.getElementById('create-exam-btn');
@@ -738,9 +751,214 @@
         });
       }
 
+      // Modal Elements
+      const assignModal = document.getElementById('assign-modal');
+      const shareModal = document.getElementById('share-smart-modal');
+      let currentExamId = null;
+
+      // Close Modals
+      document.querySelectorAll('.close-modal, .close-modal-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          assignModal.style.display = 'none';
+          shareModal.style.display = 'none';
+        });
+      });
+
+      // Assign Logic
+      function openAssignModal(id) {
+         currentExamId = id;
+         assignModal.style.display = 'flex';
+         
+         const select = document.getElementById('assign-group-select');
+         select.innerHTML = '<option value="">تحميل المجموعات...</option>';
+         
+         // Load Groups
+         const groupsKey = 'mitests-teacher-groups:' + state.scope;
+         const groups = readStoredArray(groupsKey);
+         
+         if(groups.length === 0) {
+            select.innerHTML = '<option value="">لا توجد مجموعات</option>';
+            return;
+         }
+         
+         select.innerHTML = '<option value="">اختر المجموعة...</option>';
+         groups.forEach(g => {
+            const op = document.createElement('option');
+            op.value = g.code || g.id;
+            const gradeInfo = g.grade ? (' (' + g.grade + ')') : '';
+            op.textContent = g.name + gradeInfo;
+            select.appendChild(op);
+         });
+      }
+
+      document.getElementById('confirm-assign-btn').addEventListener('click', () => {
+         const groupId = document.getElementById('assign-group-select').value;
+         const dueDate = document.getElementById('assign-due-date').value;
+         
+         if(!groupId) { alert('يرجى اختيار مجموعة'); return; }
+         
+         // Save Assignment
+         const assignKey = 'mitests-group-assignments:' + state.scope;
+         const assignments = readStoredArray(assignKey);
+         
+         assignments.push({
+            id: 'asn-' + Date.now(),
+            examId: currentExamId,
+            groupId: groupId,
+            dueDate: dueDate,
+            assignedAt: new Date().toISOString()
+         });
+         
+         saveStoredArray(assignKey, assignments);
+         
+         alert('تم تعيين الاختبار للمجموعة بنجاح!');
+         assignModal.style.display = 'none';
+      });
+
+      // Share Smart Logic
+      function openShareSmartModal(id) {
+         currentExamId = id;
+         shareModal.style.display = 'flex';
+         document.getElementById('colleague-share-form').style.display = 'none';
+         
+         // Check current public status
+         const exam = state.exams.find(e => e.id === id);
+         const ind = document.getElementById('public-status-ind');
+         if(exam && exam.isPublic) {
+            ind.style.backgroundColor = 'var(--color-success-500)';
+            ind.style.width = '10px'; ind.style.height = '10px'; ind.style.borderRadius = '50%';
+         } else {
+            ind.style.backgroundColor = 'transparent';
+         }
+      }
+
+      document.getElementById('share-public-btn').addEventListener('click', () => {
+         const exam = state.exams.find(e => e.id === currentExamId);
+         if(!exam) return;
+         
+         if(confirm(exam.isPublic ? 'إلغاء نشر الاختبار من البنك العام؟' : 'هل تريد نشر الاختبار في بنك الأسئلة العام؟')) {
+            exam.isPublic = !exam.isPublic;
+            exam.approvalStatus = exam.isPublic ? 'pending' : 'none';
+            persistState();
+            renderAll();
+            openShareSmartModal(currentExamId); // Refresh UI
+            alert(exam.isPublic ? 'تم إرسال طلب النشر للمراجعة.' : 'تم إلغاء النشر.');
+         }
+      });
+
+      document.getElementById('share-link-btn').addEventListener('click', () => {
+          const link = window.location.origin + '/mitests/student-exam.html?examId=' + currentExamId;
+          navigator.clipboard.writeText(link).then(() => {
+             alert('تم نسخ رابط الاختبار: ' + link);
+          });
+      });
+
+      document.getElementById('share-colleague-btn').addEventListener('click', () => {
+          document.getElementById('colleague-share-form').style.display = 'block';
+          // Populate teachers
+          const select = document.getElementById('share-teacher-select');
+          select.innerHTML = '<option value="">اختر زميل...</option><option value="t2">Ahmed Ali</option><option value="t3">Sarah Smith</option>';
+      });
+      
+      document.getElementById('confirm-colleague-share').addEventListener('click', () => {
+          const teacherId = document.getElementById('share-teacher-select').value;
+          if(!teacherId) { alert('يرجى اختيار معلم'); return; }
+          shareExam(currentExamId, teacherId);
+          shareModal.style.display = 'none';
+      });
+
       loadState();
       renderAll();
     })();
   </script>
+  <!-- Assign Modal -->
+  <div class="modal-overlay" id="assign-modal" style="display:none;">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>تعيين الاختبار لمجموعة</h3>
+        <button type="button" class="close-modal"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="field-group">
+          <label class="field-label">اختر المجموعة</label>
+          <select id="assign-group-select" class="input-control">
+             <option value="">جارٍ التحميل...</option>
+          </select>
+        </div>
+        <div class="field-group">
+          <label class="field-label">تاريخ الاستحقاق (اختياري)</label>
+          <input type="datetime-local" id="assign-due-date" class="input-control">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn--ghost close-modal-btn">إلغاء</button>
+        <button type="button" class="btn btn--primary" id="confirm-assign-btn">تعيين</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Share Smart Modal -->
+  <div class="modal-overlay" id="share-smart-modal" style="display:none;">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>مشاركة الاختبار</h3>
+        <button type="button" class="close-modal"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="share-options-grid">
+           <button class="share-option-card" id="share-public-btn">
+             <div class="icon"><i class="fas fa-globe"></i></div>
+             <div class="text">
+               <h4>بنك الأسئلة العام</h4>
+               <p>إتاحة الاختبار لجميع المعلمين</p>
+             </div>
+             <div class="status-indicator" id="public-status-ind"></div>
+           </button>
+           
+           <button class="share-option-card" id="share-link-btn">
+             <div class="icon"><i class="fas fa-link"></i></div>
+             <div class="text">
+               <h4>نسخ الرابط</h4>
+               <p>رابط مباشر للمعاينه</p>
+             </div>
+           </button>
+
+           <button class="share-option-card" id="share-colleague-btn">
+             <div class="icon"><i class="fas fa-school"></i></div>
+             <div class="text">
+               <h4>معلم في المدرسة</h4>
+               <p>مشاركة نسخة مع زميل</p>
+             </div>
+           </button>
+        </div>
+        
+        <!-- Sub-form for colleague share (hidden by default) -->
+        <div id="colleague-share-form" style="display:none; margin-top:1rem; padding-top:1rem; border-top:1px solid #eee;">
+           <label class="field-label">اختر المعلم:</label>
+           <select id="share-teacher-select" class="input-control" style="margin-bottom:0.5rem;"></select>
+           <button type="button" class="btn btn--primary btn--sm" id="confirm-colleague-share" style="width:100%">إرسال</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <style>
+    .share-options-grid { display: grid; gap: 1rem; }
+    .share-option-card {
+      display: flex; align-items: center; gap: 1rem;
+      padding: 1rem; border: 1px solid #eee; border-radius: 8px;
+      background: white; cursor: pointer; text-align: right; width: 100%;
+      transition: all 0.2s;
+    }
+    .share-option-card:hover { border-color: var(--color-primary-500); background: var(--color-primary-50); }
+    .share-option-card .icon {
+      width: 40px; height: 40px; background: var(--color-gray-100); border-radius: 50%;
+      display: flex; align-items: center; justify-content: center; color: var(--color-primary-600); font-size: 1.2rem;
+    }
+    .share-option-card h4 { margin: 0 0 0.25rem 0; font-size: 0.95rem; font-weight: bold; }
+    .share-option-card p { margin: 0; font-size: 0.8rem; color: var(--color-gray-500); }
+  </style>
+
 </body>
 </html>

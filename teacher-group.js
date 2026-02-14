@@ -733,6 +733,21 @@
   modalOverlay.addEventListener('click', function (e) { if (e.target === modalOverlay) closeModal(); });
   groupForm.addEventListener('submit', saveGroup);
 
+  function applyLanguage(lang) {
+    var nodes = document.querySelectorAll('[data-i18n]');
+    for (var i = 0; i < nodes.length; i++) {
+       // Simple data-i18n check could be added here if needed, 
+       // but teacher-group.html labels are mostly static for now.
+       // We'll just ensure the page respects the language change event.
+    }
+  }
+
+  document.addEventListener('mitests:languagechange', function (e) {
+    applyLanguage(e.detail.lang || 'ar');
+    renderGroups();
+    renderDetails();
+  });
+
   normalizeData();
   syncSchoolStudents();
   cleanOrphans();

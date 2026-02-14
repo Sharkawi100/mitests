@@ -110,6 +110,38 @@
         mainContent.classList.toggle('main-content--expanded');
       }
     });
+
+    // --- Mobile Toggle Integration ---
+    var navbar = document.querySelector('.navbar');
+    if (navbar && !document.querySelector('.mobile-nav-toggle')) {
+      var mobileBtn = document.createElement('button');
+      mobileBtn.className = 'mobile-nav-toggle';
+      mobileBtn.innerHTML = '<i class="fas fa-bars"></i>';
+      mobileBtn.setAttribute('aria-label', 'Toggle navigation');
+
+      // Add to navbar (start)
+      navbar.insertBefore(mobileBtn, navbar.firstChild);
+
+      // Create backdrop
+      var backdrop = document.createElement('div');
+      backdrop.className = 'sidebar-backdrop';
+      document.body.appendChild(backdrop);
+
+      function toggleMobileMenu() {
+        sidebar.classList.toggle('sidebar--mobile-open');
+        backdrop.classList.toggle('active');
+        // Prevent body scroll when menu is open
+        document.body.style.overflow = sidebar.classList.contains('sidebar--mobile-open') ? 'hidden' : '';
+      }
+
+      mobileBtn.addEventListener('click', toggleMobileMenu);
+      backdrop.addEventListener('click', toggleMobileMenu);
+    // Fix jerky transition on load
+    sidebar.classList.add('no-transition');
+    setTimeout(function () {
+      sidebar.classList.remove('no-transition');
+    }, 100);
+    }
   }
 
 
