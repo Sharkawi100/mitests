@@ -1,4 +1,4 @@
-# Mitests.com - Requirement Analysis (RA) v2.8
+# Mitests.com - Requirement Analysis (RA) v2.9
 
 ## 1) مقدمة ورؤية المنتج
 Mitests هي منصة تقييم تعليمي مدعومة بالذكاء الاصطناعي، تهدف إلى تحويل الاختبار من عبء تشغيلي إلى أداة تعلم قابلة للقياس.
@@ -52,6 +52,8 @@ Mitests هي منصة تقييم تعليمي مدعومة بالذكاء الا
 - `admin-plans.html`: الباقات والخطط.
 - `admin-schools.html`: إدارة المدارس.
 - `admin-settings.html`: إعدادات إدارية عامة.
+- `admin-notifications.html`: الإشعارات الإدارية.
+- `admin-whitelabel.html`: نقل الهوية المؤسسية.
 - `admin-grades-catalog.html`: كتالوج المراحل.
 - `admin-subjects-catalog.html`: كتالوج المواد.
 - `admin-profile.html`: ملف المدير.
@@ -63,7 +65,7 @@ Mitests هي منصة تقييم تعليمي مدعومة بالذكاء الا
 - `school-users-teachers.html`: إدارة المعلمين.
 - `school-users-students.html`: إدارة الطلاب.
 - `school-users-staff.html`: إدارة الموظفين.
-- `school-qa-review.html`: مراجعة الاختبارات.
+- `school-qa-review.html` (Legacy Redirect): تحويل إلى `school-approval.html` للتوافق الخلفي.
 - `school-exam-comparison.html`: مقارنة الاختبارات والمجموعات.
 - `school-approval.html`: اعتماد المحتوى.
 - `school-communications.html`: التواصل والإشعارات.
@@ -206,6 +208,8 @@ Mitests هي منصة تقييم تعليمي مدعومة بالذكاء الا
 - دعم مستوى صعوبة `Mixed` (مختلط) يوزع الأسئلة بين Easy/Medium/Hard.
 - الحالة الافتراضية للاختبار عند الإنشاء هي `Draft` (مسودة).
 - عند Generate: يظهر Processing Overlay ثم انتقال لصفحة `Answer Key Preview` (ليس Dashboard مباشرة).
+- صفحة `Answer Key Preview` تسمح بتعديل معلومات الاختبار (العنوان، التصنيف، التوقيت، التعليمات) قبل النشر.
+- يمكن تعديل كل سؤال يدويًا أو إعادة توليده عبر Prompt تعليق أعلى السؤال.
 
 #### 5.7.2 تحليل الملف عبر مزود AI واقتراح خطة المعالجة
 - عند رفع ملف في معالج الاختبار، يقوم النظام بتحليل الملف عبر مزود AI.
@@ -240,6 +244,13 @@ Mitests هي منصة تقييم تعليمي مدعومة بالذكاء الا
   - تظهر رسالة "Locked" ويتم تعطيل التعديل على الأسئلة والإعدادات.
 - **الجدولة:** منع اختيار تاريخ ماضي.
 
+#### 5.7.5 مرحلة المعاينة والتحرير بعد التوليد (Post-Generate Preview)
+- بعد التوليد الناجح لا يتم إرسال المعلم مباشرة إلى لوحة التحكم؛ يتم فتح معاينة تفاعلية للاختبار.
+- المعاينة تعرض بيانات الاختبار + قائمة الأسئلة + الإجابات النموذجية في شاشة واحدة.
+- يوجد فوق كل سؤال حقل Prompt قصير لإعادة الصياغة/إعادة التوليد مع الحفاظ على مستوى الصعوبة والنمط.
+- يدعم كل سؤال إجراءات: قبول، تعديل يدوي، إعادة توليد جزئي، أو إعادة توليد كاملة لنص السؤال.
+- لا يتم نشر النسخة النهائية إلا بعد تأكيد المعلم على نسخة المراجعة.
+
 ### 5.8 التقييم والتقرير
 - `exam-assessment.html` يعرض:
   - AI Suggested Grade مقابل Teacher Confirmed Grade.
@@ -256,6 +267,7 @@ Mitests هي منصة تقييم تعليمي مدعومة بالذكاء الا
   - `student`
   - `group`
 - Finalize ينقل إلى `exam-report.html`.
+- `exam-report.html` يستهلك سياق `examId/kind/title/group/student` ويعرض بيانات التقرير حسب هذا السياق.
 
 ### 5.9 تجربة الطالب داخل الاختبار
 - Focus Mode بدون Sidebar.
@@ -378,7 +390,9 @@ Mitests هي منصة تقييم تعليمي مدعومة بالذكاء الا
 - [ ] رفع الملف في المعالج يعرض اقتراحات AI لخطة المعالجة (DB/Similar/Outcomes/...).
 - [ ] دعم وضع "اختبار بدون نص" كتوليد AI مباشر بدل الوضع اليدوي.
 - [ ] لوحة المدرسة تدعم مقارنة عنصرين أو أكثر في صفحة مستقلة (اختبارات/مجموعات/أزواج).
+- [ ] بعد التوليد تظهر معاينة تحريرية: تعديل بيانات الاختبار + تعديل/إعادة توليد كل سؤال عبر Prompt.
+- [ ] روابط التقرير تفتح `exam-report.html` بسياق العنصر الفعلي (examId/kind/title/group/student) بدل تقرير عام.
 
 ---
 
-**Document Status:** Updated (v2.8) - Enhanced Exam Wizard (Draft status, Question Types, Preview flow) and Group Resources (Attachments, YouTube).
+**Document Status:** Updated (v2.9) - Enhanced Exam Wizard (Draft status, Post-generate Preview/Edit, per-question regenerate prompts), Group Resources (Attachments + YouTube), and context-aware report routing.

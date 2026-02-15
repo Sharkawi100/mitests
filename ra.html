@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Mitests.com - Requirement Analysis (RA) v2.8</title>
+  <title>Mitests.com - Requirement Analysis (RA) v2.9</title>
 
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -465,6 +465,274 @@
       a{ text-decoration:none }
     }
   </style>
+
+  <style>
+    /* Modern RA visual refresh (non-functional). */
+    :root{
+      --bg:#f4f7fb;
+      --card:#ffffff;
+      --card2:#f8fbff;
+      --muted:#526079;
+      --text:#0f1f3d;
+      --line: rgba(16,32,64,.12);
+      --accent:#0066ff;
+      --accent2:#0ea5a5;
+      --warn:#e11d48;
+      --ok:#16a34a;
+      --shadow: 0 18px 50px rgba(15,31,61,.12);
+      --radius: 20px;
+      --font-arabic: 'Tajawal', 'IBM Plex Sans Arabic', sans-serif;
+      --font-primary: 'Tajawal', 'IBM Plex Sans Arabic', sans-serif;
+    }
+
+    body{
+      background:
+        radial-gradient(900px 500px at 88% -5%, rgba(0,102,255,.12), transparent 64%),
+        radial-gradient(700px 420px at 8% 16%, rgba(14,165,165,.10), transparent 66%),
+        radial-gradient(980px 550px at 50% 110%, rgba(148,163,184,.18), transparent 72%),
+        var(--bg);
+      color: var(--text);
+    }
+
+    .hero,
+    .side,
+    .content{
+      border-color: var(--line);
+      background: var(--card);
+      box-shadow: var(--shadow);
+    }
+
+    .hero{
+      background:
+        linear-gradient(145deg, rgba(255,255,255,.98), rgba(245,249,255,.96));
+    }
+
+    .hero:before{
+      background:
+        radial-gradient(500px 340px at 92% 8%, rgba(0,102,255,.14), transparent 62%),
+        radial-gradient(500px 340px at 8% 90%, rgba(14,165,165,.12), transparent 62%);
+      filter: blur(32px);
+    }
+
+    .title h1{
+      color:#0f1f3d;
+      text-shadow: none;
+    }
+
+    .title .sub{
+      color:#4b5b77;
+    }
+
+    .logo{
+      border-color: rgba(15,31,61,.16);
+      background: linear-gradient(135deg, #0057d9, #12b3ad);
+      box-shadow: 0 12px 24px rgba(0,102,255,.28);
+    }
+
+    .badge{
+      color:#4b5b77;
+      background: rgba(239,246,255,.8);
+      border-color: rgba(15,31,61,.10);
+    }
+
+    .search input,
+    .btn{
+      background:#f8fbff;
+      color:#0f1f3d;
+      border-color: rgba(15,31,61,.15);
+    }
+
+    .search input::placeholder{
+      color:#7a889f;
+    }
+
+    .btn:hover{
+      border-color: rgba(0,102,255,.45);
+      background:#eff6ff;
+    }
+
+    .btn.primary{
+      background: linear-gradient(130deg, #0057d9, #10b1ad);
+      color:#f8fbff;
+    }
+
+    .content-top{
+      background: linear-gradient(180deg, #f8fbff, #ffffff);
+    }
+
+    .chip{
+      color:#4b5b77;
+      background:#f3f8ff;
+      border-color: rgba(15,31,61,.10);
+    }
+
+    .chip strong{
+      color:#0f1f3d;
+    }
+
+    .toc a{
+      color:#1f355d;
+    }
+
+    .toc a:hover{
+      background:#f3f8ff;
+      border-color: rgba(15,31,61,.10);
+    }
+
+    .toc a.active{
+      background:#e8f2ff;
+      border-color: rgba(0,102,255,.28);
+      color:#123d74;
+      font-weight:700;
+    }
+
+    .pill{
+      color:#1f355d;
+      border-color: rgba(0,102,255,.25);
+      background: rgba(0,102,255,.08);
+    }
+
+    .section{
+      border-bottom-color: rgba(15,31,61,.10);
+    }
+
+    .section h2{
+      color:#0f1f3d;
+    }
+
+    .section h3{
+      color:#1e3258;
+    }
+
+    .section p,
+    li{
+      color:#253b61;
+    }
+
+    li::marker{
+      color:#0ea5a5;
+    }
+
+    .muted{
+      color:#55647e;
+    }
+
+    .quote,
+    .callout,
+    details,
+    .table{
+      border-color: rgba(15,31,61,.12);
+      background:#f8fbff;
+    }
+
+    .quote:before{
+      color: rgba(0,102,255,.25);
+    }
+
+    .callout .k{
+      color:#55647e;
+    }
+
+    .callout .v{
+      color:#1c345c;
+    }
+
+    summary{
+      color:#1a3055;
+    }
+
+    summary .tag{
+      color:#0f3359;
+      border-color: rgba(0,102,255,.30);
+      background: rgba(0,102,255,.08);
+    }
+
+    .table th{
+      background:#eef5ff;
+      color:#1a3055;
+    }
+
+    .table td{
+      color:#294168;
+    }
+
+    .table th,
+    .table td{
+      border-bottom-color: rgba(15,31,61,.10);
+    }
+
+    code,
+    .code{
+      background: rgba(0,102,255,.08);
+      border-color: rgba(0,102,255,.20);
+      color:#144071;
+    }
+
+    .kbd{
+      background:#eef5ff;
+      border-color: rgba(15,31,61,.12);
+      color:#1a3055;
+    }
+
+    .foot{
+      color:#55647e;
+    }
+
+    @media (prefers-reduced-motion: no-preference){
+      .hero,
+      .side,
+      .content{
+        animation: ra-fade-up 420ms ease both;
+      }
+
+      .side{ animation-delay: 70ms; }
+      .content{ animation-delay: 110ms; }
+    }
+
+    @keyframes ra-fade-up{
+      from{
+        opacity:0;
+        transform: translateY(10px);
+      }
+      to{
+        opacity:1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width: 980px){
+      .hero-inner{
+        align-items: stretch;
+      }
+
+      .badges{
+        margin-inline-start: 0;
+        justify-content: flex-start;
+      }
+
+      .title h1{
+        font-size: 20px;
+      }
+    }
+
+    @media print{
+      body{
+        background:#fff !important;
+      }
+
+      .hero,
+      .side,
+      .content,
+      .quote,
+      .callout,
+      details,
+      .table{
+        background:#fff !important;
+        border-color:#d8e0ec !important;
+        box-shadow: none !important;
+      }
+    }
+  </style>
 </head>
 
 <body class="rtl">
@@ -502,12 +770,12 @@
           <div class="logo">MI</div>
           <div class="title">
             <h1>Mitests.com — Requirement Analysis (RA)</h1>
-            <div class="sub">الإصدار <b>v2.8</b> • وثيقة تحليل المتطلبات • Demo متعدد الأدوار • ar/he/en + RTL/LTR</div>
+            <div class="sub">الإصدار <b>v2.9</b> • وثيقة تحليل المتطلبات • Demo متعدد الأدوار • ar/he/en + RTL/LTR</div>
           </div>
         </div>
 
         <div class="badges">
-          <div class="badge"><span class="dot purple"></span> Document Status: <b>Updated</b></div>
+          <div class="badge"><span class="dot purple"></span> Document Status: <b>Updated v2.9</b></div>
           <div class="badge"><span class="dot"></span> Tenant-aware Storage</div>
           <div class="badge"><span class="dot warn"></span> Exam Scheduling Soft Warning</div>
         </div>
@@ -558,7 +826,7 @@
       <main class="content">
         <div class="content-top">
           <div class="chips">
-            <div class="chip">المستند: <strong>RA v2.8</strong></div>
+            <div class="chip">المستند: <strong>RA v2.9</strong></div>
             <div class="chip">اللغة الافتراضية: <strong>العربية</strong></div>
             <div class="chip">التنقل: <strong>صفحات مستقلة</strong> بدون <span class="code">#</span></div>
           </div>
@@ -658,6 +926,8 @@
               <li><code>admin-plans.html</code> — الباقات والخطط</li>
               <li><code>admin-schools.html</code> — إدارة المدارس</li>
               <li><code>admin-settings.html</code> — إعدادات إدارية عامة</li>
+              <li><code>admin-notifications.html</code> — الإشعارات الإدارية</li>
+              <li><code>admin-whitelabel.html</code> — نقل الهوية المؤسسية</li>
               <li><code>admin-grades-catalog.html</code> — كتالوج المراحل</li>
               <li><code>admin-subjects-catalog.html</code> — كتالوج المواد</li>
               <li><code>admin-profile.html</code> — ملف المدير</li>
@@ -673,7 +943,7 @@
               <li><code>school-users-teachers.html</code> — إدارة المعلمين</li>
               <li><code>school-users-students.html</code> — إدارة الطلاب</li>
               <li><code>school-users-staff.html</code> — إدارة الموظفين</li>
-              <li><code>school-qa-review.html</code> — مراجعة الاختبارات</li>
+              <li><a href="school-qa-review.html"><code>school-qa-review.html</code></a> (Legacy Redirect) — تحويل إلى <code>school-approval.html</code> للتوافق الخلفي</li>
               <li><code>school-exam-comparison.html</code> — مقارنة الاختبارات والمجموعات</li>
               <li><code>school-approval.html</code> — اعتماد المحتوى</li>
               <li><code>school-communications.html</code> — التواصل والإشعارات</li>
@@ -851,6 +1121,8 @@
               <li>دعم صعوبة <code>Mixed</code> لتوزيع Easy/Medium/Hard.</li>
               <li>الحالة الافتراضية عند الإنشاء: <code>Draft</code>.</li>
               <li>عند Generate: Processing Overlay ثم انتقال إلى <code>Answer Key Preview</code>.</li>
+              <li>صفحة <code>Answer Key Preview</code> تسمح بتعديل معلومات الاختبار (العنوان، التصنيف، التوقيت، التعليمات) قبل النشر.</li>
+              <li>المعلم يستطيع تعديل الأسئلة يدويًا أو إعادة توليد كل سؤال عبر Prompt تعليق أعلى السؤال.</li>
             </ul>
 
             <h3>5.7.2 تحليل الملف عبر مزود AI واقتراح خطة المعالجة</h3>
@@ -879,6 +1151,15 @@
               <li>بعد أول Submission: قفل الاختبار (Locked) وتعطيل التعديل.</li>
               <li>الجدولة: منع اختيار تاريخ ماضي.</li>
             </ul>
+
+            <h3>5.7.5 مرحلة المعاينة والتحرير بعد التوليد (Post-Generate Preview)</h3>
+            <ul>
+              <li>بعد التوليد الناجح لا يتم إرسال المعلم مباشرة إلى لوحة التحكم؛ يتم فتح معاينة تفاعلية للاختبار.</li>
+              <li>المعاينة تعرض بيانات الاختبار + قائمة الأسئلة + الإجابات النموذجية في شاشة واحدة.</li>
+              <li>يوجد فوق كل سؤال حقل Prompt قصير لإعادة الصياغة/إعادة التوليد مع الحفاظ على مستوى الصعوبة والنمط.</li>
+              <li>يدعم كل سؤال إجراءات: قبول، تعديل يدوي، إعادة توليد جزئي، أو إعادة توليد كاملة لنص السؤال.</li>
+              <li>لا يتم نشر النسخة النهائية إلا بعد تأكيد المعلم على نسخة المراجعة.</li>
+            </ul>
           </details>
 
           <details>
@@ -889,6 +1170,7 @@
               <li>داخل ملاحظة المعلم: توليد AI (ملخص/نصائح/توصيات).</li>
               <li>تمرير سياق العنصر: <code>kind</code>, <code>title</code>, <code>student</code>, <code>group</code>.</li>
               <li>Finalize ينقل إلى <code>exam-report.html</code>.</li>
+              <li><code>exam-report.html</code> يستهلك سياق <code>examId/kind/title/group/student</code> ويعرض التقرير حسب العنصر الفعلي.</li>
             </ul>
           </details>
 
@@ -1032,56 +1314,98 @@
             <div class="check"><div class="box"></div><div>رفع الملف يعرض اقتراحات AI لخطة المعالجة.</div></div>
             <div class="check"><div class="box"></div><div>AI Direct: اختبار بدون نص كتوليد مباشر.</div></div>
             <div class="check"><div class="box"></div><div>مقارنة 2+ عناصر في صفحة مستقلة (اختبارات/مجموعات/أزواج).</div></div>
+            <div class="check"><div class="box"></div><div>بعد التوليد تظهر معاينة تحريرية: تعديل بيانات الاختبار + تعديل/إعادة توليد كل سؤال عبر Prompt.</div></div>
+            <div class="check"><div class="box"></div><div>روابط التقرير تفتح <code>exam-report.html</code> بسياق العنصر الفعلي (examId/kind/title/group/student) بدل تقرير عام.</div></div>
           </div>
 
           <div class="quote" style="margin-top:14px">
-            <b>Document Status:</b> Updated (v2.8) — Enhanced Exam Wizard (Draft status, Question Types, Preview flow) and Group Resources (Attachments, YouTube).
+            <b>Document Status:</b> Updated (v2.9) — Added post-generate exam preview/edit controls, per-question regenerate prompts, Group Resources (Attachments + YouTube), and context-aware report routing.
           </div>
         </section>
 
         <div class="foot">
-          © Mitests.com — Requirement Analysis (RA) v2.8 • Designed for readable web + print
+          © Mitests.com — Requirement Analysis (RA) v2.9 • Designed for readable web + print
         </div>
       </main>
     </div>
   </div>
 
   <script>
-    // --- Search in TOC (simple filter) ---
-    const q = document.getElementById('q');
     const toc = document.getElementById('toc');
-    const links = Array.from(toc.querySelectorAll('a'));
-    q.addEventListener('input', () => {
-      const s = q.value.trim().toLowerCase();
-      links.forEach(a => {
-        const txt = a.textContent.toLowerCase();
-        a.style.display = (!s || txt.includes(s)) ? 'flex' : 'none';
+    const q = document.getElementById('q');
+    const tocLinks = toc ? Array.from(toc.querySelectorAll('a')) : [];
+    const detailBlocks = Array.from(document.querySelectorAll('details'));
+    const expandAllBtn = document.getElementById('expandAll');
+    const collapseAllBtn = document.getElementById('collapseAll');
+    const printBtn = document.getElementById('print');
+
+    // --- Search in TOC (simple filter) ---
+    if (q && tocLinks.length) {
+      q.addEventListener('input', () => {
+        const term = q.value.trim().toLowerCase();
+        tocLinks.forEach((link) => {
+          const label = link.textContent.toLowerCase();
+          link.style.display = (!term || label.includes(term)) ? 'flex' : 'none';
+        });
       });
-    });
+    }
 
     // --- Expand/Collapse details ---
-    const allDetails = () => Array.from(document.querySelectorAll('details'));
-    document.getElementById('expandAll').addEventListener('click', () => {
-      allDetails().forEach(d => d.open = true);
-    });
-    document.getElementById('collapseAll').addEventListener('click', () => {
-      allDetails().forEach(d => d.open = false);
-      // keep first-level key sections visible in view (optional)
-    });
+    if (expandAllBtn) {
+      expandAllBtn.addEventListener('click', () => {
+        detailBlocks.forEach((detail) => { detail.open = true; });
+      });
+    }
+    if (collapseAllBtn) {
+      collapseAllBtn.addEventListener('click', () => {
+        detailBlocks.forEach((detail) => { detail.open = false; });
+      });
+    }
 
     // --- Print ---
-    document.getElementById('print').addEventListener('click', () => window.print());
+    if (printBtn) {
+      printBtn.addEventListener('click', () => window.print());
+    }
 
-    // --- Smooth anchor scroll (no #section navigation in app routing; this is doc-only) ---
-    document.querySelectorAll('.toc a').forEach(a => {
-      a.addEventListener('click', (e) => {
-        e.preventDefault();
-        const id = a.getAttribute('href').slice(1);
-        const el = document.getElementById(id);
-        if (!el) return;
-        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    // --- Smooth anchor scroll (doc-only), + active section highlight ---
+    if (tocLinks.length) {
+      tocLinks.forEach((link) => {
+        link.addEventListener('click', (event) => {
+          event.preventDefault();
+          const id = link.getAttribute('href').slice(1);
+          const section = document.getElementById(id);
+          if (!section) return;
+          section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
       });
-    });
+
+      if ('IntersectionObserver' in window) {
+        const sectionMap = new Map();
+        tocLinks.forEach((link) => {
+          const id = link.getAttribute('href').slice(1);
+          const section = document.getElementById(id);
+          if (section) {
+            sectionMap.set(section, link);
+          }
+        });
+
+        const observer = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              const targetLink = sectionMap.get(entry.target);
+              if (!targetLink) return;
+              if (entry.isIntersecting) {
+                tocLinks.forEach((item) => item.classList.remove('active'));
+                targetLink.classList.add('active');
+              }
+            });
+          },
+          { rootMargin: '-30% 0px -55% 0px', threshold: 0.01 }
+        );
+
+        sectionMap.forEach((_, section) => observer.observe(section));
+      }
+    }
   </script>
   </div>
   <script src="shared-layout.js"></script>

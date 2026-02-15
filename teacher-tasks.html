@@ -388,6 +388,7 @@
             statusText = 'بانتظار تسليم الطلاب';
           }
           var href = 'exam-assessment.html?kind=' + encodeURIComponent(item.kind || 'exam')
+            + '&examId=' + encodeURIComponent(item.examId || item.id || '')
             + '&title=' + encodeURIComponent(item.title || '')
             + '&student=' + encodeURIComponent(item.studentName || '')
             + '&group=' + encodeURIComponent(groupName(item.groupCode));

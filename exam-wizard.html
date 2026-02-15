@@ -18,13 +18,22 @@
     .checks{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--space-2)}.checks label{border:1px solid var(--color-gray-200);padding:var(--space-2);border-radius:var(--border-radius-sm);display:flex;gap:var(--space-2);align-items:center}.checks input,.switch input{accent-color:var(--color-teacher)}.toggle{display:flex;align-items:center;justify-content:space-between;padding:var(--space-3);background:var(--color-primary-100);border:1px solid var(--color-primary-300);border-radius:var(--border-radius-md)}
     .summary{border:1px solid var(--color-gray-200);border-radius:var(--border-radius-md);overflow:hidden}.row{display:grid;grid-template-columns:180px 1fr;padding:var(--space-2) var(--space-3);border-bottom:1px solid var(--color-gray-100)}.row:last-child{border-bottom:0}.row dt{color:var(--color-gray-500);font-weight:600}.row dd{margin:0}.actions{display:flex;justify-content:space-between;gap:var(--space-3);margin-top:var(--space-2)}.end{display:flex;gap:var(--space-2)}.gen{background:linear-gradient(135deg,var(--color-teacher),#4c6fd2);border-color:var(--color-teacher);color:var(--color-white);box-shadow:0 0 0 rgba(76,111,210,.45);animation:glow 2s infinite}.gen:hover{background:linear-gradient(135deg,var(--color-primary-600),var(--color-primary-500));color:var(--color-white)}@keyframes glow{70%{box-shadow:0 0 0 14px rgba(76,111,210,0)}}
     .ov{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;z-index:900}.ov.on{display:flex}.box{background:var(--color-white);border-radius:var(--border-radius-lg);padding:var(--space-6);text-align:center;min-width:270px}.spin{width:48px;height:48px;margin:0 auto var(--space-3);border:4px solid var(--color-primary-200);border-top-color:var(--color-teacher);border-radius:50%;animation:sp .9s linear infinite}@keyframes sp{to{transform:rotate(360deg)}}
-    @media (max-width:1023px){body.rtl .main-content .teacher-navbar{right:var(--sidebar-collapsed-width)}body.ltr .main-content .teacher-navbar{left:var(--sidebar-collapsed-width)}body.rtl .main-content{margin-right:var(--sidebar-collapsed-width)}body.ltr .main-content{margin-left:var(--sidebar-collapsed-width)}.sidebar{width:var(--sidebar-collapsed-width)}.sidebar .sidebar__brand-text,.sidebar .sidebar__item span,.sidebar .sidebar__toggle span{display:none}.grid2,.srcs,.checks{grid-template-columns:1fr}.steps{grid-template-columns:repeat(2,1fr)}}@media (max-width:767px){.sidebar{display:none}body.rtl .main-content,body.ltr .main-content{margin:0}body.rtl .main-content .teacher-navbar,body.ltr .main-content .teacher-navbar{right:0;left:0}.wizard-main{padding-inline:var(--space-4)}.actions,.end{flex-direction:column}.actions .btn,.end .btn{width:100%}}
+    @media (max-width:1023px){body.rtl .main-content .teacher-navbar{right:var(--sidebar-collapsed-width)}body.ltr .main-content .teacher-navbar{left:var(--sidebar-collapsed-width)}body.rtl .main-content{margin-right:var(--sidebar-collapsed-width)}body.ltr .main-content{margin-left:var(--sidebar-collapsed-width)}.sidebar{width:var(--sidebar-collapsed-width)}.sidebar .sidebar__brand-text,.sidebar .sidebar__item span,.sidebar .sidebar__toggle span{display:none}.grid2,.srcs,.checks{grid-template-columns:1fr}.steps{grid-template-columns:repeat(2,1fr)}}@media (max-width:767px){.sidebar{display:none}body.rtl .main-content,body.ltr .main-content{margin:0}body.rtl .main-content .teacher-navbar,body.ltr .main-content .teacher-navbar{right:0;left:0}.wizard-main{padding-inline:var(--space-4)}.actions,.end{flex-direction:column}.actions .btn,.end .btn{width:100%}.actions{position:sticky;bottom:calc(env(safe-area-inset-bottom,0px) + 8px);background:rgba(255,255,255,.96);backdrop-filter:blur(6px);border:1px solid var(--color-primary-200);border-radius:12px;padding:var(--space-3);z-index:25}}
     .breadcrumb{font-size:var(--font-size-sm);color:var(--color-gray-500);display:flex;align-items:center;gap:var(--space-2)}.breadcrumb a{color:var(--color-teacher);text-decoration:none}.breadcrumb a:hover{text-decoration:underline}
     .file-preview{display:flex;align-items:center;gap:var(--space-3);padding:var(--space-3);background:var(--color-primary-100);border:1px solid var(--color-primary-300);border-radius:var(--border-radius-sm);margin-top:var(--space-2)}.file-preview i{color:var(--color-teacher);font-size:1.2rem}.file-preview .file-name{flex:1;font-size:var(--font-size-sm);font-weight:600;color:var(--color-gray-800)}.file-preview .file-remove{background:none;border:none;color:var(--color-admin);cursor:pointer;font-size:var(--font-size-lg);padding:var(--space-1)}
     .drop.drag-over{border-color:var(--color-teacher);background:rgba(53,86,178,.08)}.drop{cursor:pointer}
     .file-ai-panel{margin-top:var(--space-3);border:1px solid var(--color-primary-300);border-radius:var(--border-radius-md);padding:var(--space-3);background:rgba(53,86,178,.04);display:grid;gap:var(--space-2)}.file-ai-panel strong{color:var(--color-teacher)}.file-ai-list{margin:0;padding-inline-start:1.2rem;display:grid;gap:4px}.file-ai-status{font-size:var(--font-size-sm);color:var(--color-gray-700)}.field-help{font-size:var(--font-size-xs);color:var(--color-gray-500)}.no-text-box{border:1px solid var(--color-primary-300);border-radius:var(--border-radius-md);background:var(--color-primary-100);padding:var(--space-4);display:grid;gap:var(--space-3)}
     .field.error input,.field.error select,.field.error textarea{border-color:var(--color-admin);box-shadow:0 0 0 3px rgba(239,93,96,.12)}.field .error-msg{color:var(--color-admin);font-size:var(--font-size-xs);margin-top:2px;display:none}.field.error .error-msg{display:block}
     .success-box{min-width:320px}.success-icon{font-size:3rem;color:#16a34a;margin-bottom:var(--space-3)}.success-actions{display:flex;gap:var(--space-2);margin-top:var(--space-4);justify-content:center}
+    .wizard-toast{position:fixed;bottom:var(--space-5);inset-inline-start:50%;transform:translateX(-50%);background:#111827;color:var(--color-white);padding:var(--space-2) var(--space-4);border-radius:999px;box-shadow:var(--shadow-lg);font-size:var(--font-size-sm);z-index:1300;display:none}.wizard-toast.on{display:block}
+    .wizard-mode-bar{display:grid;gap:var(--space-2);margin-bottom:var(--space-4);padding:var(--space-3);border:1px solid var(--color-primary-300);border-radius:var(--border-radius-md);background:rgba(53,86,178,.05)}.mode-switch{display:inline-flex;gap:var(--space-1);background:var(--color-white);border:1px solid var(--color-primary-200);padding:4px;border-radius:999px;width:max-content}.mode-btn{border:0;background:transparent;padding:8px 14px;border-radius:999px;font-weight:700;color:var(--color-gray-600);cursor:pointer}.mode-btn.on{background:var(--color-teacher);color:var(--color-white)}.wizard-mode-help{margin:0;color:var(--color-gray-700);font-size:var(--font-size-sm)}
+    .preset-strip{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--space-2);margin-bottom:var(--space-3)}.preset-chip{border:1px solid var(--color-primary-200);background:var(--color-white);border-radius:var(--border-radius-md);padding:var(--space-2);text-align:start;cursor:pointer;display:grid;gap:2px}.preset-chip strong{color:var(--color-gray-900);font-size:var(--font-size-sm)}.preset-chip span{font-size:var(--font-size-xs);color:var(--color-gray-600)}.preset-chip.on{border-color:var(--color-teacher);background:rgba(53,86,178,.08);box-shadow:0 0 0 2px rgba(53,86,178,.12)}
+    .advanced-section{border:1px solid var(--color-primary-200);border-radius:var(--border-radius-md);padding:var(--space-3);background:rgba(53,86,178,.04);display:grid;gap:var(--space-3)}.advanced-section summary{cursor:pointer;font-weight:700;color:var(--color-teacher)}.advanced-section[open] summary{margin-bottom:var(--space-1)}.advanced-grid{padding-top:var(--space-1)}.ai-step-note{margin:0 0 var(--space-2);color:var(--color-gray-700);font-size:var(--font-size-sm)}
+    .steps .step.step--hidden{display:none}
+    .live-summary{margin-top:var(--space-4);padding:var(--space-4);border:1px solid var(--color-primary-300);border-radius:var(--border-radius-md);background:linear-gradient(145deg,rgba(53,86,178,.08),rgba(255,255,255,.98));display:grid;gap:var(--space-3)}.live-summary__head{display:flex;justify-content:space-between;align-items:center;gap:var(--space-2)}.live-summary__head h3{margin:0;font-size:var(--font-size-lg)}.live-summary__status{font-size:var(--font-size-xs);color:var(--color-gray-600)}.live-summary__grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--space-2)}.live-summary__item{padding:var(--space-2);background:var(--color-white);border:1px solid var(--color-primary-200);border-radius:var(--border-radius-sm);display:grid;gap:2px}.live-summary__item span{font-size:var(--font-size-xs);color:var(--color-gray-500)}.live-summary__item strong{font-size:var(--font-size-sm);color:var(--color-gray-900)}.live-summary__estimate{margin:0;font-size:var(--font-size-sm);color:var(--color-gray-700)}
+    .drop.drop-error{border-color:var(--color-admin);background:rgba(239,93,96,.08)}
+    @media (max-width:1023px){.preset-strip,.live-summary__grid{grid-template-columns:1fr 1fr}}
+    @media (max-width:767px){.mode-switch{width:100%;display:grid;grid-template-columns:1fr 1fr}.preset-strip,.live-summary__grid{grid-template-columns:1fr}.live-summary__head{flex-direction:column;align-items:flex-start}}
   </style>
 </head>
 <body class="rtl">
@@ -75,32 +84,50 @@
         <div class="steps">
           <div class="step active" data-si="1"><b>1</b><span>معلومات عامة</span></div>
           <div class="step" data-si="2"><b>2</b><span>مصدر المحتوى</span></div>
-          <div class="step" data-si="3"><b>3</b><span>هيكلة AI</span></div>
+          <div class="step" data-si="3"><b>3</b><span>خيارات متقدمة</span></div>
           <div class="step" data-si="4"><b>4</b><span>مراجعة وإنشاء</span></div>
+        </div>
+        <div class="wizard-mode-bar">
+          <div class="mode-switch" role="group" aria-label="نمط المعالج">
+            <button type="button" class="mode-btn on" data-mode="quick">إنشاء سريع</button>
+            <button type="button" class="mode-btn" data-mode="advanced">إنشاء متقدم</button>
+          </div>
+          <p class="wizard-mode-help" id="wizard-mode-help">الوضع السريع يقلل الحقول الإلزامية ويستخدم إعدادات ذكية جاهزة.</p>
         </div>
 
         <section class="panel active" data-sp="1">
           <h2>معلومات عامة</h2>
+          <div class="preset-strip" id="preset-strip">
+            <button type="button" class="preset-chip on" data-preset="standard" data-q="10" data-difficulty="mixed" data-duration="45" data-types="MC,Open-end,True/False"><strong>اختبار قياسي</strong><span>10 أسئلة - 45 دقيقة</span></button>
+            <button type="button" class="preset-chip" data-preset="quick_quiz" data-q="6" data-difficulty="easy" data-duration="20" data-types="MC,True/False"><strong>اختبار سريع</strong><span>6 أسئلة - 20 دقيقة</span></button>
+            <button type="button" class="preset-chip" data-preset="homework" data-q="8" data-difficulty="medium" data-duration="30" data-types="MC,Short Answer,Completion"><strong>واجب منزلي</strong><span>8 أسئلة - تركيز تطبيقي</span></button>
+            <button type="button" class="preset-chip" data-preset="challenge" data-q="12" data-difficulty="hard" data-duration="60" data-types="Open-end,MC,Matching"><strong>تحدي متقدم</strong><span>12 سؤالاً - صعوبة عالية</span></button>
+          </div>
           <div class="grid2">
             <div class="field full"><label for="et">عنوان الاختبار</label><input id="et" placeholder="مثال: اختبار اللغة الإنجليزية للصف التاسع"></div>
             <div class="field"><label for="ek">نوع التقييم</label><select id="ek"><option value="">اختر النوع</option><option value="exam">اختبار</option><option value="assignment">واجب</option></select></div>
             <div class="field"><label for="eg">الصف</label><select id="eg"><option value="">اختر الصف</option></select></div>
             <div class="field"><label for="es">المادة</label><select id="es"><option value="">اختر المادة</option></select></div>
-            <div class="field full">
-              <label>المهارات (اختيار متعدد)</label>
-              <div class="tags" id="skills">
-                <button type="button" class="tag" data-skill="القراءة الناقدة">القراءة الناقدة</button>
-                <button type="button" class="tag" data-skill="حل المشكلات">حل المشكلات</button>
-                <button type="button" class="tag" data-skill="تفكير تحليلي">تفكير تحليلي</button>
-                <button type="button" class="tag" data-skill="استخلاص النتائج">استخلاص النتائج</button>
-              </div>
-            </div>
-            <div class="field"><label for="eq">عدد الأسئلة</label><input id="eq" type="number" min="1" max="50" placeholder="مثال: 15"></div>
-            <div class="field"><label for="ed">مستوى الصعوبة</label><select id="ed"><option value="">اختر المستوى</option><option value="easy">سهل</option><option value="medium">متوسط</option><option value="hard">صعب</option><option value="mixed">مختلط</option></select></div>
-            <div class="field"><label for="edr">مدة الاختبار (بالدقائق)</label><input id="edr" type="number" min="5" max="180" placeholder="مثال: 45"></div>
             <div class="field"><label for="esd">تاريخ الاختبار</label><input id="esd" type="date"><small class="error-msg">يرجى تحديد تاريخ الاختبار</small></div>
             <div class="field"><label for="est">وقت البدء</label><input id="est" type="time"><small class="error-msg">يرجى تحديد وقت بدء الاختبار</small></div>
           </div>
+          <details class="advanced-section" id="general-advanced">
+            <summary>إعدادات متقدمة للأسئلة</summary>
+            <div class="grid2 advanced-grid">
+              <div class="field full">
+                <label>المهارات (اختيار متعدد)</label>
+                <div class="tags" id="skills">
+                  <button type="button" class="tag" data-skill="القراءة الناقدة">القراءة الناقدة</button>
+                  <button type="button" class="tag" data-skill="حل المشكلات">حل المشكلات</button>
+                  <button type="button" class="tag" data-skill="تفكير تحليلي">تفكير تحليلي</button>
+                  <button type="button" class="tag" data-skill="استخلاص النتائج">استخلاص النتائج</button>
+                </div>
+              </div>
+              <div class="field"><label for="eq">عدد الأسئلة</label><input id="eq" type="number" min="1" max="50" placeholder="مثال: 15"></div>
+              <div class="field"><label for="ed">مستوى الصعوبة</label><select id="ed"><option value="">اختر المستوى</option><option value="easy">سهل</option><option value="medium">متوسط</option><option value="hard">صعب</option><option value="mixed">مختلط</option></select></div>
+              <div class="field"><label for="edr">مدة الاختبار (بالدقائق)</label><input id="edr" type="number" min="5" max="180" placeholder="مثال: 45"></div>
+            </div>
+          </details>
         </section>
 
         <section class="panel" data-sp="2">
@@ -118,25 +145,31 @@
         </section>
 
         <section class="panel" data-sp="3">
-          <h2>هيكلة AI</h2>
-          <div class="field">
-            <label>اختيار أنواع الأسئلة</label>
-            <div class="checks">
-              <label><input type="checkbox" name="qt" value="MC" checked>MC</label>
-              <label><input type="checkbox" name="qt" value="Open-end" checked>مفتوح</label>
-              <label><input type="checkbox" name="qt" value="True/False">صح/خطأ</label>
-              <label><input type="checkbox" name="qt" value="Matching">مطابقة</label>
-              <label><input type="checkbox" name="qt" value="Short Answer">إجابة قصيرة</label>
-              <label><input type="checkbox" name="qt" value="Completion">إكمال</label>
+          <h2>خيارات الذكاء الاصطناعي المتقدمة</h2>
+          <p class="ai-step-note" id="ai-step-note">في الوضع السريع يمكنك تجاوز هذه الخطوة، وسيتم الاعتماد على القالب الذي اخترته.</p>
+          <details class="advanced-section" id="ai-advanced" open>
+            <summary>تحرير هيكلة الأسئلة والتعليمات</summary>
+            <div class="field">
+              <label>اختيار أنواع الأسئلة</label>
+              <div class="checks">
+                <label><input type="checkbox" name="qt" value="MC" checked>MC</label>
+                <label><input type="checkbox" name="qt" value="Open-end" checked>مفتوح</label>
+                <label><input type="checkbox" name="qt" value="True/False">صح/خطأ</label>
+                <label><input type="checkbox" name="qt" value="Matching">مطابقة</label>
+                <label><input type="checkbox" name="qt" value="Short Answer">إجابة قصيرة</label>
+                <label><input type="checkbox" name="qt" value="Completion">إكمال</label>
+              </div>
             </div>
-          </div>
-          <div class="toggle"><div><strong>تفعيل تصنيف بلوم</strong><p>الوزن الذكي (المستوى 1=1، المستوى 2=2...)</p></div><label class="switch"><input id="sw" type="checkbox"><span>تفعيل</span></label></div>
-          <div class="field"><label for="tr">تعليمات خاصة للذكاء الاصطناعي</label><textarea id="tr" placeholder="اكتب طلب المعلم الخاص"></textarea></div>
+            <div class="toggle"><div><strong>تفعيل تصنيف بلوم</strong><p>الوزن الذكي (المستوى 1=1، المستوى 2=2...)</p></div><label class="switch"><input id="sw" type="checkbox"><span>تفعيل</span></label></div>
+            <div class="field"><label for="tr">تعليمات خاصة للذكاء الاصطناعي</label><textarea id="tr" placeholder="اكتب طلب المعلم الخاص"></textarea></div>
+          </details>
         </section>
 
         <section class="panel" data-sp="4">
           <h2>مراجعة وإنشاء</h2>
           <dl class="summary">
+            <div class="row"><dt>نمط الإنشاء</dt><dd id="smode">-</dd></div>
+            <div class="row"><dt>القالب</dt><dd id="spreset">-</dd></div>
             <div class="row"><dt>نوع التقييم</dt><dd id="stk">-</dd></div>
             <div class="row"><dt>عنوان الاختبار</dt><dd id="st">-</dd></div>
             <div class="row"><dt>الصف</dt><dd id="sg">-</dd></div>
@@ -153,6 +186,21 @@
             <div class="row"><dt>موعد الاختبار</dt><dd id="ssc">-</dd></div>
           </dl>
         </section>
+        <section class="live-summary" id="live-summary">
+          <div class="live-summary__head">
+            <h3>ملخص مباشر</h3>
+            <span class="live-summary__status" id="autosave-status">الحفظ التلقائي مفعل</span>
+          </div>
+          <div class="live-summary__grid">
+            <div class="live-summary__item"><span>النمط</span><strong id="live-mode">إنشاء سريع</strong></div>
+            <div class="live-summary__item"><span>القالب</span><strong id="live-preset">اختبار قياسي</strong></div>
+            <div class="live-summary__item"><span>النوع</span><strong id="live-kind">اختبار</strong></div>
+            <div class="live-summary__item"><span>العنوان</span><strong id="live-title">غير محدد</strong></div>
+            <div class="live-summary__item"><span>الصف / المادة</span><strong id="live-grade-subject">غير محدد</strong></div>
+            <div class="live-summary__item"><span>المصدر</span><strong id="live-source">رفع ملف</strong></div>
+          </div>
+          <p class="live-summary__estimate" id="live-estimate">ناتج متوقع: 10 أسئلة خلال 45 دقيقة.</p>
+        </section>
 
         <div class="actions">
           <button id="back" type="button" class="btn btn--outline">السابق</button>
@@ -167,6 +215,7 @@
   </div>
   <div id="ov" class="ov" aria-hidden="true"><div class="box"><div class="spin"></div><strong>جاري المعالجة...</strong><p>يتم الآن إنشاء الاختبار باستخدام الذكاء الاصطناعي</p></div></div>
   <div id="success-ov" class="ov" aria-hidden="true"><div class="box success-box"><i class="fas fa-circle-check success-icon"></i><strong>تم إنشاء الاختبار بنجاح!</strong><p>يمكنك الآن مراجعة الاختبار أو العودة للوحة المعلم.</p><div class="success-actions"><a href="exam-preview.html" class="btn gen" id="success-preview-link">عرض الاختبار</a><a href="teacher-dashboard.html" class="btn btn--outline">العودة للوحة</a></div></div></div>
+  <div id="wizard-toast" class="wizard-toast" aria-live="polite"></div>
   <script src="shared-layout.js"></script>
   <script src="tenant-mode.js"></script>
   <script src="cefr-data.js"></script>
@@ -175,9 +224,9 @@
       'use strict';
 
       var currentStep = 1;
-      var totalSteps = 4;
       var wizardPanels = document.querySelectorAll('[data-sp]');
       var steps = document.querySelectorAll('[data-si]');
+      var wizardRoot = document.querySelector('.wizard');
       var fill = document.getElementById('pfill');
       var backBtn = document.getElementById('back');
       var nextBtn = document.getElementById('next');
@@ -196,6 +245,10 @@
       var kindSelect = document.getElementById('ek');
       var gradeSelect = document.getElementById('eg');
       var subjectSelect = document.getElementById('es');
+      var questionCountInput = document.getElementById('eq');
+      var difficultySelect = document.getElementById('ed');
+      var durationInput = document.getElementById('edr');
+      var aiTopicInput = document.getElementById('at');
       var noTextGoalInput = document.getElementById('nt-goal');
       var noTextFocusInput = document.getElementById('nt-focus');
       var noTextExtraInput = document.getElementById('nt-extra');
@@ -205,7 +258,34 @@
       var seedCount = document.getElementById('bank-seed-count');
       var seedList = document.getElementById('bank-seed-list');
       var clearSeedBtn = document.getElementById('bank-seed-clear');
+      var wizardToast = document.getElementById('wizard-toast');
+      var modeButtons = document.querySelectorAll('.mode-btn');
+      var modeHelp = document.getElementById('wizard-mode-help');
+      var presetButtons = document.querySelectorAll('.preset-chip');
+      var generalAdvanced = document.getElementById('general-advanced');
+      var aiAdvanced = document.getElementById('ai-advanced');
+      var aiStepNote = document.getElementById('ai-step-note');
+      var autosaveStatus = document.getElementById('autosave-status');
+      var liveMode = document.getElementById('live-mode');
+      var livePreset = document.getElementById('live-preset');
+      var liveKind = document.getElementById('live-kind');
+      var liveTitle = document.getElementById('live-title');
+      var liveGradeSubject = document.getElementById('live-grade-subject');
+      var liveSource = document.getElementById('live-source');
+      var liveEstimate = document.getElementById('live-estimate');
       var scheduleBufferMinutes = 60;
+      var wizardMode = 'quick';
+      var selectedPreset = 'standard';
+      var autosaveKey = 'mitests-exam-wizard-autosave';
+
+      function showToast(message) {
+        if (!wizardToast) return;
+        wizardToast.textContent = String(message || '');
+        wizardToast.classList.add('on');
+        window.setTimeout(function () {
+          wizardToast.classList.remove('on');
+        }, 2600);
+      }
 
       var gradesKey = 'mitests-admin-grades';
       var subjectsKey = 'mitests-admin-subjects';
@@ -488,22 +568,8 @@
         var conflicts = detectSchedulingConflicts(exams, scheduledAtIso, durationMinutes);
         if (!conflicts.length) return true;
 
-        var lines = [];
-        var previewLimit = Math.min(3, conflicts.length);
-        for (var i = 0; i < previewLimit; i++) {
-          var conflict = conflicts[i];
-          var label = (conflict.type === 'overlap') ? 'نفس الوقت' : ('قريب (' + conflict.gapMinutes + ' دقيقة)');
-          lines.push('- ' + getKindText(conflict.exam.kind) + ': ' + (conflict.exam.title || 'بدون عنوان') + ' [' + label + ']');
-        }
-        if (conflicts.length > previewLimit) {
-          lines.push('- ... +' + (conflicts.length - previewLimit) + ' مواعيد إضافية');
-        }
-
-        var warningText = 'تنبيه: يوجد اختبارات أخرى في نفس الوقت أو قريبة من الموعد (خلال ' + scheduleBufferMinutes + ' دقيقة).\n\n'
-          + lines.join('\n')
-          + '\n\nهل تريد المتابعة في إنشاء الاختبار؟';
-
-        return window.confirm(warningText);
+        showToast('تنبيه جدولة: توجد مواعيد متداخلة/قريبة. راجع التقويم بعد الإنشاء.');
+        return true;
       }
 
       function loadSeedQuestions() {
@@ -549,6 +615,274 @@
         return 'غير مختار';
       }
 
+      function toggleScheduleFieldsByKind() {
+        var isExam = !!(kindSelect && kindSelect.value === 'exam');
+        if (scheduleDateInput) {
+          scheduleDateInput.disabled = !isExam;
+          if (!isExam) scheduleDateInput.closest('.field').classList.remove('error');
+        }
+        if (scheduleTimeInput) {
+          scheduleTimeInput.disabled = !isExam;
+          if (!isExam) scheduleTimeInput.closest('.field').classList.remove('error');
+        }
+      }
+
+      function getModeLabel() {
+        return wizardMode === 'advanced' ? 'إنشاء متقدم' : 'إنشاء سريع';
+      }
+
+      function getPresetLabel(presetKey) {
+        var key = String(presetKey || '');
+        if (key === 'quick_quiz') return 'اختبار سريع';
+        if (key === 'homework') return 'واجب منزلي';
+        if (key === 'challenge') return 'تحدي متقدم';
+        return 'اختبار قياسي';
+      }
+
+      function getStepFlow() {
+        return wizardMode === 'advanced' ? [1, 2, 3, 4] : [1, 2, 4];
+      }
+
+      function indexInFlow(flow, stepNumber) {
+        for (var i = 0; i < flow.length; i++) {
+          if (flow[i] === stepNumber) return i;
+        }
+        return -1;
+      }
+
+      function getActiveSourceKey() {
+        var sourceNode = document.querySelector('.src.on');
+        return sourceNode ? sourceNode.dataset.src : '';
+      }
+
+      function getSourceLabel(sourceKey) {
+        var srcMap = { up: 'رفع ملف', ai: 'توليد نص AI', nt: 'اختبار بدون نص (AI)', manual: 'إدخال يدوي' };
+        return srcMap[sourceKey] || 'غير مختار';
+      }
+
+      function setAutosaveStatus(text) {
+        if (autosaveStatus) autosaveStatus.textContent = text;
+      }
+
+      function getTimeLabel() {
+        var now = new Date();
+        var h = String(now.getHours()); if (h.length < 2) h = '0' + h;
+        var m = String(now.getMinutes()); if (m.length < 2) m = '0' + m;
+        return h + ':' + m;
+      }
+
+      function saveAutosaveSnapshot(statusText) {
+        var skills = [];
+        var skillNodes = document.querySelectorAll('.tag.on');
+        for (var i = 0; i < skillNodes.length; i++) skills.push(skillNodes[i].dataset.skill);
+
+        var qTypes = [];
+        var qTypeNodes = document.querySelectorAll('input[name="qt"]:checked');
+        for (var j = 0; j < qTypeNodes.length; j++) qTypes.push(qTypeNodes[j].value);
+
+        try {
+          localStorage.setItem(autosaveKey, JSON.stringify({
+            mode: wizardMode,
+            preset: selectedPreset,
+            title: val('et'),
+            kind: kindSelect ? kindSelect.value : '',
+            grade: gradeSelect ? gradeSelect.value : '',
+            subject: subjectSelect ? subjectSelect.value : '',
+            qCount: questionCountInput ? questionCountInput.value : '',
+            difficulty: difficultySelect ? difficultySelect.value : '',
+            duration: durationInput ? durationInput.value : '',
+            scheduleDate: scheduleDateInput ? scheduleDateInput.value : '',
+            scheduleTime: scheduleTimeInput ? scheduleTimeInput.value : '',
+            sourceType: getActiveSourceKey(),
+            aiTopic: aiTopicInput ? aiTopicInput.value.trim() : '',
+            noTextGoal: noTextGoalInput ? noTextGoalInput.value.trim() : '',
+            noTextFocus: noTextFocusInput ? noTextFocusInput.value : '',
+            noTextExtra: noTextExtraInput ? noTextExtraInput.value.trim() : '',
+            teacherPrompt: val('tr'),
+            bloom: !!document.getElementById('sw').checked,
+            skills: skills,
+            qTypes: qTypes,
+            updatedAt: new Date().toISOString()
+          }));
+          setAutosaveStatus(statusText || ('تم حفظ تلقائيًا عند ' + getTimeLabel()));
+        } catch (e) {}
+      }
+
+      function applyTagSelection(skills) {
+        var nodes = document.querySelectorAll('.tag');
+        for (var i = 0; i < nodes.length; i++) {
+          var key = nodes[i].dataset.skill;
+          nodes[i].classList.toggle('on', skills.indexOf(key) !== -1);
+        }
+      }
+
+      function applyQuestionTypeSelection(types) {
+        var nodes = document.querySelectorAll('input[name="qt"]');
+        for (var i = 0; i < nodes.length; i++) {
+          nodes[i].checked = types.indexOf(nodes[i].value) !== -1;
+        }
+      }
+
+      function setModeHelpText() {
+        if (!modeHelp) return;
+        modeHelp.textContent = wizardMode === 'advanced'
+          ? 'الوضع المتقدم يعرض كل خيارات الهيكلة الدقيقة للأسئلة والتوليد.'
+          : 'الوضع السريع يقلل الحقول الإلزامية ويستخدم إعدادات ذكية جاهزة.';
+      }
+
+      function setAiStepNoteText() {
+        if (!aiStepNote) return;
+        aiStepNote.textContent = wizardMode === 'advanced'
+          ? 'عدّل أنواع الأسئلة وطلب المعلم بالتفصيل قبل التوليد.'
+          : 'في الوضع السريع يمكنك تجاوز هذه الخطوة، وسيتم الاعتماد على القالب الذي اخترته.';
+      }
+
+      function applyPresetButton(button, skipAutosave) {
+        if (!button) return;
+        selectedPreset = button.dataset.preset || 'standard';
+
+        for (var i = 0; i < presetButtons.length; i++) {
+          presetButtons[i].classList.toggle('on', presetButtons[i] === button);
+        }
+
+        if (questionCountInput && button.dataset.q) questionCountInput.value = button.dataset.q;
+        if (difficultySelect && button.dataset.difficulty) difficultySelect.value = button.dataset.difficulty;
+        if (durationInput && button.dataset.duration) durationInput.value = button.dataset.duration;
+
+        var typeList = String(button.dataset.types || '').split(',');
+        var cleaned = [];
+        for (var t = 0; t < typeList.length; t++) {
+          var item = String(typeList[t] || '').trim();
+          if (item) cleaned.push(item);
+        }
+        if (cleaned.length) applyQuestionTypeSelection(cleaned);
+
+        updateLiveSummary();
+        if (currentStep === 4) updateSummary();
+        if (!skipAutosave) saveAutosaveSnapshot('تم تحديث القالب عند ' + getTimeLabel());
+      }
+
+      function applyPresetByKey(presetKey, skipAutofill, skipAutosave) {
+        var target = null;
+        for (var i = 0; i < presetButtons.length; i++) {
+          if (presetButtons[i].dataset.preset === presetKey) {
+            target = presetButtons[i];
+            break;
+          }
+        }
+        if (!target && presetButtons.length) target = presetButtons[0];
+        if (!target) return;
+
+        if (skipAutofill) {
+          selectedPreset = target.dataset.preset || 'standard';
+          for (var j = 0; j < presetButtons.length; j++) {
+            presetButtons[j].classList.toggle('on', presetButtons[j] === target);
+          }
+          updateLiveSummary();
+          return;
+        }
+
+        applyPresetButton(target, skipAutosave);
+      }
+
+      function activateSource(sourceKey) {
+        var sourceNodes = document.querySelectorAll('.src');
+        var srcPanels = document.querySelectorAll('.srcp');
+
+        for (var i = 0; i < sourceNodes.length; i++) {
+          var node = sourceNodes[i];
+          node.classList.toggle('on', node.dataset.src === sourceKey);
+        }
+
+        for (var j = 0; j < srcPanels.length; j++) {
+          srcPanels[j].classList.toggle('on', srcPanels[j].dataset.srcp === sourceKey);
+        }
+
+        if (dropZone) dropZone.classList.remove('drop-error');
+        if (sourceKey === 'up' && uploadedFile && fileAiPanel) fileAiPanel.classList.remove('hidden');
+        if (sourceKey !== 'up' && fileAiPanel) fileAiPanel.classList.add('hidden');
+      }
+
+      function setWizardMode(mode, skipAutosave) {
+        wizardMode = (mode === 'advanced') ? 'advanced' : 'quick';
+        if (wizardRoot) wizardRoot.setAttribute('data-mode', wizardMode);
+
+        for (var i = 0; i < modeButtons.length; i++) {
+          modeButtons[i].classList.toggle('on', modeButtons[i].dataset.mode === wizardMode);
+        }
+
+        if (wizardMode === 'advanced') {
+          if (generalAdvanced) generalAdvanced.open = true;
+          if (aiAdvanced) aiAdvanced.open = true;
+        } else {
+          if (generalAdvanced) generalAdvanced.open = false;
+          if (aiAdvanced) aiAdvanced.open = false;
+        }
+
+        setModeHelpText();
+        setAiStepNoteText();
+
+        var flow = getStepFlow();
+        if (indexInFlow(flow, currentStep) === -1) {
+          currentStep = flow[Math.max(0, flow.length - 2)];
+        }
+
+        if (!skipAutosave) saveAutosaveSnapshot('تم تحديث النمط عند ' + getTimeLabel());
+        updateStepper();
+      }
+
+      function updateLiveSummary() {
+        var sourceKey = getActiveSourceKey();
+        var qCount = val('eq') || '10';
+        var duration = val('edr') || '45';
+        var title = val('et') || 'غير محدد';
+        var gradeSubject = (gradeSelect.value || '—') + ' / ' + (subjectSelect.value || '—');
+
+        if (liveMode) liveMode.textContent = getModeLabel();
+        if (livePreset) livePreset.textContent = getPresetLabel(selectedPreset);
+        if (liveKind) liveKind.textContent = getKindLabel();
+        if (liveTitle) liveTitle.textContent = title;
+        if (liveGradeSubject) liveGradeSubject.textContent = gradeSubject;
+        if (liveSource) liveSource.textContent = getSourceLabel(sourceKey);
+        if (liveEstimate) {
+          liveEstimate.textContent = 'ناتج متوقع: ' + qCount + ' سؤال خلال ' + duration + ' دقيقة.';
+        }
+      }
+
+      function restoreAutosaveSnapshot() {
+        var state = null;
+        try {
+          var raw = localStorage.getItem(autosaveKey);
+          if (raw) state = JSON.parse(raw);
+        } catch (e) {}
+        if (!state || typeof state !== 'object') return;
+
+        if (val('et') || gradeSelect.value || subjectSelect.value) return;
+
+        if (state.title) document.getElementById('et').value = state.title;
+        if (state.kind && kindSelect) kindSelect.value = state.kind;
+        if (state.grade && gradeSelect) gradeSelect.value = state.grade;
+        if (state.subject && subjectSelect) subjectSelect.value = state.subject;
+        if (state.qCount && questionCountInput) questionCountInput.value = state.qCount;
+        if (state.difficulty && difficultySelect) difficultySelect.value = state.difficulty;
+        if (state.duration && durationInput) durationInput.value = state.duration;
+        if (state.scheduleDate && scheduleDateInput) scheduleDateInput.value = state.scheduleDate;
+        if (state.scheduleTime && scheduleTimeInput) scheduleTimeInput.value = state.scheduleTime;
+        if (state.aiTopic && aiTopicInput) aiTopicInput.value = state.aiTopic;
+        if (state.noTextGoal && noTextGoalInput) noTextGoalInput.value = state.noTextGoal;
+        if (state.noTextFocus && noTextFocusInput) noTextFocusInput.value = state.noTextFocus;
+        if (state.noTextExtra && noTextExtraInput) noTextExtraInput.value = state.noTextExtra;
+        if (typeof state.teacherPrompt === 'string') document.getElementById('tr').value = state.teacherPrompt;
+        if (state.bloom) document.getElementById('sw').checked = true;
+        if (Array.isArray(state.skills)) applyTagSelection(state.skills);
+        if (Array.isArray(state.qTypes) && state.qTypes.length) applyQuestionTypeSelection(state.qTypes);
+        if (state.sourceType) activateSource(state.sourceType);
+        if (state.mode) setWizardMode(state.mode, true);
+        if (state.preset) applyPresetByKey(state.preset, true, true);
+
+        setAutosaveStatus('تم استرجاع آخر إعدادات محفوظة');
+      }
+
       function updateGenerateButtonText() {
         var kind = kindSelect ? kindSelect.value : '';
         var isAssignment = kind === 'assignment';
@@ -564,25 +898,43 @@
       }
 
       function updateStepper() {
+        var flow = getStepFlow();
+        var currentIndex = indexInFlow(flow, currentStep);
+        if (currentIndex === -1) {
+          currentStep = flow[0];
+          currentIndex = 0;
+        }
+
         for (var i = 0; i < wizardPanels.length; i++) {
           wizardPanels[i].classList.toggle('active', Number(wizardPanels[i].dataset.sp) === currentStep);
         }
 
         for (var j = 0; j < steps.length; j++) {
           var stepNumber = Number(steps[j].dataset.si);
-          steps[j].classList.remove('active', 'done');
-          if (stepNumber < currentStep) steps[j].classList.add('done');
-          if (stepNumber === currentStep) steps[j].classList.add('active');
+          var stepFlowIndex = indexInFlow(flow, stepNumber);
+
+          steps[j].classList.remove('active', 'done', 'step--hidden');
+          if (stepFlowIndex === -1) {
+            steps[j].classList.add('step--hidden');
+            continue;
+          }
+          if (stepFlowIndex < currentIndex) steps[j].classList.add('done');
+          if (stepFlowIndex === currentIndex) steps[j].classList.add('active');
         }
 
-        fill.style.width = ((currentStep - 1) / (totalSteps - 1)) * 100 + '%';
-        backBtn.disabled = currentStep === 1;
-        nextBtn.classList.toggle('hidden', currentStep === totalSteps);
-        genBtn.classList.toggle('hidden', currentStep !== totalSteps);
-        draftBtn.classList.toggle('hidden', currentStep !== totalSteps);
+        var denominator = Math.max(1, flow.length - 1);
+        var progress = (currentIndex / denominator) * 100;
+        fill.style.width = progress + '%';
+        backBtn.disabled = currentIndex === 0;
+
+        var atLastStep = currentIndex === (flow.length - 1);
+        nextBtn.classList.toggle('hidden', atLastStep);
+        genBtn.classList.toggle('hidden', !atLastStep);
+        draftBtn.classList.toggle('hidden', !atLastStep);
 
         if (currentStep === 4) updateSummary();
         updateGenerateButtonText();
+        updateLiveSummary();
       }
 
       function val(id) {
@@ -598,16 +950,16 @@
         var qTypeNodes = document.querySelectorAll('input[name="qt"]:checked');
         for (var j = 0; j < qTypeNodes.length; j++) qTypes.push(qTypeNodes[j].value);
 
-        var src = document.querySelector('.src.on');
-        var sourceKey = src ? src.dataset.src : '';
-        var srcMap = { up: 'رفع ملف', ai: 'توليد نص AI', nt: 'اختبار بدون نص (AI)', manual: 'إدخال يدوي' };
+        var sourceKey = getActiveSourceKey();
 
+        document.getElementById('smode').textContent = getModeLabel();
+        document.getElementById('spreset').textContent = getPresetLabel(selectedPreset);
         document.getElementById('stk').textContent = getKindLabel();
         document.getElementById('st').textContent = val('et') || 'غير محدد';
         document.getElementById('sg').textContent = gradeSelect.value || 'غير مختار';
         document.getElementById('ss').textContent = subjectSelect.value || 'غير مختار';
         document.getElementById('sk').textContent = skills.length ? skills.join(', ') : 'غير مختار';
-        document.getElementById('sc').textContent = (src && srcMap[sourceKey]) ? srcMap[sourceKey] : 'غير مختار';
+        document.getElementById('sc').textContent = getSourceLabel(sourceKey);
         document.getElementById('sfc').textContent = getSourceProcessingLabel(sourceKey);
         document.getElementById('sq').textContent = qTypes.length ? qTypes.join(', ') : 'غير مختار';
         document.getElementById('swv').textContent = document.getElementById('sw').checked ? 'مفعل' : 'غير مفعل';
@@ -708,6 +1060,8 @@
       function validateStep(step) {
         var valid = true;
         document.querySelectorAll('.field.error').forEach(function(f){f.classList.remove('error');});
+        if (dropZone) dropZone.classList.remove('drop-error');
+
         if (step === 1) {
           if (!val('et')) { document.getElementById('et').closest('.field').classList.add('error'); valid = false; }
           if (!kindSelect.value) { kindSelect.closest('.field').classList.add('error'); valid = false; }
@@ -718,41 +1072,73 @@
             if (!scheduleTimeInput.value) { scheduleTimeInput.closest('.field').classList.add('error'); valid = false; }
           }
         }
+
+        if (step === 2) {
+          var sourceKey = getActiveSourceKey();
+          if (!sourceKey) valid = false;
+          if (sourceKey === 'up' && !uploadedFile) {
+            if (dropZone) dropZone.classList.add('drop-error');
+            valid = false;
+          }
+          if (sourceKey === 'ai' && aiTopicInput && !aiTopicInput.value.trim()) {
+            aiTopicInput.closest('.field').classList.add('error');
+            valid = false;
+          }
+          if (sourceKey === 'nt' && noTextGoalInput && !noTextGoalInput.value.trim()) {
+            noTextGoalInput.closest('.field').classList.add('error');
+            valid = false;
+          }
+        }
+
         return valid;
       }
 
       nextBtn.addEventListener('click', function () {
         if (!validateStep(currentStep)) return;
-        currentStep = Math.min(totalSteps, currentStep + 1);
+        var flow = getStepFlow();
+        var currentIndex = indexInFlow(flow, currentStep);
+        if (currentIndex < flow.length - 1) currentStep = flow[currentIndex + 1];
+        saveAutosaveSnapshot('تم حفظ التقدم عند ' + getTimeLabel());
         updateStepper();
       });
 
       backBtn.addEventListener('click', function () {
-        currentStep = Math.max(1, currentStep - 1);
+        var flow = getStepFlow();
+        var currentIndex = indexInFlow(flow, currentStep);
+        if (currentIndex > 0) currentStep = flow[currentIndex - 1];
         updateStepper();
       });
+
+      for (var m = 0; m < modeButtons.length; m++) {
+        modeButtons[m].addEventListener('click', function () {
+          setWizardMode(this.dataset.mode || 'quick', false);
+        });
+      }
+
+      for (var p = 0; p < presetButtons.length; p++) {
+        presetButtons[p].addEventListener('click', function () {
+          applyPresetButton(this, false);
+        });
+      }
 
       var tags = document.querySelectorAll('.tag');
       for (var t = 0; t < tags.length; t++) {
         tags[t].addEventListener('click', function () {
           this.classList.toggle('on');
+          updateLiveSummary();
+          if (currentStep === 4) updateSummary();
+          saveAutosaveSnapshot('تم تحديث المهارات عند ' + getTimeLabel());
         });
       }
 
       var sources = document.querySelectorAll('.src');
       for (var s = 0; s < sources.length; s++) {
         sources[s].addEventListener('click', function () {
-          for (var i = 0; i < sources.length; i++) sources[i].classList.remove('on');
-          this.classList.add('on');
-
           var key = this.dataset.src;
-          var srcPanels = document.querySelectorAll('.srcp');
-          for (var j = 0; j < srcPanels.length; j++) {
-            srcPanels[j].classList.toggle('on', srcPanels[j].dataset.srcp === key);
-          }
-          if (key === 'up' && uploadedFile && fileAiPanel) fileAiPanel.classList.remove('hidden');
-          if (key !== 'up' && fileAiPanel) fileAiPanel.classList.add('hidden');
+          activateSource(key);
           if (currentStep === 4) updateSummary();
+          updateLiveSummary();
+          saveAutosaveSnapshot('تم تحديث مصدر المحتوى عند ' + getTimeLabel());
         });
       }
 
@@ -762,6 +1148,7 @@
             localStorage.setItem('mitests-create-item-kind', kindSelect.value || 'exam');
           } catch (e) {}
           updateGenerateButtonText();
+          toggleScheduleFieldsByKind();
           if (kindSelect.value) {
             kindSelect.closest('.field').classList.remove('error');
           }
@@ -769,18 +1156,77 @@
             if (scheduleDateInput) scheduleDateInput.closest('.field').classList.remove('error');
             if (scheduleTimeInput) scheduleTimeInput.closest('.field').classList.remove('error');
           }
+          updateLiveSummary();
+          if (currentStep === 4) updateSummary();
+          saveAutosaveSnapshot('تم تحديث نوع التقييم عند ' + getTimeLabel());
         });
       }
 
       if (scheduleDateInput) {
         scheduleDateInput.addEventListener('change', function () {
           if (scheduleDateInput.value) scheduleDateInput.closest('.field').classList.remove('error');
+          updateLiveSummary();
+          if (currentStep === 4) updateSummary();
+          saveAutosaveSnapshot('تم تحديث تاريخ الموعد عند ' + getTimeLabel());
         });
       }
 
       if (scheduleTimeInput) {
         scheduleTimeInput.addEventListener('change', function () {
           if (scheduleTimeInput.value) scheduleTimeInput.closest('.field').classList.remove('error');
+          updateLiveSummary();
+          if (currentStep === 4) updateSummary();
+          saveAutosaveSnapshot('تم تحديث وقت الموعد عند ' + getTimeLabel());
+        });
+      }
+
+      function bindFieldAuto(id, label) {
+        var node = document.getElementById(id);
+        if (!node) return;
+        var onChange = function () {
+          if (node.value && node.closest('.field')) node.closest('.field').classList.remove('error');
+          updateLiveSummary();
+          if (currentStep === 4) updateSummary();
+          saveAutosaveSnapshot('تم تحديث ' + label + ' عند ' + getTimeLabel());
+        };
+        node.addEventListener('input', onChange);
+        node.addEventListener('change', onChange);
+      }
+
+      bindFieldAuto('et', 'العنوان');
+      bindFieldAuto('eg', 'الصف');
+      bindFieldAuto('es', 'المادة');
+      bindFieldAuto('eq', 'عدد الأسئلة');
+      bindFieldAuto('ed', 'مستوى الصعوبة');
+      bindFieldAuto('edr', 'المدة');
+      bindFieldAuto('at', 'موضوع النص');
+      bindFieldAuto('nt-goal', 'هدف الاختبار');
+      bindFieldAuto('nt-focus', 'تركيز الاختبار');
+      bindFieldAuto('nt-extra', 'تعليمات بدون نص');
+      bindFieldAuto('tr', 'تعليمات الذكاء الاصطناعي');
+
+      if (fileAiAction) {
+        fileAiAction.addEventListener('change', function () {
+          updateLiveSummary();
+          if (currentStep === 4) updateSummary();
+          saveAutosaveSnapshot('تم تحديث خطة معالجة الملف عند ' + getTimeLabel());
+        });
+      }
+
+      var qTypeNodes = document.querySelectorAll('input[name="qt"]');
+      for (var qt = 0; qt < qTypeNodes.length; qt++) {
+        qTypeNodes[qt].addEventListener('change', function () {
+          updateLiveSummary();
+          if (currentStep === 4) updateSummary();
+          saveAutosaveSnapshot('تم تحديث أنواع الأسئلة عند ' + getTimeLabel());
+        });
+      }
+
+      var bloomSwitch = document.getElementById('sw');
+      if (bloomSwitch) {
+        bloomSwitch.addEventListener('change', function () {
+          if (currentStep === 4) updateSummary();
+          saveAutosaveSnapshot('تم تحديث تصنيف بلوم عند ' + getTimeLabel());
         });
       }
 
@@ -790,13 +1236,17 @@
           updateStepper();
           return;
         }
+        if (!validateStep(2)) {
+          currentStep = 2;
+          updateStepper();
+          return;
+        }
 
         var itemKind = kindSelect.value || 'exam';
         var itemTitle = val('et') || (itemKind === 'assignment' ? 'واجب جديد' : 'اختبار جديد');
         var durationMinutes = normalizeDurationMinutes(val('edr'));
         var scheduledAtIso = (itemKind === 'exam') ? buildScheduledAtIso() : '';
-        var sourceNode = document.querySelector('.src.on');
-        var sourceType = sourceNode ? sourceNode.dataset.src : '';
+        var sourceType = getActiveSourceKey();
         var sourcePlan = getSourceProcessingLabel(sourceType);
         var questionTypes = getSelectedQuestionTypes();
         var generatedQuestions = buildGeneratedQuestions({
@@ -813,7 +1263,7 @@
         var scope = '';
 
         if (itemKind === 'exam' && !scheduledAtIso) {
-          alert('يرجى تحديد تاريخ ووقت الاختبار قبل الإنشاء.');
+          showToast('يرجى تحديد تاريخ ووقت الاختبار قبل الإنشاء.');
           currentStep = 1;
           updateStepper();
           return;
@@ -844,6 +1294,8 @@
             sourceType: sourceType,
             sourcePlan: sourcePlan,
             sourceFileName: uploadedFile ? uploadedFile.name : '',
+            wizardMode: wizardMode,
+            wizardPreset: selectedPreset,
             noTextGoal: noTextGoalInput ? noTextGoalInput.value.trim() : '',
             noTextFocus: noTextFocusInput ? noTextFocusInput.value : '',
             noTextExtra: noTextExtraInput ? noTextExtraInput.value.trim() : '',
@@ -860,6 +1312,7 @@
         overlay.classList.add('on');
         overlay.setAttribute('aria-hidden', 'false');
         setTimeout(function () {
+          try { localStorage.removeItem(autosaveKey); } catch (e) {}
           overlay.classList.remove('on');
           overlay.setAttribute('aria-hidden', 'true');
           window.location.href = previewHref;
@@ -886,7 +1339,10 @@
 
       draftBtn.addEventListener('click', function () {
         try {
+          var activeSource = getActiveSourceKey();
           localStorage.setItem('mitests-exam-draft', JSON.stringify({
+            mode: wizardMode,
+            preset: selectedPreset,
             kind: kindSelect.value,
             title: val('et'),
             grade: gradeSelect.value,
@@ -894,8 +1350,8 @@
             qCount: val('eq'),
             diff: val('ed'),
             dur: val('edr'),
-            sourceType: (document.querySelector('.src.on') || {}).dataset ? document.querySelector('.src.on').dataset.src : '',
-            sourcePlan: getSourceProcessingLabel((document.querySelector('.src.on') || {}).dataset ? document.querySelector('.src.on').dataset.src : ''),
+            sourceType: activeSource,
+            sourcePlan: getSourceProcessingLabel(activeSource),
             noTextGoal: noTextGoalInput ? noTextGoalInput.value.trim() : '',
             noTextFocus: noTextFocusInput ? noTextFocusInput.value : '',
             noTextExtra: noTextExtraInput ? noTextExtraInput.value.trim() : '',
@@ -903,12 +1359,13 @@
             scheduleTime: scheduleTimeInput ? scheduleTimeInput.value : ''
           }));
         } catch(e){}
-        alert('تم حفظ المسودة بنجاح!');
+        saveAutosaveSnapshot('تم حفظ المسودة عند ' + getTimeLabel());
+        showToast('تم حفظ المسودة بنجاح.');
       });
 
       /* File upload */
       if (dropZone && fileInput) {
-        dropZone.addEventListener('click', function(){ fileInput.click(); });
+        dropZone.addEventListener('click', function(){ dropZone.classList.remove('drop-error'); fileInput.click(); });
         dropZone.addEventListener('dragover', function(e){ e.preventDefault(); dropZone.classList.add('drag-over'); });
         dropZone.addEventListener('dragleave', function(){ dropZone.classList.remove('drag-over'); });
         dropZone.addEventListener('drop', function(e){ e.preventDefault(); dropZone.classList.remove('drag-over'); if(e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]); });
@@ -916,15 +1373,21 @@
       }
       function handleFile(file) {
         uploadedFile = file;
+        if (dropZone) dropZone.classList.remove('drop-error');
         filePreview.classList.remove('hidden');
         filePreview.innerHTML = '<i class="fas fa-file-pdf"></i><span class="file-name">' + file.name + ' (' + (file.size/1024).toFixed(0) + ' KB)</span><button type="button" class="file-remove" title="حذف"><i class="fas fa-xmark"></i></button>';
         runFileAiAnalysis(file);
+        updateLiveSummary();
+        if (currentStep === 4) updateSummary();
+        saveAutosaveSnapshot('تم حفظ الملف المصدر عند ' + getTimeLabel());
         filePreview.querySelector('.file-remove').addEventListener('click', function(){
           uploadedFile = null;
           filePreview.classList.add('hidden');
           filePreview.innerHTML = '';
           fileInput.value = '';
           resetFileAiPanel();
+          updateLiveSummary();
+          saveAutosaveSnapshot('تم حذف الملف المصدر عند ' + getTimeLabel());
           if (currentStep === 4) updateSummary();
         });
       }
@@ -942,7 +1405,13 @@
       hydrateInitialKind();
       resetFileAiPanel();
       renderSeedQuestions();
+      activateSource(getActiveSourceKey() || 'up');
+      applyPresetByKey('standard', false, true);
+      restoreAutosaveSnapshot();
+      toggleScheduleFieldsByKind();
+      setWizardMode(wizardMode, true);
       updateGenerateButtonText();
+      updateLiveSummary();
       updateStepper();
     })();
   </script>

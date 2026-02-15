@@ -104,6 +104,26 @@
       color: var(--color-gray-500);
       font-size: var(--font-size-base);
     }
+    .flow-strip {
+      margin-top: var(--space-3);
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      flex-wrap: wrap;
+      font-size: var(--font-size-sm);
+      color: var(--color-gray-600);
+    }
+    .flow-step {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--color-primary-200);
+      background: var(--color-primary-100);
+      color: var(--color-teacher);
+      font-weight: 700;
+    }
 
     .stats-grid {
       display: grid;
@@ -258,6 +278,53 @@
       color: var(--color-gray-500);
       font-weight: 600;
       background: var(--color-gray-50);
+    }
+    .table-tools {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: var(--space-3);
+      flex-wrap: wrap;
+      margin-bottom: var(--space-3);
+    }
+    .filter-chips {
+      display: flex;
+      gap: var(--space-2);
+      flex-wrap: wrap;
+    }
+    .filter-chip {
+      border: 1px solid var(--color-primary-200);
+      background: var(--color-white);
+      color: var(--color-gray-700);
+      border-radius: 999px;
+      padding: 6px 12px;
+      font-size: var(--font-size-xs);
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .filter-chip.on {
+      border-color: var(--color-teacher);
+      background: rgba(53, 86, 178, 0.1);
+      color: var(--color-teacher);
+    }
+    .saved-view {
+      display: inline-flex;
+      gap: var(--space-2);
+      align-items: center;
+      font-size: var(--font-size-sm);
+      color: var(--color-gray-600);
+    }
+    .saved-view select {
+      border: 1px solid var(--color-gray-300);
+      border-radius: var(--border-radius-sm);
+      padding: 8px 10px;
+      font-family: inherit;
+      min-width: 170px;
+    }
+    .table-empty-note {
+      color: var(--color-gray-500);
+      font-size: var(--font-size-sm);
+      margin: 0;
     }
 
     .status-pill {
@@ -591,6 +658,13 @@
         <div>
           <h1>مرحبًا، نورة العلي</h1>
           <p>يوم ممتاز لإدارة الاختبارات، المجموعات، وتغذية راجعة أفضل للطلاب.</p>
+          <div class="flow-strip">
+            <span class="flow-step"><i class="fas fa-pen-ruler"></i> إنشاء</span>
+            <i class="fas fa-arrow-left-long" aria-hidden="true"></i>
+            <span class="flow-step"><i class="fas fa-eye"></i> معاينة</span>
+            <i class="fas fa-arrow-left-long" aria-hidden="true"></i>
+            <span class="flow-step"><i class="fas fa-chart-pie"></i> تقرير</span>
+          </div>
         </div>
         <a href="exam-wizard.html?kind=exam" class="btn btn--new-exam btn--lg" id="create-item-btn" aria-label="إنشاء اختبار أو واجب">
           <i class="fas fa-plus"></i>
@@ -678,6 +752,23 @@
       <section id="my-exams" aria-label="الاختبارات الأخيرة">
         <h2 class="section-title-inline">آخر الاختبارات</h2>
         <article class="card">
+          <div class="table-tools">
+            <div class="filter-chips" id="dashboard-exam-filters">
+              <button type="button" class="filter-chip on" data-filter="all">الكل</button>
+              <button type="button" class="filter-chip" data-filter="draft">مسودة</button>
+              <button type="button" class="filter-chip" data-filter="published">منشور</button>
+              <button type="button" class="filter-chip" data-filter="this_week">هذا الأسبوع</button>
+            </div>
+            <label class="saved-view">
+              <span>عرض سريع</span>
+              <select id="dashboard-exam-view">
+                <option value="all">افتراضي</option>
+                <option value="publishing">جاهز للنشر</option>
+                <option value="weekly">أسبوعي</option>
+              </select>
+            </label>
+          </div>
+          <p class="table-empty-note" id="dashboard-exam-empty-note" hidden>لا توجد نتائج لهذا العرض. انتقل للمعالج لإنشاء اختبار جديد.</p>
           <div class="table-wrap">
             <table class="data-table">
               <thead>
@@ -689,27 +780,27 @@
                   <th>الإجراء</th>
                 </tr>
               </thead>
-              <tbody>
-                <tr>
+              <tbody id="dashboard-exams-body">
+                <tr data-status="published" data-date="2026-02-10">
                   <td>اختبار</td>
                   <td>اختبار قراءة - الوحدة 4</td>
                   <td>2026-02-10</td>
                   <td><span class="status-pill status-pill--published">منشور</span></td>
-                  <td><a href="exam-report.html" class="btn btn--teacher btn--sm">النتائج</a></td>
+                  <td><a href="exam-report.html?title=%D8%A7%D8%AE%D8%AA%D8%A8%D8%A7%D8%B1%20%D9%82%D8%B1%D8%A7%D8%A1%D8%A9%20-%20%D8%A7%D9%84%D9%88%D8%AD%D8%AF%D8%A9%204&kind=exam&group=%D8%A7%D9%84%D8%B5%D9%81%20%D8%AA%D8%A7%D8%B3%D8%B9%201&scheduledAt=2026-02-10&subject=%D8%A7%D9%84%D9%84%D8%BA%D8%A9%20%D8%A7%D9%84%D8%A5%D9%86%D8%AC%D9%84%D9%8A%D8%B2%D9%8A%D8%A9&status=published&from=teacher-dashboard" class="btn btn--teacher btn--sm">النتائج</a></td>
                 </tr>
-                <tr>
+                <tr data-status="draft" data-date="2026-02-08">
                   <td>واجب</td>
                   <td>اختبار الكسور - الصف الثامن</td>
                   <td>2026-02-08</td>
                   <td><span class="status-pill status-pill--draft">مسودة</span></td>
-                  <td><a href="exam-report.html" class="btn btn--teacher btn--sm">النتائج</a></td>
+                  <td><a href="exam-report.html?title=%D9%88%D8%A7%D8%AC%D8%A8%20%D8%A7%D9%84%D9%83%D8%B3%D9%88%D8%B1%20-%20%D8%A7%D9%84%D8%B5%D9%81%20%D8%A7%D9%84%D8%AB%D8%A7%D9%85%D9%86&kind=assignment&group=%D8%A7%D9%84%D8%B5%D9%81%20%D8%AB%D8%A7%D9%85%D9%86%203&scheduledAt=2026-02-08&subject=%D8%A7%D9%84%D8%B1%D9%8A%D8%A7%D8%B6%D9%8A%D8%A7%D8%AA&status=draft&from=teacher-dashboard" class="btn btn--teacher btn--sm">النتائج</a></td>
                 </tr>
-                <tr>
+                <tr data-status="published" data-date="2026-02-05">
                   <td>اختبار</td>
                   <td>اختبار العلوم - سلامة المختبر</td>
                   <td>2026-02-05</td>
                   <td><span class="status-pill status-pill--published">منشور</span></td>
-                  <td><a href="exam-report.html" class="btn btn--teacher btn--sm">النتائج</a></td>
+                  <td><a href="exam-report.html?title=%D8%A7%D8%AE%D8%AA%D8%A8%D8%A7%D8%B1%20%D8%A7%D9%84%D8%B9%D9%84%D9%88%D9%85%20-%20%D8%B3%D9%84%D8%A7%D9%85%D8%A9%20%D8%A7%D9%84%D9%85%D8%AE%D8%AA%D8%A8%D8%B1&kind=exam&group=%D8%A7%D9%84%D8%B5%D9%81%20%D8%B9%D8%A7%D8%B4%D8%B1%202&scheduledAt=2026-02-05&subject=%D8%A7%D9%84%D8%B9%D9%84%D9%88%D9%85&status=published&from=teacher-dashboard" class="btn btn--teacher btn--sm">النتائج</a></td>
                 </tr>
               </tbody>
             </table>
@@ -874,6 +965,7 @@
             statusText = 'بانتظار تسليم الطلاب';
           }
           var href = 'exam-assessment.html?kind=' + encodeURIComponent(item.kind || 'exam')
+            + '&examId=' + encodeURIComponent(item.examId || item.id || '')
             + '&title=' + encodeURIComponent(item.title || '')
             + '&student=' + encodeURIComponent(item.studentName || '')
             + '&group=' + encodeURIComponent(groupName(item.groupCode));
@@ -969,6 +1061,77 @@
   </script>
   <script>
   (function(){
+    'use strict';
+
+    var filtersRoot = document.getElementById('dashboard-exam-filters');
+    var savedView = document.getElementById('dashboard-exam-view');
+    var examsBody = document.getElementById('dashboard-exams-body');
+    var emptyNote = document.getElementById('dashboard-exam-empty-note');
+
+    function isWithinDays(dateStr, days) {
+      if (!dateStr) return false;
+      var d = new Date(dateStr + 'T00:00:00');
+      if (isNaN(d.getTime())) return false;
+      return Math.abs(Date.now() - d.getTime()) <= days * 24 * 60 * 60 * 1000;
+    }
+
+    function highlight(filter) {
+      if (!filtersRoot) return;
+      var chips = filtersRoot.querySelectorAll('[data-filter]');
+      for (var i = 0; i < chips.length; i++) {
+        chips[i].classList.toggle('on', chips[i].getAttribute('data-filter') === filter);
+      }
+    }
+
+    function applyFilter(filter) {
+      if (!examsBody) return;
+      var rows = examsBody.querySelectorAll('tr[data-status]');
+      var shown = 0;
+
+      for (var i = 0; i < rows.length; i++) {
+        var row = rows[i];
+        var status = row.getAttribute('data-status') || '';
+        var date = row.getAttribute('data-date') || '';
+        var visible = true;
+
+        if (filter === 'draft') visible = status === 'draft';
+        if (filter === 'published') visible = status === 'published';
+        if (filter === 'this_week') visible = isWithinDays(date, 7);
+
+        row.hidden = !visible;
+        if (visible) shown++;
+      }
+
+      if (emptyNote) emptyNote.hidden = shown > 0;
+      highlight(filter);
+    }
+
+    function applySavedView(viewKey) {
+      if (viewKey === 'publishing') applyFilter('draft');
+      else if (viewKey === 'weekly') applyFilter('this_week');
+      else applyFilter('all');
+    }
+
+    if (filtersRoot) {
+      filtersRoot.addEventListener('click', function (event) {
+        var chip = event.target.closest('[data-filter]');
+        if (!chip) return;
+        applyFilter(chip.getAttribute('data-filter') || 'all');
+        if (savedView) savedView.value = 'all';
+      });
+    }
+
+    if (savedView) {
+      savedView.addEventListener('change', function () {
+        applySavedView(savedView.value || 'all');
+      });
+    }
+
+    applyFilter('all');
+  })();
+  </script>
+  <script>
+  (function(){
     var bell = document.querySelector('#teacher-notif-bell .notification-bell__btn');
     var panel = document.getElementById('teacher-notif-panel');
     var badge = document.getElementById('teacher-notif-badge');
@@ -1027,6 +1190,3 @@
   </script>
 </body>
 </html>
-
-
-

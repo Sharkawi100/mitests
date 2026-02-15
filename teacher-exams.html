@@ -33,6 +33,13 @@
     .data-table{width:100%;border-collapse:collapse;min-width:780px}
     .data-table th,.data-table td{padding:var(--space-3);border-bottom:1px solid var(--color-gray-200);text-align:start;font-size:var(--font-size-sm)}
     .data-table th{background:var(--color-gray-50);color:var(--color-gray-500);font-weight:600}
+    .list-toolbar{display:flex;align-items:center;justify-content:space-between;gap:var(--space-3);flex-wrap:wrap}
+    .filter-chips{display:flex;gap:var(--space-2);flex-wrap:wrap}
+    .filter-chip{border:1px solid var(--color-primary-200);background:var(--color-white);color:var(--color-gray-700);border-radius:999px;padding:6px 12px;font-size:var(--font-size-xs);font-weight:700;cursor:pointer}
+    .filter-chip.on{border-color:var(--color-teacher);background:rgba(53,86,178,.1);color:var(--color-teacher)}
+    .saved-view{display:flex;align-items:center;gap:var(--space-2);font-size:var(--font-size-sm);color:var(--color-gray-600)}
+    .saved-view select{border:1px solid var(--color-gray-300);border-radius:var(--border-radius-sm);padding:8px 10px;font-family:inherit}
+    .hint-inline{font-size:var(--font-size-xs);color:var(--color-gray-500)}
     .kind-badge{display:inline-block;padding:2px 10px;border-radius:999px;font-size:12px;font-weight:700}
     .kind-badge--exam{background:rgba(53,86,178,.12);color:#1d2f77}
     .kind-badge--assignment{background:rgba(22,163,74,.12);color:#166534}
@@ -44,6 +51,11 @@
     .btn-danger{background:#b91c1c;border-color:#b91c1c;color:var(--color-white)}
     .btn-danger:hover{background:#991b1b;border-color:#991b1b;color:var(--color-white)}
     .empty-cell{text-align:center;color:var(--color-gray-500)}
+    .empty-callout{display:grid;gap:var(--space-2);justify-items:center;padding:var(--space-5);color:var(--color-gray-600)}
+    .empty-callout .btn{margin-top:var(--space-1)}
+    .toast{position:fixed;bottom:var(--space-5);inset-inline-start:50%;transform:translateX(-50%);background:#111827;color:var(--color-white);padding:var(--space-2) var(--space-4);border-radius:999px;font-size:var(--font-size-sm);display:none;align-items:center;gap:var(--space-2);z-index:1200;box-shadow:var(--shadow-lg)}
+    .toast.on{display:inline-flex}
+    .toast button{border:none;background:rgba(255,255,255,.16);color:var(--color-white);padding:4px 10px;border-radius:999px;cursor:pointer;font-size:var(--font-size-xs);font-weight:700}
     @media (max-width:1023px){
       body.rtl .main-content .teacher-navbar{right:var(--sidebar-collapsed-width)}
       body.ltr .main-content .teacher-navbar{left:var(--sidebar-collapsed-width)}
@@ -108,26 +120,31 @@
             <h1>قائمة الاختبارات</h1>
             <p>أي اختبار يتم حذفه ينتقل إلى سلة المحذوفات لمدة 30 يومًا قبل الحذف النهائي التلقائي.</p>
           </div>
-          <div class="dropdown-wrapper" style="position:relative;">
-            <button type="button" class="btn btn--teacher" id="create-exam-btn" aria-haspopup="true" aria-expanded="false">
-              <i class="fas fa-plus"></i> إنشاء جديد
+          <div style="display:flex;align-items:center;gap:var(--space-2);flex-wrap:wrap;">
+            <button type="button" class="btn btn--outline" id="add-demo-exams-btn">
+              <i class="fas fa-vial"></i> إضافة اختبارات تجريبية
             </button>
-            <div class="dropdown-menu" id="create-exam-menu" role="menu" style="display:none; position:absolute; top:100%; left:0; background:#fff; border:1px solid #e5e7eb; border-radius:8px; box-shadow:0 4px 6px -1px rgba(0,0,0,0.1); z-index:50; min-width:200px; margin-top:4px;">
-              <a href="exam-wizard.html?kind=exam" class="dropdown-item" role="menuitem" style="display:flex; align-items:center; gap:8px; padding:12px 16px; text-decoration:none; color:#374151; transition:background 0.2s;">
-                <i class="fas fa-wand-magic-sparkles" style="color:var(--color-teacher);"></i>
-                <div>
-                  <div style="font-weight:600;">معالج الذكاء الاصطناعي</div>
-                  <div style="font-size:12px; color:#6b7280;">إنشاء سريع بمساعدة AI</div>
-                </div>
-              </a>
-              <div style="height:1px; background:#e5e7eb; margin:0;"></div>
-              <a href="exam-editor.html?kind=exam" class="dropdown-item" role="menuitem" style="display:flex; align-items:center; gap:8px; padding:12px 16px; text-decoration:none; color:#374151; transition:background 0.2s;">
-                <i class="fas fa-pen-to-square" style="color:var(--color-teacher);"></i>
-                <div>
-                  <div style="font-weight:600;">إنشاء يدوي</div>
-                  <div style="font-size:12px; color:#6b7280;">بناء الاختبار من الصفر</div>
-                </div>
-              </a>
+            <div class="dropdown-wrapper" style="position:relative;">
+              <button type="button" class="btn btn--teacher" id="create-exam-btn" aria-haspopup="true" aria-expanded="false">
+                <i class="fas fa-plus"></i> إنشاء جديد
+              </button>
+              <div class="dropdown-menu" id="create-exam-menu" role="menu" style="display:none; position:absolute; top:100%; left:0; background:#fff; border:1px solid #e5e7eb; border-radius:8px; box-shadow:0 4px 6px -1px rgba(0,0,0,0.1); z-index:50; min-width:200px; margin-top:4px;">
+                <a href="exam-wizard.html?kind=exam" class="dropdown-item" role="menuitem" style="display:flex; align-items:center; gap:8px; padding:12px 16px; text-decoration:none; color:#374151; transition:background 0.2s;">
+                  <i class="fas fa-wand-magic-sparkles" style="color:var(--color-teacher);"></i>
+                  <div>
+                    <div style="font-weight:600;">معالج الذكاء الاصطناعي</div>
+                    <div style="font-size:12px; color:#6b7280;">إنشاء سريع بمساعدة AI</div>
+                  </div>
+                </a>
+                <div style="height:1px; background:#e5e7eb; margin:0;"></div>
+                <a href="exam-editor.html?kind=exam" class="dropdown-item" role="menuitem" style="display:flex; align-items:center; gap:8px; padding:12px 16px; text-decoration:none; color:#374151; transition:background 0.2s;">
+                  <i class="fas fa-pen-to-square" style="color:var(--color-teacher);"></i>
+                  <div>
+                    <div style="font-weight:600;">إنشاء يدوي</div>
+                    <div style="font-size:12px; color:#6b7280;">بناء الاختبار من الصفر</div>
+                  </div>
+                </a>
+              </div>
             </div>
           </div>
         </div>
@@ -135,6 +152,25 @@
 
       <section class="card-block">
         <div class="section-head"><h2>الاختبارات الحالية</h2></div>
+        <div class="list-toolbar">
+          <div class="filter-chips" id="quick-filter-chips">
+            <button type="button" class="filter-chip on" data-filter="all">الكل</button>
+            <button type="button" class="filter-chip" data-filter="draft">مسودة</button>
+            <button type="button" class="filter-chip" data-filter="needs_review">يحتاج مراجعة</button>
+            <button type="button" class="filter-chip" data-filter="published">منشور</button>
+            <button type="button" class="filter-chip" data-filter="this_week">هذا الأسبوع</button>
+          </div>
+          <label class="saved-view">
+            <span>العرض المحفوظ</span>
+            <select id="saved-view-select">
+              <option value="all">افتراضي</option>
+              <option value="draft_focus">العمل اليومي</option>
+              <option value="publish_followup">متابعة النشر</option>
+              <option value="week_plan">خطة الأسبوع</option>
+            </select>
+          </label>
+        </div>
+        <p class="hint-inline" id="active-filter-hint">المسار القياسي: إنشاء → معاينة → تقرير. لنشر الاختبار في بنك Mitests العام استخدم زر "نشر عام".</p>
         <div class="table-wrap">
           <table class="data-table">
             <thead>
@@ -202,10 +238,14 @@
     (function () {
       'use strict';
 
+      function initPage() {
       var retentionDays = 30;
       var activeBody = document.getElementById('active-exams-body');
       var sharedBody = document.getElementById('shared-exams-body');
       var deletedBody = document.getElementById('deleted-exams-body');
+      var quickFilterChips = document.getElementById('quick-filter-chips');
+      var savedViewSelect = document.getElementById('saved-view-select');
+      var activeFilterHint = document.getElementById('active-filter-hint');
       var state = {
         scope: '',
         examsKey: '',
@@ -214,8 +254,67 @@
         exams: [],
         trash: [],
         shares: [],
-        currentTeacher: { id: 'TCH-001', name: 'نورة العلي' }
+        currentTeacher: { id: 'TCH-001', name: 'نورة العلي' },
+        quickFilter: 'all',
+        savedView: 'all'
       };
+      var toastTimer = null;
+      var undoTimer = null;
+      var pendingUndo = null;
+
+      function ensureToast() {
+        var node = document.getElementById('ux-toast');
+        if (node) return node;
+        node = document.createElement('div');
+        node.id = 'ux-toast';
+        node.className = 'toast';
+        node.innerHTML = '<span id="ux-toast-text"></span><button type="button" id="ux-toast-undo" style="display:none">تراجع</button>';
+        document.body.appendChild(node);
+        return node;
+      }
+
+      function showToast(message, withUndo, onUndo) {
+        var box = ensureToast();
+        var text = document.getElementById('ux-toast-text');
+        var undoBtn = document.getElementById('ux-toast-undo');
+        if (text) text.textContent = message || '';
+        if (undoBtn) {
+          undoBtn.style.display = withUndo ? 'inline-block' : 'none';
+          undoBtn.onclick = null;
+          if (withUndo && typeof onUndo === 'function') {
+            undoBtn.onclick = function () {
+              onUndo();
+              clearPendingUndo();
+              hideToast();
+            };
+          }
+        }
+        box.classList.add('on');
+        if (toastTimer) clearTimeout(toastTimer);
+        toastTimer = setTimeout(hideToast, withUndo ? 6000 : 2600);
+      }
+
+      function hideToast() {
+        var box = document.getElementById('ux-toast');
+        if (box) box.classList.remove('on');
+      }
+
+      function clearPendingUndo() {
+        if (undoTimer) clearTimeout(undoTimer);
+        undoTimer = null;
+        pendingUndo = null;
+      }
+
+      function scheduleUndo(commitFn, rollbackFn, message) {
+        clearPendingUndo();
+        pendingUndo = { commitFn: commitFn };
+        showToast(message, true, rollbackFn);
+        undoTimer = setTimeout(function () {
+          if (!pendingUndo) return;
+          try { pendingUndo.commitFn(); } catch (e) {}
+          clearPendingUndo();
+        }, 5200);
+      }
 
       function getCurrentScope() {
         var tenantType = 'school_teacher';
@@ -352,6 +451,84 @@
         }
       }
 
+      function isWithinDays(isoString, days) {
+        var d = new Date(isoString || '');
+        if (isNaN(d.getTime())) return false;
+        return Math.abs(Date.now() - d.getTime()) <= days * 24 * 60 * 60 * 1000;
+      }
+
+      function updateFilterHint() {
+        if (!activeFilterHint) return;
+        var map = {
+          all: 'المسار القياسي: إنشاء → معاينة → تقرير.',
+          draft: 'عرض المسودات لإكمالها عبر المعاينة ثم النشر.',
+          needs_review: 'عناصر تحتاج متابعة قبل النشر النهائي.',
+          published: 'اختبارات منشورة جاهزة لمراجعة التقارير.',
+          this_week: 'اختبارات أسبوعية قريبة في الجدول.',
+          draft_focus: 'عرض مخصص: المسودات أولاً.',
+          publish_followup: 'عرض مخصص: المنشور + يحتاج مراجعة.',
+          week_plan: 'عرض مخصص: اختبارات هذا الأسبوع.'
+        };
+        activeFilterHint.textContent = map[state.quickFilter] || map[state.savedView] || map.all;
+      }
+
+      function applySavedView(name) {
+        state.savedView = name || 'all';
+        if (state.savedView === 'draft_focus') state.quickFilter = 'draft';
+        else if (state.savedView === 'publish_followup') state.quickFilter = 'needs_review';
+        else if (state.savedView === 'week_plan') state.quickFilter = 'this_week';
+        else state.quickFilter = 'all';
+        highlightQuickFilters();
+      }
+
+      function highlightQuickFilters() {
+        if (!quickFilterChips) return;
+        var chips = quickFilterChips.querySelectorAll('[data-filter]');
+        for (var i = 0; i < chips.length; i++) {
+          chips[i].classList.toggle('on', chips[i].getAttribute('data-filter') === state.quickFilter);
+        }
+        updateFilterHint();
+      }
+
+      function getFilteredExams() {
+        var list = state.exams.slice();
+        if (state.quickFilter === 'draft') {
+          list = list.filter(function (exam) { return String(exam.status || 'draft') === 'draft'; });
+        } else if (state.quickFilter === 'published') {
+          list = list.filter(function (exam) { return String(exam.status || '') === 'published'; });
+        } else if (state.quickFilter === 'needs_review') {
+          list = list.filter(function (exam) {
+            var st = String(exam.status || '');
+            return st === 'draft' || st === 'archived';
+          });
+        } else if (state.quickFilter === 'this_week') {
+          list = list.filter(function (exam) { return isWithinDays(exam.scheduledAt, 7); });
+        }
+        return list;
+      }
+
+      function buildReportHref(exam, extra) {
+        var params = new URLSearchParams();
+        if (exam && exam.id) params.set('id', exam.id);
+        params.set('kind', (exam && exam.kind === 'assignment') ? 'assignment' : 'exam');
+        if (exam && exam.title) params.set('title', exam.title);
+        if (exam && (exam.groupName || exam.groupId || exam.group)) params.set('group', exam.groupName || exam.groupId || exam.group);
+        if (exam && exam.subject) params.set('subject', exam.subject);
+        if (exam && exam.scheduledAt) params.set('scheduledAt', exam.scheduledAt);
+        if (exam && exam.status) params.set('status', exam.status);
+        params.set('from', 'teacher-exams');
+
+        if (extra && typeof extra === 'object') {
+          var keys = Object.keys(extra);
+          for (var i = 0; i < keys.length; i++) {
+            var key = keys[i];
+            var value = extra[key];
+            if (value !== undefined && value !== null && String(value).trim()) params.set(key, String(value));
+          }
+        }
+        return 'exam-report.html?' + params.toString();
+      }
+
       function getKindLabel(kind) {
         return kind === 'assignment' ? 'واجب' : 'اختبار';
       }
@@ -420,6 +597,102 @@
         saveStoredArray(examsKey, defaults);
       }
 
+      function buildDemoExamsPack() {
+        var now = Date.now();
+        return [
+          {
+            id: 'demo-exam-' + now + '-1',
+            kind: 'exam',
+            title: 'اختبار تجريبي: فهم المقروء - الوحدة 6',
+            subject: 'اللغة العربية',
+            grade: 'السابع',
+            scheduledAt: new Date(now + (1 * 24 * 60 * 60 * 1000)).toISOString(),
+            durationMinutes: 40,
+            status: 'draft',
+            sourceType: 'ai_wizard',
+            sourcePlan: 'بناء تلقائي للوحدة 6',
+            createdAt: new Date(now - (2 * 60 * 60 * 1000)).toISOString(),
+            isDemo: true
+          },
+          {
+            id: 'demo-exam-' + now + '-2',
+            kind: 'exam',
+            title: 'اختبار تجريبي: معادلات من الدرجة الأولى',
+            subject: 'الرياضيات',
+            grade: 'الثامن',
+            scheduledAt: new Date(now + (3 * 24 * 60 * 60 * 1000)).toISOString(),
+            durationMinutes: 50,
+            status: 'published',
+            sourceType: 'question_bank',
+            sourcePlan: 'أسئلة من بنك المدرسة',
+            createdAt: new Date(now - (26 * 60 * 60 * 1000)).toISOString(),
+            isPublic: true,
+            approvalStatus: 'pending',
+            isDemo: true
+          },
+          {
+            id: 'demo-exam-' + now + '-3',
+            kind: 'assignment',
+            title: 'واجب تجريبي: تجربة التبخر والتكاثف',
+            subject: 'العلوم',
+            grade: 'السادس',
+            scheduledAt: new Date(now + (5 * 24 * 60 * 60 * 1000)).toISOString(),
+            durationMinutes: 30,
+            status: 'archived',
+            sourceType: 'manual',
+            sourcePlan: 'ورقة عمل عملية',
+            createdAt: new Date(now - (6 * 24 * 60 * 60 * 1000)).toISOString(),
+            isDemo: true
+          },
+          {
+            id: 'demo-exam-' + now + '-4',
+            kind: 'exam',
+            title: 'اختبار تجريبي: تاريخ الدولة الأموية',
+            subject: 'التاريخ',
+            grade: 'التاسع',
+            scheduledAt: new Date(now + (7 * 24 * 60 * 60 * 1000)).toISOString(),
+            durationMinutes: 45,
+            status: 'published',
+            sourceType: 'shared_copy',
+            sourcePlan: 'نسخة متعاونة بين المعلمين',
+            createdAt: new Date(now - (10 * 24 * 60 * 60 * 1000)).toISOString(),
+            isDemo: true
+          }
+        ];
+      }
+
+      function hasActiveDemoExams() {
+        for (var i = 0; i < state.exams.length; i++) {
+          if (state.exams[i] && state.exams[i].isDemo) return true;
+        }
+        return false;
+      }
+
+      function addDemoExams() {
+        if (hasActiveDemoExams()) {
+          showToast('الاختبارات التجريبية موجودة بالفعل في القائمة.', false);
+          return;
+        }
+
+        var demos = buildDemoExamsPack();
+        state.exams = demos.concat(state.exams);
+        renderAll();
+
+        scheduleUndo(function () {
+          persistState();
+          showToast('تمت إضافة 4 اختبارات تجريبية بنجاح.', false);
+        }, function () {
+          var ids = {};
+          for (var i = 0; i < demos.length; i++) ids[demos[i].id] = true;
+          state.exams = state.exams.filter(function (exam) {
+            return exam && !ids[exam.id];
+          });
+          persistState();
+          renderAll();
+          showToast('تم التراجع عن إضافة الاختبارات التجريبية.', false);
+        }, 'تمت إضافة اختبارات تجريبية. يمكنك التراجع');
+      }
+
       function loadState() {
         state.scope = getCurrentScope();
         state.examsKey = 'mitests-teacher-exams:' + state.scope;
@@ -447,18 +720,22 @@
 
       function renderActiveTable() {
         if (!activeBody) return;
-        if (!state.exams.length) {
-          activeBody.innerHTML = '<tr><td class="empty-cell" colspan="6">لا توجد اختبارات حالية.</td></tr>';
+        var exams = getFilteredExams();
+        if (!exams.length) {
+          activeBody.innerHTML = '<tr><td class="empty-cell" colspan="6"><div class="empty-callout"><strong>لا توجد نتائج لهذا الفلتر.</strong><a href="exam-wizard.html?kind=exam" class="btn btn--teacher btn--sm"><i class="fas fa-plus"></i> ابدأ اختبارًا جديدًا</a></div></td></tr>';
           return;
         }
 
         var html = '';
         var canShareInSchool = String(state.scope || '').indexOf('school:') === 0;
-        for (var i = 0; i < state.exams.length; i++) {
-          var exam = state.exams[i];
-          var shareButton = canShareInSchool
-            ? '<button type="button" class="btn btn--outline btn--sm" data-action="share-exam" data-id="' + escapeHtml(exam.id || '') + '"><i class="fas fa-share-nodes"></i> مشاركة</button>'
-            : '';
+        for (var i = 0; i < exams.length; i++) {
+          var exam = exams[i];
+          var publicButton = '';
+          if (canShareInSchool) {
+            publicButton = exam.isPublic
+              ? '<button type="button" class="btn btn--teacher btn--sm" data-action="publish-public" data-id="' + escapeHtml(exam.id || '') + '"><i class="fas fa-globe"></i> منشور عام</button>'
+              : '<button type="button" class="btn btn--outline btn--sm" data-action="publish-public" data-id="' + escapeHtml(exam.id || '') + '"><i class="fas fa-globe"></i> نشر عام</button>';
+          }
           html += '<tr>'
             + '<td><span class="kind-badge ' + getKindClass(exam.kind) + '">' + getKindLabel(exam.kind) + '</span></td>'
             + '<td>' + escapeHtml(exam.title || 'بدون عنوان') + '</td>'
@@ -469,8 +746,9 @@
               + '<div class="action-buttons">'
                 + '<a href="exam-editor.html?id=' + escapeHtml(exam.id || '') + '" class="btn btn--outline btn--sm"><i class="fas fa-pen"></i> تعديل</a>'
                 + '<button type="button" class="btn btn--primary btn--sm" data-action="assign-group" data-id="' + escapeHtml(exam.id || '') + '"><i class="fas fa-users-viewfinder"></i> تعيين</button>'
+                + publicButton
                 + '<button type="button" class="btn btn--outline btn--sm" data-action="share-smart" data-id="' + escapeHtml(exam.id || '') + '"><i class="fas fa-share-nodes"></i> مشاركة</button>'
-                + '<a href="exam-report.html?title=' + encodeURIComponent(exam.title || '') + '" class="btn btn--teacher btn--sm">النتائج</a>'
+                + '<a href="' + buildReportHref(exam) + '" class="btn btn--teacher btn--sm">النتائج</a>'
                 + '<button type="button" class="btn btn--outline btn--sm" data-action="move-trash" data-id="' + escapeHtml(exam.id || '') + '"><i class="fas fa-trash"></i> حذف</button>'
               + '</div>'
             + '</td>'
@@ -566,17 +844,26 @@
           }
         }
         if (index === -1) return;
-        if (!window.confirm('سيتم نقل الاختبار إلى سلة المحذوفات لمدة 30 يومًا. هل تريد المتابعة؟')) return;
-
-        var removed = state.exams.splice(index, 1)[0];
+        var removed = state.exams[index];
         var nowIso = new Date().toISOString();
         var expiryIso = new Date(Date.now() + (retentionDays * 24 * 60 * 60 * 1000)).toISOString();
         removed.deletedAt = nowIso;
         removed.expiresAt = expiryIso;
-        state.trash.unshift(removed);
 
-        persistState();
+        state.exams.splice(index, 1);
+        state.trash.unshift(removed);
         renderAll();
+        scheduleUndo(function () {
+          persistState();
+          showToast('تم نقل الاختبار إلى سلة المحذوفات.', false);
+        }, function () {
+          state.trash = state.trash.filter(function (item) { return String(item.id) !== String(removed.id); });
+          delete removed.deletedAt;
+          delete removed.expiresAt;
+          state.exams.splice(index, 0, removed);
+          renderAll();
+          showToast('تم التراجع عن الحذف.', false);
+        }, 'تم النقل إلى السلة. يمكنك التراجع');
       }
 
       function restoreFromTrash(examId) {
@@ -601,19 +888,61 @@
 
       function deletePermanently(examId) {
         if (!examId) return;
-        if (!window.confirm('سيتم حذف هذا الاختبار نهائيًا ولن يمكن استعادته.')) return;
-
+        var removed = null;
         state.trash = state.trash.filter(function (item) {
-          return String(item.id) !== String(examId);
+          if (String(item.id) === String(examId)) {
+            removed = item;
+            return false;
+          }
+          return true;
         });
-
-        persistState();
+        if (!removed) return;
         renderAll();
+        scheduleUndo(function () {
+          persistState();
+          showToast('تم الحذف النهائي.', false);
+        }, function () {
+          state.trash.unshift(removed);
+          renderAll();
+          showToast('تمت استعادة العنصر قبل الحذف النهائي.', false);
+        }, 'سيتم الحذف النهائي خلال ثوانٍ. تراجع؟');
+      }
+
+      function publishToPublic(examId) {
+        if (!examId) return;
+        if (String(state.scope || '').indexOf('school:') !== 0) {
+          showToast('البنك العام متاح لحسابات المدرسة فقط.', false);
+          return;
+        }
+        var exam = null;
+        for (var i = 0; i < state.exams.length; i++) {
+          if (String(state.exams[i].id) === String(examId)) {
+            exam = state.exams[i];
+            break;
+          }
+        }
+        if (!exam) return;
+
+        var prevPublic = !!exam.isPublic;
+        var prevApproval = exam.approvalStatus || 'none';
+        exam.isPublic = !prevPublic;
+        exam.approvalStatus = exam.isPublic ? 'pending' : 'none';
+        renderAll();
+
+        scheduleUndo(function () {
+          persistState();
+          showToast(exam.isPublic ? 'تم إرسال طلب النشر إلى البنك العام.' : 'تم إلغاء النشر من البنك العام.', false);
+        }, function () {
+          exam.isPublic = prevPublic;
+          exam.approvalStatus = prevApproval;
+          renderAll();
+          showToast('تم التراجع عن تغيير حالة النشر.', false);
+        }, exam.isPublic ? 'تم تفعيل النشر العام. يمكنك التراجع' : 'تم إلغاء النشر العام. يمكنك التراجع');
       }
 
       function shareExam(examId, targetTeacherId) {
         if (String(state.scope || '').indexOf('school:') !== 0) {
-          alert('ميزة مشاركة الاختبارات متاحة لمعلمي المدرسة فقط.');
+          showToast('ميزة المشاركة متاحة لمعلمي المدرسة فقط.', false);
           return;
         }
         var exam = null;
@@ -627,32 +956,20 @@
 
         var recipients = getSchoolRecipients();
         if (!recipients.length) {
-          alert('لا يوجد معلمون متاحون للمشاركة في هذه المدرسة.');
+          showToast('لا يوجد معلمون متاحون للمشاركة.', false);
           return;
         }
 
         var receiver = null;
 
         if (targetTeacherId) {
-          receiver = recipients.find(r => String(r.id) === String(targetTeacherId));
+          receiver = recipients.find(function (r) { return String(r.id) === String(targetTeacherId); });
           if (!receiver) {
-            alert('المعلم المختار غير موجود.');
+            showToast('المعلم المختار غير موجود.', false);
             return;
           }
         } else {
-          var lines = [];
-          for (var j = 0; j < recipients.length; j++) {
-            lines.push((j + 1) + '. ' + recipients[j].name);
-          }
-
-          var picked = window.prompt('اختر رقم المعلم الذي تريد مشاركة الاختبار معه:\n' + lines.join('\n'), '1');
-          if (picked === null) return;
-          var pickedIndex = parseInt(String(picked).trim(), 10) - 1;
-          if (isNaN(pickedIndex) || pickedIndex < 0 || pickedIndex >= recipients.length) {
-            alert('اختيار غير صحيح.');
-            return;
-          }
-          receiver = recipients[pickedIndex];
+          receiver = recipients[0];
         }
         var share = {
           id: 'share-' + Date.now(),
@@ -684,7 +1001,7 @@
 
         state.shares.unshift(share);
         persistState();
-        alert('تمت مشاركة الاختبار مع ' + receiver.name + ' بنجاح.');
+        showToast('تمت مشاركة الاختبار مع ' + receiver.name + '.', false);
         renderAll();
       }
 
@@ -716,7 +1033,7 @@
 
         persistState();
         renderAll();
-        alert('تم نسخ الاختبار إلى قائمة اختباراتي كمسودة.');
+        showToast('تم نسخ الاختبار كمسودة في قائمتك.', false);
       }
 
       document.addEventListener('click', function (event) {
@@ -729,6 +1046,7 @@
         if (action === 'restore') restoreFromTrash(examId);
         if (action === 'delete-permanent') deletePermanently(examId);
         if (action === 'share-exam') shareExam(examId);
+        if (action === 'publish-public') publishToPublic(examId);
         if (action === 'duplicate-shared') duplicateSharedExam(examId);
         if (action === 'assign-group') openAssignModal(examId);
         if (action === 'share-smart') openShareSmartModal(examId);
@@ -795,7 +1113,7 @@
          const groupId = document.getElementById('assign-group-select').value;
          const dueDate = document.getElementById('assign-due-date').value;
          
-         if(!groupId) { alert('يرجى اختيار مجموعة'); return; }
+         if(!groupId) { showToast('يرجى اختيار مجموعة.', false); return; }
          
          // Save Assignment
          const assignKey = 'mitests-group-assignments:' + state.scope;
@@ -811,7 +1129,7 @@
          
          saveStoredArray(assignKey, assignments);
          
-         alert('تم تعيين الاختبار للمجموعة بنجاح!');
+         showToast('تم تعيين الاختبار للمجموعة بنجاح.', false);
          assignModal.style.display = 'none';
       });
 
@@ -836,20 +1154,18 @@
          const exam = state.exams.find(e => e.id === currentExamId);
          if(!exam) return;
          
-         if(confirm(exam.isPublic ? 'إلغاء نشر الاختبار من البنك العام؟' : 'هل تريد نشر الاختبار في بنك الأسئلة العام؟')) {
-            exam.isPublic = !exam.isPublic;
-            exam.approvalStatus = exam.isPublic ? 'pending' : 'none';
-            persistState();
-            renderAll();
-            openShareSmartModal(currentExamId); // Refresh UI
-            alert(exam.isPublic ? 'تم إرسال طلب النشر للمراجعة.' : 'تم إلغاء النشر.');
-         }
+         exam.isPublic = !exam.isPublic;
+         exam.approvalStatus = exam.isPublic ? 'pending' : 'none';
+         persistState();
+         renderAll();
+         openShareSmartModal(currentExamId);
+         showToast(exam.isPublic ? 'تم إرسال طلب النشر للمراجعة.' : 'تم إلغاء النشر.', false);
       });
 
       document.getElementById('share-link-btn').addEventListener('click', () => {
           const link = window.location.origin + '/mitests/student-exam.html?examId=' + currentExamId;
           navigator.clipboard.writeText(link).then(() => {
-             alert('تم نسخ رابط الاختبار: ' + link);
+             showToast('تم نسخ رابط الاختبار.', false);
           });
       });
 
@@ -862,13 +1178,45 @@
       
       document.getElementById('confirm-colleague-share').addEventListener('click', () => {
           const teacherId = document.getElementById('share-teacher-select').value;
-          if(!teacherId) { alert('يرجى اختيار معلم'); return; }
+          if(!teacherId) { showToast('يرجى اختيار معلم.', false); return; }
           shareExam(currentExamId, teacherId);
           shareModal.style.display = 'none';
       });
 
+      if (quickFilterChips) {
+        quickFilterChips.addEventListener('click', function (event) {
+          var chip = event.target.closest('[data-filter]');
+          if (!chip) return;
+          state.quickFilter = chip.getAttribute('data-filter') || 'all';
+          if (savedViewSelect) savedViewSelect.value = 'all';
+          state.savedView = 'all';
+          highlightQuickFilters();
+          renderActiveTable();
+        });
+      }
+
+      if (savedViewSelect) {
+        savedViewSelect.addEventListener('change', function () {
+          applySavedView(savedViewSelect.value);
+          renderActiveTable();
+        });
+      }
+
+      var addDemoBtn = document.getElementById('add-demo-exams-btn');
+      if (addDemoBtn) {
+        addDemoBtn.addEventListener('click', addDemoExams);
+      }
+
       loadState();
+      highlightQuickFilters();
       renderAll();
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initPage);
+      } else {
+        initPage();
+      }
     })();
   </script>
   <!-- Assign Modal -->

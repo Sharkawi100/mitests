@@ -90,10 +90,18 @@
   var inviteCodeValue = document.getElementById('invite-code-value');
   var resourcesBody = document.getElementById('resources-body');
   var resourceTitleInput = document.getElementById('resource-title');
+  var resourceModeInput = document.getElementById('resource-mode');
   var resourceFileInput = document.getElementById('resource-file');
+  var resourceFileField = document.getElementById('resource-file-field');
+  var resourceLinkField = document.getElementById('resource-link-field');
   var resourceLinkInput = document.getElementById('resource-link');
   var resourceNoteInput = document.getElementById('resource-note');
   var addResourceBtn = document.getElementById('add-resource-btn');
+  var streamPreview = document.getElementById('group-stream-preview');
+  var toastNode = document.getElementById('group-toast');
+  var toastTimer = null;
+  var undoTimer = null;
+  var pendingUndo = null;
 
   var addGroupBtn = document.getElementById('add-group-btn');
   var modalOverlay = document.getElementById('group-modal-overlay');
@@ -314,12 +322,13 @@
         var first = firstNames[i % firstNames.length];
         var last = lastNames[(i * 2) % lastNames.length];
         var score = Math.max(50, Math.min(100, (Number(group.avgScore) || 80) + ((i % 5) - 2) * 3));
+        var reportHref = buildReportHref(group, null, examNames[i % examNames.length], score);
         rawRows += '' +
           '<tr>' +
             '<td>' + first + ' ' + last + '</td>' +
             '<td>' + examNames[i % examNames.length] + '</td>' +
             '<td>' + score + '</td>' +
-            '<td><a class="btn btn--teacher btn--sm" href="exam-report.html">عرض التقرير</a></td>' +
+            '<td><a class="btn btn--teacher btn--sm" href="' + reportHref + '">عرض التقرير</a></td>' +
           '</tr>';
       }
       studentsBody.innerHTML = rawRows;
@@ -329,12 +338,13 @@
     var rows = '';
     list.forEach(function (m, i) {
       var score = Math.max(50, Math.min(100, (Number(group.avgScore) || 80) + ((i % 5) - 2) * 3));
+      var reportHref = buildReportHref(group, m, examNames[i % examNames.length], score);
       rows += '' +
         '<tr>' +
           '<td>' + esc(m.studentName || 'طالب') + (m.studentId ? ' <small style="color:#6b7280;">(' + esc(m.studentId) + ')</small>' : '') + '</td>' +
           '<td>' + examNames[i % examNames.length] + '</td>' +
           '<td>' + score + '</td>' +
-          '<td><a class="btn btn--teacher btn--sm" href="exam-report.html?group=' + encodeURIComponent(group.code) + '&student=' + encodeURIComponent(m.studentId || m.studentName || '') + '">عرض التقرير</a></td>' +
+          '<td><a class="btn btn--teacher btn--sm" href="' + reportHref + '">عرض التقرير</a></td>' +
         '</tr>';
     });
     studentsBody.innerHTML = rows;
@@ -401,12 +411,67 @@
     return 'ملف مرفق';
   }
 
+  function renderResourceStreamPreview(group) {
+    if (!streamPreview) return;
+    if (!group) {
+      streamPreview.innerHTML = '<div class="stream-empty">لا توجد مجموعة محددة.</div>';
+      return;
+    }
+
+    var list = resourcesOf(group.code);
+    if (!list.length) {
+      streamPreview.innerHTML = '<div class="stream-empty">لا يوجد محتوى منشور في التدفق حتى الآن.</div>';
+      return;
+    }
+
+    var html = '';
+    for (var i = 0; i < list.length; i++) {
+      var item = list[i] || {};
+      var websiteLink = String(item.websiteLink || item.link || '').trim();
+      var youtubeId = String(item.youtubeId || parseYouTubeId(websiteLink) || '').trim();
+      var attachmentName = String(item.attachmentName || '').trim();
+      var attachmentHref = String(item.attachmentDataUrl || '').trim();
+      var note = String(item.note || '').trim();
+
+      var actions = '';
+      if (attachmentHref) {
+        actions += '<a href="' + esc(attachmentHref) + '" download="' + esc(attachmentName || 'attachment') + '" class="btn btn--teacher btn--sm"><i class="fas fa-paperclip"></i><span>تحميل المرفق</span></a>';
+      } else if (attachmentName) {
+        actions += '<span class="hint">مرفق: ' + esc(attachmentName) + '</span>';
+      }
+      if (isWebUrl(websiteLink)) {
+        actions += '<a href="' + esc(websiteLink) + '" target="_blank" rel="noopener" class="btn btn--outline btn--sm"><i class="fas fa-link"></i><span>فتح الرابط</span></a>';
+      }
+      if (!actions) {
+        actions = '<span class="hint">لا يوجد رابط مباشر.</span>';
+      }
+
+      var bodyHtml = note ? '<div class="stream-item__body">' + esc(note) + '</div>' : '';
+      if (youtubeId) {
+        bodyHtml += '<iframe class="stream-video" src="https://www.youtube.com/embed/' + esc(youtubeId) + '" title="' + esc(item.title || 'YouTube video') + '" loading="lazy" allowfullscreen></iframe>';
+      }
+
+      html += ''
+        + '<article class="stream-item">'
+        + '<div class="stream-item__head">'
+        + '<div class="stream-item__title">' + esc(item.title || 'محتوى تعليمي') + '</div>'
+        + '<div class="stream-item__meta">' + esc(fmtDate(item.createdAt)) + '</div>'
+        + '</div>'
+        + bodyHtml
+        + '<div class="stream-item__actions">' + actions + '</div>'
+        + '</article>';
+    }
+
+    streamPreview.innerHTML = html;
+  }
+
   function renderResources(group) {
     if (!resourcesBody) return;
     var list = resourcesOf(group.code);
 
     if (!list.length) {
       resourcesBody.innerHTML = '<tr><td colspan="5">لا يوجد محتوى مضاف بعد. أضف مرفقًا أو رابطًا للمجموعة.</td></tr>';
+      renderResourceStreamPreview(group);
       return;
     }
 
@@ -432,7 +497,7 @@
         linkHtml = '<a href="' + esc(websiteLink) + '" target="_blank" rel="noopener">' + esc(websiteLink) + '</a>';
       }
 
-      var note = String(item.note || item.size || '').trim();
+      var note = String(item.note || '').trim();
       rows += '' +
         '<tr>' +
           '<td>' + esc(item.title || 'محتوى') + (note ? ' <small style="color:#6b7280;">(' + esc(note) + ')</small>' : '') + '</td>' +
@@ -443,6 +508,7 @@
         '</tr>';
     }
     resourcesBody.innerHTML = rows;
+    renderResourceStreamPreview(group);
   }
 
   function renderDetails() {
@@ -457,6 +523,7 @@
       studentsBody.innerHTML = '<tr><td colspan="4">لا توجد بيانات طلاب.</td></tr>';
       requestsBody.innerHTML = '<tr><td colspan="4">لا توجد طلبات.</td></tr>';
       if (resourcesBody) resourcesBody.innerHTML = '<tr><td colspan="5">لا توجد مجموعة محددة.</td></tr>';
+      renderResourceStreamPreview(null);
       return;
     }
 
@@ -511,7 +578,7 @@
     var count = Number(groupCountInput.value || 0);
 
     if (!name || !subject || !grade || !count || count < 1) {
-      alert('يرجى تعبئة كل الحقول بشكل صحيح.');
+      showToast('يرجى تعبئة كل الحقول بشكل صحيح.');
       return;
     }
 
@@ -548,6 +615,7 @@
     closeModal();
     renderGroups();
     renderDetails();
+    showToast(editCode ? 'تم تحديث المجموعة بنجاح.' : 'تم إنشاء المجموعة بنجاح.');
   }
 
   function approveRequest(id) {
@@ -620,9 +688,9 @@
     if (!value) return;
     if (navigator.clipboard && window.isSecureContext) {
       navigator.clipboard.writeText(value).then(function () {
-        alert('تم نسخ كود الانضمام.');
+        showToast('تم نسخ كود الانضمام.');
       }).catch(function () {
-        alert('تعذر النسخ تلقائياً. الكود: ' + value);
+        showToast('تعذر النسخ تلقائياً. الكود: ' + value);
       });
       return;
     }
@@ -636,9 +704,9 @@
     area.select();
     try {
       document.execCommand('copy');
-      alert('تم نسخ كود الانضمام.');
+      showToast('تم نسخ كود الانضمام.');
     } catch (e) {
-      alert('تعذر النسخ تلقائياً. الكود: ' + value);
+      showToast('تعذر النسخ تلقائياً. الكود: ' + value);
     }
     document.body.removeChild(area);
   }
@@ -661,7 +729,7 @@
     var maxBytes = 1024 * 1024;
     if (file.size > maxBytes) {
       done({ dataUrl: '', sizeText: sizeText });
-      alert('حجم الملف كبير للحفظ داخل المتصفح. سيتم حفظ اسم الملف فقط بدون معاينة مباشرة.');
+      showToast('حجم الملف كبير؛ سيتم حفظ اسم الملف فقط بدون معاينة مباشرة.');
       return;
     }
 
@@ -678,7 +746,7 @@
   function addResource() {
     var group = getGroup(selectedCode);
     if (!group) {
-      alert('اختر مجموعة أولاً لإضافة المحتوى.');
+      showToast('اختر مجموعة أولاً لإضافة المحتوى.');
       return;
     }
 
@@ -689,18 +757,25 @@
       ? resourceFileInput.files[0]
       : null;
 
+    var mode = getResourceMode();
     if (!title) {
-      alert('يرجى إدخال عنوان المحتوى.');
+      showToast('يرجى إدخال عنوان المحتوى.');
       return;
     }
-
+    if (mode === 'file' && !attachment) {
+      showToast('يرجى إضافة مرفق ملف.');
+      return;
+    }
+    if (mode === 'link' && !websiteLink) {
+      showToast('يرجى إضافة رابط موقع.');
+      return;
+    }
     if (!attachment && !websiteLink) {
-      alert('أضف مرفقًا أو رابط موقع على الأقل.');
+      showToast('أضف مرفقًا أو رابط موقع على الأقل.');
       return;
     }
-
     if (websiteLink && !isWebUrl(websiteLink)) {
-      alert('يرجى إدخال رابط صحيح يبدأ بـ http أو https.');
+      showToast('يرجى إدخال رابط صحيح يبدأ بـ http أو https.');
       return;
     }
 
@@ -735,6 +810,7 @@
       if (resourceLinkInput) resourceLinkInput.value = '';
       if (resourceNoteInput) resourceNoteInput.value = '';
       if (resourceFileInput) resourceFileInput.value = '';
+      showToast('تمت إضافة المحتوى للمجموعة بنجاح.');
     });
   }
   groupsGrid.addEventListener('click', function (e) {
@@ -760,19 +836,34 @@
 
     if (action === 'delete') {
       if (groups.length === 1) {
-        alert('يجب أن تبقى مجموعة واحدة على الأقل.');
+        showToast('يجب أن تبقى مجموعة واحدة على الأقل.');
         return;
       }
-      if (!window.confirm('هل أنت متأكد من حذف هذه المجموعة؟')) return;
+      var removedGroup = group;
+      var removedMembers = members.filter(function (m) { return m.groupCode === code; });
+      var removedRequests = requests.filter(function (r) { return r.groupCode === code; });
+      var removedResources = resources.filter(function (r) { return r.groupCode === code; });
 
       groups = groups.filter(function (g) { return g.code !== code; });
       members = members.filter(function (m) { return m.groupCode !== code; });
       requests = requests.filter(function (r) { return r.groupCode !== code; });
       resources = resources.filter(function (r) { return r.groupCode !== code; });
       if (selectedCode === code && groups.length) selectedCode = groups[0].code;
-      saveAll();
       renderGroups();
       renderDetails();
+      scheduleUndo(function () {
+        saveAll();
+        showToast('تم حذف المجموعة.', false);
+      }, function () {
+        groups.unshift(removedGroup);
+        members = members.concat(removedMembers);
+        requests = requests.concat(removedRequests);
+        resources = resources.concat(removedResources);
+        selectedCode = removedGroup.code;
+        renderGroups();
+        renderDetails();
+        showToast('تم استرجاع المجموعة.');
+      }, 'تم حذف المجموعة. يمكنك التراجع');
     }
   });
 
@@ -796,15 +887,27 @@
   document.getElementById('rotate-invite-code-btn').addEventListener('click', function () {
     var g = getGroup(selectedCode);
     if (!g) return;
-    if (!window.confirm('سيتم إنشاء كود جديد وإيقاف الكود الحالي. متابعة؟')) return;
+    var oldCode = g.inviteCode;
     g.inviteCode = newInvite(g.name + Date.now());
-    saveAll();
     renderGroups();
     renderDetails();
+    scheduleUndo(function () {
+      saveAll();
+      showToast('تم تحديث كود الانضمام.');
+    }, function () {
+      g.inviteCode = oldCode;
+      renderGroups();
+      renderDetails();
+      showToast('تمت استعادة الكود السابق.');
+    }, 'تم إنشاء كود جديد. يمكنك التراجع');
   });
 
   if (addResourceBtn) {
     addResourceBtn.addEventListener('click', addResource);
+  }
+
+  if (resourceModeInput) {
+    resourceModeInput.addEventListener('change', applyResourceMode);
   }
 
   if (resourceLinkInput) {
@@ -824,11 +927,24 @@
       var action = btn.getAttribute('data-resource-action');
       var resourceId = btn.getAttribute('data-resource-id');
       if (action !== 'delete' || !resourceId) return;
-
-      resources = resources.filter(function (item) { return item.id !== resourceId; });
-      saveAll();
+      var removed = null;
+      resources = resources.filter(function (item) {
+        if (item.id === resourceId) {
+          removed = item;
+          return false;
+        }
+        return true;
+      });
+      if (!removed) return;
       var current = getGroup(selectedCode);
       if (current) renderResources(current);
+      scheduleUndo(function () {
+        saveAll();
+      }, function () {
+        resources.unshift(removed);
+        var currentGroup = getGroup(selectedCode);
+        if (currentGroup) renderResources(currentGroup);
+      }, 'تم حذف المحتوى. يمكنك التراجع');
     });
   }
 
@@ -858,7 +974,89 @@
   cleanOrphans();
   recalcCounts();
   ensureSelected();
+  applyResourceMode();
   saveAll();
   renderGroups();
   renderDetails();
 })();
+  function showToast(message, actionLabel, actionFn, timeoutMs) {
+    if (!toastNode) return;
+    if (toastTimer) clearTimeout(toastTimer);
+    toastNode.innerHTML = '';
+
+    var text = document.createElement('span');
+    text.textContent = String(message || '');
+    toastNode.appendChild(text);
+
+    if (actionLabel && typeof actionFn === 'function') {
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.textContent = actionLabel;
+      btn.addEventListener('click', function () {
+        actionFn();
+        hideToast();
+      });
+      toastNode.appendChild(btn);
+    }
+
+    toastNode.classList.add('on');
+    toastTimer = setTimeout(hideToast, timeoutMs || (actionLabel ? 5600 : 2600));
+  }
+
+  function hideToast() {
+    if (!toastNode) return;
+    toastNode.classList.remove('on');
+  }
+
+  function clearPendingUndo() {
+    if (undoTimer) clearTimeout(undoTimer);
+    undoTimer = null;
+    pendingUndo = null;
+  }
+
+  function scheduleUndo(commitFn, rollbackFn, message) {
+    clearPendingUndo();
+    pendingUndo = { commitFn: commitFn };
+    showToast(message, 'تراجع', function () {
+      if (typeof rollbackFn === 'function') rollbackFn();
+      clearPendingUndo();
+    }, 5600);
+    undoTimer = setTimeout(function () {
+      if (!pendingUndo) return;
+      try { pendingUndo.commitFn(); } catch (e) {}
+      clearPendingUndo();
+    }, 5200);
+  }
+
+  function getResourceMode() {
+    return (resourceModeInput && resourceModeInput.value) ? resourceModeInput.value : 'both';
+  }
+
+  function applyResourceMode() {
+    var mode = getResourceMode();
+    if (resourceFileField) {
+      var showFile = mode !== 'link';
+      resourceFileField.classList.toggle('is-muted', !showFile);
+      resourceFileField.hidden = !showFile;
+    }
+    if (resourceLinkField) {
+      var showLink = mode !== 'file';
+      resourceLinkField.classList.toggle('is-muted', !showLink);
+      resourceLinkField.hidden = !showLink;
+    }
+  }
+
+  function buildReportHref(group, item, fallbackTitle, fallbackScore) {
+    var params = new URLSearchParams();
+    params.set('kind', 'exam');
+    params.set('title', item && item.title ? item.title : (fallbackTitle || 'اختبار المجموعة'));
+    params.set('group', (group && (group.name || group.code)) ? (group.name || group.code) : '');
+    params.set('status', 'published');
+    params.set('from', 'teacher-group');
+    params.set('scheduledAt', new Date().toISOString());
+    if (group && group.subject) params.set('subject', group.subject);
+    if (item && item.studentName) params.set('student', item.studentName);
+    if (item && item.studentId) params.set('studentId', item.studentId);
+    if (fallbackScore !== undefined && fallbackScore !== null) params.set('score', String(fallbackScore));
+    return 'exam-report.html?' + params.toString();
+  }

@@ -343,11 +343,15 @@
 
     <main class="report-main">
       <header class="header-card">
-        <h1 data-i18n="headerTitle">تقرير اختبار: الإنجليزية - الوحدة 5 (المجموعة 9/1)</h1>
+        <h1 id="report-title" data-i18n="headerTitle">تقرير اختبار: الإنجليزية - الوحدة 5 (المجموعة 9/1)</h1>
         <div class="header-meta">
-          <span class="meta-chip"><i class="fas fa-book-open"></i><span data-i18n="headerSubject">المادة: الإنجليزية</span></span>
-          <span class="meta-chip"><i class="fas fa-calendar-day"></i><span data-i18n="headerDate">التاريخ: 2026-02-12</span></span>
-          <span class="meta-chip"><i class="fas fa-users"></i><span data-i18n="headerStudents">عدد المشاركين: 31 طالبًا</span></span>
+          <span class="meta-chip"><i class="fas fa-book-open"></i><span id="report-subject" data-i18n="headerSubject">المادة: الإنجليزية</span></span>
+          <span class="meta-chip"><i class="fas fa-calendar-day"></i><span id="report-date" data-i18n="headerDate">التاريخ: 2026-02-12</span></span>
+          <span class="meta-chip"><i class="fas fa-users"></i><span id="report-students" data-i18n="headerStudents">عدد المشاركين: 31 طالبًا</span></span>
+          <span class="meta-chip"><i class="fas fa-file-lines"></i><span id="report-context-kind">النوع: اختبار</span></span>
+          <span class="meta-chip"><i class="fas fa-users-rectangle"></i><span id="report-context-group">المجموعة: -</span></span>
+          <span class="meta-chip"><i class="fas fa-user"></i><span id="report-context-student">الطالب: عرض جماعي</span></span>
+          <span class="meta-chip"><i class="fas fa-circle-check"></i><span id="report-context-status">الحالة: منشور</span></span>
         </div>
       </header>
 
@@ -590,6 +594,199 @@
         }
       };
 
+      function readStoredArray(key) {
+        try {
+          var raw = localStorage.getItem(key);
+          if (!raw) return [];
+          var parsed = JSON.parse(raw);
+          return Array.isArray(parsed) ? parsed : [];
+        } catch (e) {
+          return [];
+        }
+      }
+
+      function getScope() {
+        var tenantType = 'school_teacher';
+        try {
+          tenantType = localStorage.getItem('mitests-tenant-type') || 'school_teacher';
+        } catch (e) {}
+
+        if (tenantType === 'personal_teacher') {
+          try {
+            var wsRaw = localStorage.getItem('mitests-personal-workspace') || '';
+            if (!wsRaw) return 'personal:default';
+            var ws = JSON.parse(wsRaw);
+            return 'personal:' + (ws.workspaceId || 'default');
+          } catch (e2) {
+            return 'personal:default';
+          }
+        }
+
+        var schoolId = 'SCH-001';
+        try {
+          schoolId = localStorage.getItem('mitests-school-id') || 'SCH-001';
+        } catch (e3) {}
+        return 'school:' + schoolId;
+      }
+
+      function loadExamById(examId) {
+        if (!examId) return null;
+        var scope = getScope();
+        var exams = readStoredArray('mitests-teacher-exams:' + scope);
+        var trash = readStoredArray('mitests-teacher-exams-trash:' + scope);
+        var all = exams.concat(trash);
+        for (var i = 0; i < all.length; i++) {
+          if (String(all[i].id || '') === String(examId)) return all[i];
+        }
+        return null;
+      }
+
+      function extractSubject(title) {
+        var value = String(title || '').trim();
+        if (!value) return '';
+        var dash = value.indexOf('-');
+        if (dash <= 0) return '';
+        return value.slice(0, dash).trim();
+      }
+
+      function formatReportDate(rawDate, lang) {
+        var date = new Date(rawDate || '');
+        if (isNaN(date.getTime())) return '';
+        var locale = lang === 'en' ? 'en-US' : (lang === 'he' ? 'he-IL' : 'ar-SA');
+        try {
+          return date.toLocaleDateString(locale, { year: 'numeric', month: '2-digit', day: '2-digit' });
+        } catch (e) {
+          return date.toISOString().slice(0, 10);
+        }
+      }
+
+      function buildReportContext() {
+        var params = new URLSearchParams(window.location.search);
+        var id = params.get('id') || params.get('examId') || '';
+        var item = loadExamById(id);
+
+        var kind = params.get('kind') || (item && item.kind) || 'exam';
+        kind = kind === 'assignment' ? 'assignment' : 'exam';
+
+        var title = params.get('title') || (item && item.title) || '';
+        var group = params.get('group') || (item && (item.groupName || item.groupCode || item.group || '')) || '';
+        var subject = params.get('subject') || (item && item.subject) || extractSubject(title);
+        var scheduledAt = params.get('scheduledAt') || params.get('date') || (item && item.scheduledAt) || '';
+        var studentsRaw = params.get('students') || '';
+        var students = parseInt(studentsRaw, 10);
+        if (isNaN(students) || students < 1) students = 31;
+        var status = params.get('status') || (item && item.status) || 'published';
+        var student = params.get('student') || '';
+
+        return {
+          id: id,
+          kind: kind,
+          title: title,
+          group: group,
+          subject: subject,
+          scheduledAt: scheduledAt,
+          students: students,
+          status: status,
+          student: student
+        };
+      }
+
+      var reportContext = buildReportContext();
+
+      function applyReportContext(lang) {
+        var titleEl = document.getElementById('report-title');
+        var subjectEl = document.getElementById('report-subject');
+        var dateEl = document.getElementById('report-date');
+        var studentsEl = document.getElementById('report-students');
+        var kindCtxEl = document.getElementById('report-context-kind');
+        var groupCtxEl = document.getElementById('report-context-group');
+        var studentCtxEl = document.getElementById('report-context-student');
+        var statusCtxEl = document.getElementById('report-context-status');
+        if (!titleEl || !subjectEl || !dateEl || !studentsEl) return;
+
+        var title = String(reportContext.title || '').trim();
+        var group = String(reportContext.group || '').trim();
+        var subject = String(reportContext.subject || '').trim();
+        var formattedDate = formatReportDate(reportContext.scheduledAt, lang);
+        var students = Number(reportContext.students) || 31;
+        var kind = reportContext.kind === 'assignment' ? 'assignment' : 'exam';
+        var statusText = reportContext.status === 'draft'
+          ? (lang === 'en' ? 'Draft' : (lang === 'he' ? 'טיוטה' : 'مسودة'))
+          : (reportContext.status === 'archived'
+            ? (lang === 'en' ? 'Archived' : (lang === 'he' ? 'בארכיון' : 'مؤرشف'))
+            : (lang === 'en' ? 'Published' : (lang === 'he' ? 'פורסם' : 'منشور')));
+
+        if (title) {
+          if (lang === 'en') {
+            titleEl.textContent = (kind === 'assignment' ? 'Assignment Report: ' : 'Exam Report: ') + title + (group ? ' (Group: ' + group + ')' : '');
+          } else if (lang === 'he') {
+            titleEl.textContent = (kind === 'assignment' ? 'דוח מטלה: ' : 'דוח מבחן: ') + title + (group ? ' (קבוצה: ' + group + ')' : '');
+          } else {
+            titleEl.textContent = (kind === 'assignment' ? 'تقرير واجب: ' : 'تقرير اختبار: ') + title + (group ? ' (المجموعة: ' + group + ')' : '');
+          }
+        }
+
+        if (subject) {
+          if (lang === 'en') subjectEl.textContent = 'Subject: ' + subject;
+          else if (lang === 'he') subjectEl.textContent = 'מקצוע: ' + subject;
+          else subjectEl.textContent = 'المادة: ' + subject;
+        }
+
+        if (formattedDate) {
+          if (lang === 'en') dateEl.textContent = 'Date: ' + formattedDate;
+          else if (lang === 'he') dateEl.textContent = 'תאריך: ' + formattedDate;
+          else dateEl.textContent = 'التاريخ: ' + formattedDate;
+        }
+
+        if (students) {
+          if (lang === 'en') studentsEl.textContent = 'Participants: ' + students + ' students';
+          else if (lang === 'he') studentsEl.textContent = 'נבחנו: ' + students + ' תלמידים';
+          else studentsEl.textContent = 'عدد المشاركين: ' + students + ' طالبًا';
+        }
+
+        if (kindCtxEl) {
+          var kindText = kind === 'assignment'
+            ? (lang === 'en' ? 'Assignment' : (lang === 'he' ? 'מטלה' : 'واجب'))
+            : (lang === 'en' ? 'Exam' : (lang === 'he' ? 'מבחן' : 'اختبار'));
+          kindCtxEl.textContent = (lang === 'en' ? 'Kind: ' : (lang === 'he' ? 'סוג: ' : 'النوع: ')) + kindText;
+        }
+        if (groupCtxEl) {
+          var groupValue = group || '—';
+          groupCtxEl.textContent = (lang === 'en' ? 'Group: ' : (lang === 'he' ? 'קבוצה: ' : 'المجموعة: ')) + groupValue;
+        }
+        if (studentCtxEl) {
+          var studentValue = reportContext.student || (lang === 'en' ? 'Group view' : (lang === 'he' ? 'תצוגה קבוצתית' : 'عرض جماعي'));
+          studentCtxEl.textContent = (lang === 'en' ? 'Student: ' : (lang === 'he' ? 'תלמיד: ' : 'الطالب: ')) + studentValue;
+        }
+        if (statusCtxEl) {
+          statusCtxEl.textContent = (lang === 'en' ? 'Status: ' : (lang === 'he' ? 'סטטוס: ' : 'الحالة: ')) + statusText;
+        }
+      }
+
+      function wirePaperLinks() {
+        var rows = document.querySelectorAll('.table-card tbody tr');
+        if (!rows.length) return;
+
+        rows.forEach(function (row) {
+          var studentCell = row.querySelector('td');
+          var link = row.querySelector('a.paper-link');
+          if (!studentCell || !link) return;
+
+          var studentName = String(studentCell.textContent || '').trim();
+          var params = new URLSearchParams();
+          if (reportContext.id) params.set('examId', reportContext.id);
+          params.set('kind', reportContext.kind || 'exam');
+          if (reportContext.title) params.set('title', reportContext.title);
+          if (reportContext.group) params.set('group', reportContext.group);
+          if (reportContext.subject) params.set('subject', reportContext.subject);
+          if (reportContext.scheduledAt) params.set('scheduledAt', reportContext.scheduledAt);
+          if (reportContext.status) params.set('status', reportContext.status);
+          if (studentName) params.set('student', studentName);
+          params.set('from', 'exam-report');
+          link.href = 'exam-assessment.html?' + params.toString();
+        });
+      }
+
       function applyLanguage(lang) {
         var t = I18N[lang] || I18N.ar;
         var metaDesc = document.querySelector('meta[name="description"]');
@@ -602,6 +799,8 @@
           var key = nodes[i].getAttribute('data-i18n');
           if (t[key]) nodes[i].textContent = t[key];
         }
+
+        applyReportContext(lang);
       }
 
       document.addEventListener('mitests:languagechange', function (e) {
@@ -612,6 +811,7 @@
       document.addEventListener('DOMContentLoaded', function () {
         var lang = document.documentElement.getAttribute('lang') || 'ar';
         applyLanguage(lang);
+        wirePaperLinks();
       });
     })();
   </script>

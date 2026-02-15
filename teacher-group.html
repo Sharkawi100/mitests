@@ -185,6 +185,73 @@
       gap: var(--space-3);
     }
 
+    .stream-preview {
+      margin-top: var(--space-4);
+      background: linear-gradient(145deg, #ffffff, #f5f9ff);
+    }
+
+    .stream-list {
+      display: grid;
+      gap: var(--space-3);
+    }
+
+    .stream-item {
+      border: 1px solid #dce6ff;
+      border-radius: 12px;
+      background: #fff;
+      padding: var(--space-3);
+      display: grid;
+      gap: var(--space-2);
+    }
+
+    .stream-item__head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: var(--space-2);
+      flex-wrap: wrap;
+    }
+
+    .stream-item__title {
+      color: var(--color-gray-900);
+      font-size: var(--font-size-base);
+      font-weight: 700;
+    }
+
+    .stream-item__meta {
+      color: var(--color-gray-500);
+      font-size: var(--font-size-xs);
+    }
+
+    .stream-item__body {
+      color: var(--color-gray-700);
+      line-height: 1.7;
+      font-size: var(--font-size-sm);
+    }
+
+    .stream-item__actions {
+      display: flex;
+      gap: var(--space-2);
+      flex-wrap: wrap;
+    }
+
+    .stream-video {
+      width: 100%;
+      min-height: 280px;
+      border: 1px solid #d6e2ff;
+      border-radius: 10px;
+      background: #000;
+    }
+
+    .stream-empty {
+      border: 1px dashed #bfd2ff;
+      border-radius: 12px;
+      background: #f8fbff;
+      color: var(--color-gray-500);
+      padding: var(--space-3);
+      font-size: var(--font-size-sm);
+    }
+
     .resource-form {
       display: grid;
       grid-template-columns: 1.2fr 1fr 1.2fr 0.8fr auto;
@@ -211,6 +278,43 @@
       border-color: var(--color-teacher);
       box-shadow: 0 0 0 3px rgba(53, 86, 178, 0.14);
       outline: none;
+    }
+    .resource-form .field.is-muted {
+      opacity: 0.55;
+    }
+    .resource-help {
+      margin: 0;
+      color: var(--color-gray-600);
+      font-size: var(--font-size-xs);
+    }
+    .toast {
+      position: fixed;
+      bottom: var(--space-5);
+      inset-inline-start: 50%;
+      transform: translateX(-50%);
+      background: #111827;
+      color: var(--color-white);
+      border-radius: 999px;
+      padding: var(--space-2) var(--space-4);
+      font-size: var(--font-size-sm);
+      box-shadow: var(--shadow-lg);
+      z-index: 1300;
+      display: none;
+      align-items: center;
+      gap: var(--space-2);
+    }
+    .toast.on {
+      display: inline-flex;
+    }
+    .toast button {
+      border: none;
+      background: rgba(255,255,255,0.16);
+      color: var(--color-white);
+      border-radius: 999px;
+      padding: 4px 10px;
+      cursor: pointer;
+      font-size: var(--font-size-xs);
+      font-weight: 700;
     }
 
     .access-grid {
@@ -499,16 +603,25 @@
       <section class="resources-card">
         <h2>محتوى المجموعة للطلاب</h2>
         <p class="hint">يمكنك إضافة مرفق (PDF/DOCX/صورة...) مع رابط موقع. إذا كان الرابط YouTube سيظهر الفيديو داخل تدفق المجموعة للطالب.</p>
+        <p class="resource-help">ابدأ باختيار نوع المحتوى، ثم ستظهر الحقول المطلوبة فقط لتقليل التعقيد.</p>
         <div class="resource-form">
           <div class="field">
             <label for="resource-title">عنوان المحتوى</label>
             <input id="resource-title" type="text" placeholder="مثال: ملخص الوحدة 5">
           </div>
           <div class="field">
+            <label for="resource-mode">نوع المحتوى</label>
+            <select id="resource-mode">
+              <option value="both">مرفق + رابط</option>
+              <option value="file">مرفق فقط</option>
+              <option value="link">رابط فقط</option>
+            </select>
+          </div>
+          <div class="field" id="resource-file-field">
             <label for="resource-file">مرفق الملف</label>
             <input id="resource-file" type="file" accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.png,.jpg,.jpeg,.webp,.mp4,.mp3">
           </div>
-          <div class="field">
+          <div class="field" id="resource-link-field">
             <label for="resource-link">رابط الموقع (اختياري)</label>
             <input id="resource-link" type="url" placeholder="https://...">
           </div>
@@ -534,8 +647,15 @@
           </table>
         </div>
       </section>
+
+      <section class="resources-card stream-preview">
+        <h2>معاينة تدفق المجموعة</h2>
+        <p class="hint">هذه معاينة لما سيظهر للطلاب داخل تدفق المجموعة بعد النشر.</p>
+        <div id="group-stream-preview" class="stream-list"></div>
+      </section>
     </main>
   </div>
+  <div id="group-toast" class="toast" aria-live="polite"></div>
 
   <div id="group-modal-overlay" class="group-modal-overlay" aria-hidden="true">
     <div class="group-modal" role="dialog" aria-modal="true" aria-labelledby="group-modal-title">

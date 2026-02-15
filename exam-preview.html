@@ -52,6 +52,27 @@
     }
     .preview-header h1 { font-size: var(--font-size-3xl); color: var(--color-gray-900); }
     .preview-meta { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+    .context-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-2);
+      padding: var(--space-2);
+      border: 1px solid #d6e2ff;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.84);
+    }
+    .context-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid #cfddff;
+      background: #fff;
+      color: #2f4a86;
+      font-size: var(--font-size-xs);
+      font-weight: 700;
+    }
     .chip {
       display: inline-flex; align-items: center; gap: var(--space-2);
       background: linear-gradient(180deg, #f4f7ff, #eaf1ff);
@@ -331,6 +352,7 @@
 
       <header class="preview-header" id="exam-header">
         <h1 id="exam-title">اختبار اللغة الإنجليزية — منتصف الفصل</h1>
+        <div class="context-meta" id="workflow-context-chips"></div>
         <div class="preview-meta" id="exam-meta">
           <span class="chip"><i class="fas fa-graduation-cap"></i> الصف التاسع</span>
           <span class="chip"><i class="fas fa-book-open"></i> اللغة الإنجليزية</span>
@@ -385,7 +407,7 @@
         <div class="preview-footer__actions">
           <a href="exam-wizard.html" class="btn btn--outline"><i class="fas fa-arrow-right"></i> العودة للمعالج</a>
           <button class="btn btn--teacher btn--lg hidden" id="duplicate-shared-btn"><i class="fas fa-clone"></i> نسخ الاختبار إلى اختباراتي</button>
-          <button class="btn btn--approve btn--lg" id="approve-btn"><i class="fas fa-check-double"></i> اعتماد ونشر الاختبار</button>
+          <button class="btn btn--approve btn--lg" id="approve-btn"><i class="fas fa-check-double"></i> اعتماد ومتابعة التقرير</button>
         </div>
       </footer>
     </main>
@@ -560,6 +582,7 @@
     var approveBtn = document.getElementById('approve-btn');
     var examTitleNode = document.getElementById('exam-title');
     var examMetaNode = document.getElementById('exam-meta');
+    var contextMetaNode = document.getElementById('workflow-context-chips');
     var infoEditor = document.getElementById('exam-info-editor');
     var infoTitleInput = document.getElementById('info-title');
     var infoGradeInput = document.getElementById('info-grade');
@@ -571,11 +594,50 @@
     var scope = getCurrentScope();
     var examsKey = 'mitests-teacher-exams:' + scope;
     var currentExam = null;
+    var pendingQuestionUndo = null;
 
-    function showToast(msg) {
+    function showToast(msg, actionText, actionFn, timeoutMs) {
       toast.textContent = msg;
       toast.classList.add('toast--show');
-      setTimeout(function(){ toast.classList.remove('toast--show'); }, 2500);
+      if (actionText && typeof actionFn === 'function') {
+        toast.innerHTML = esc(msg) + ' <button type="button" id="toast-action-btn" class="btn btn--outline btn--sm" style="margin-inline-start:8px;">' + esc(actionText) + '</button>';
+        var actionBtn = document.getElementById('toast-action-btn');
+        if (actionBtn) {
+          actionBtn.addEventListener('click', function () {
+            actionFn();
+            toast.classList.remove('toast--show');
+          });
+        }
+      } else {
+        toast.textContent = msg;
+      }
+      setTimeout(function(){ toast.classList.remove('toast--show'); }, timeoutMs || (actionText ? 5500 : 2500));
+    }
+
+    function getKindLabel(kind) {
+      return kind === 'assignment' ? 'واجب' : 'اختبار';
+    }
+
+    function buildReportHref(exam, extra) {
+      var params = new URLSearchParams();
+      if (exam && exam.id) params.set('id', exam.id);
+      params.set('kind', exam && exam.kind === 'assignment' ? 'assignment' : 'exam');
+      if (exam && exam.title) params.set('title', exam.title);
+      if (exam && (exam.groupCode || exam.groupName || exam.groupId || exam.group)) params.set('group', exam.groupCode || exam.groupName || exam.groupId || exam.group);
+      if (exam && exam.subject) params.set('subject', exam.subject);
+      if (exam && exam.scheduledAt) params.set('scheduledAt', exam.scheduledAt);
+      if (exam && exam.status) params.set('status', exam.status);
+      params.set('from', 'exam-preview');
+
+      if (extra && typeof extra === 'object') {
+        var keys = Object.keys(extra);
+        for (var i = 0; i < keys.length; i++) {
+          var key = keys[i];
+          var val = extra[key];
+          if (val !== undefined && val !== null && String(val).trim()) params.set(key, String(val));
+        }
+      }
+      return 'exam-report.html?' + params.toString();
     }
 
     function normalizeQuestionShape(raw, index) {
@@ -717,6 +779,18 @@
       chips += '<span class="chip"><i class="fas fa-clock"></i> ' + esc(String(normalizeDurationMinutes(currentExam.durationMinutes))) + ' دقيقة</span>';
       chips += '<span class="chip"><i class="fas fa-layer-group"></i> ' + esc(diffMap[currentExam.difficulty] || 'مختلط') + '</span>';
       examMetaNode.innerHTML = chips;
+
+      if (contextMetaNode) {
+        var studentCtx = params.get('student') || '—';
+        var groupCtx = currentExam.groupCode || currentExam.groupName || currentExam.group || params.get('group') || '—';
+        var statusCtx = currentExam.status === 'published' ? 'منشور' : (currentExam.status === 'archived' ? 'مؤرشف' : 'مسودة');
+        var html = '';
+        html += '<span class="context-chip"><i class="fas fa-users"></i> المجموعة: ' + esc(groupCtx) + '</span>';
+        html += '<span class="context-chip"><i class="fas fa-file-lines"></i> النوع: ' + esc(getKindLabel(currentExam.kind)) + '</span>';
+        html += '<span class="context-chip"><i class="fas fa-user"></i> الطالب: ' + esc(studentCtx) + '</span>';
+        html += '<span class="context-chip"><i class="fas fa-circle-check"></i> الحالة: ' + esc(statusCtx) + '</span>';
+        contextMetaNode.innerHTML = html;
+      }
     }
 
     function fillExamInfoEditor() {
@@ -734,13 +808,14 @@
       if (!currentExam || !infoEditor) return true;
       var title = String(infoTitleInput && infoTitleInput.value || '').trim();
       if (!title) {
-        alert('يرجى إدخال عنوان الاختبار.');
+        showToast('يرجى إدخال عنوان الاختبار.', false);
+        if (infoTitleInput) infoTitleInput.focus();
         return false;
       }
       var dateValue = String(infoDateInput && infoDateInput.value || '').trim();
       var timeValue = String(infoTimeInput && infoTimeInput.value || '').trim();
       if ((dateValue && !timeValue) || (!dateValue && timeValue)) {
-        alert('يرجى إدخال التاريخ والوقت معًا أو تركهما فارغين.');
+        showToast('يرجى إدخال التاريخ والوقت معًا أو تركهما فارغين.', false);
         return false;
       }
 
@@ -912,7 +987,7 @@
         var newText = String((card.querySelector('.edit-text') || {}).value || '').trim();
         var newAnswer = String((card.querySelector('.edit-answer') || {}).value || '').trim();
         if (!newText) {
-          alert('نص السؤال لا يمكن أن يكون فارغًا.');
+          showToast('نص السؤال لا يمكن أن يكون فارغًا.', false);
           return;
         }
         q.text = newText;
@@ -934,16 +1009,26 @@
       }
       else if (btn.classList.contains('delete-btn')) {
         if (questions.length <= 1) {
-          alert('يجب أن يحتوي الاختبار على سؤال واحد على الأقل.');
+          showToast('يجب أن يحتوي الاختبار على سؤال واحد على الأقل.', false);
           return;
         }
-        if (confirm('هل أنت متأكد من حذف السؤال ' + qid + '؟')) {
-          questions = questions.filter(function(item){ return Number(item.id) !== qid; });
+        var deleteIndex = questions.findIndex(function (item) { return Number(item.id) === qid; });
+        if (deleteIndex < 0) return;
+        pendingQuestionUndo = questions[deleteIndex];
+        questions.splice(deleteIndex, 1);
+        reindexQuestions();
+        persistCurrentExam();
+        renderExamHeader();
+        renderQuestions();
+        showToast('تم حذف السؤال.', 'تراجع', function () {
+          if (!pendingQuestionUndo) return;
+          questions.splice(deleteIndex, 0, pendingQuestionUndo);
+          pendingQuestionUndo = null;
           reindexQuestions();
-          persistCurrentExam('تم حذف السؤال.');
+          persistCurrentExam('تم استعادة السؤال.');
           renderExamHeader();
           renderQuestions();
-        }
+        }, 5400);
       }
     });
 
@@ -1001,8 +1086,10 @@
         currentExam.publishedAt = new Date().toISOString();
         persistCurrentExam();
         ensureQueueEntry();
-        showToast('تم اعتماد الاختبار ونشره بنجاح');
-        setTimeout(function() { window.location.href = 'teacher-exams.html'; }, 1400);
+        showToast('تم اعتماد الاختبار. جارٍ فتح التقرير...');
+        setTimeout(function() {
+          window.location.href = buildReportHref(currentExam);
+        }, 1200);
       });
     }
 

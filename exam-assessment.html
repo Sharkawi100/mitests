@@ -292,6 +292,11 @@
       color: var(--color-gray-600);
       font-size: var(--font-size-sm);
     }
+    .approval-footer__actions {
+      display: flex;
+      gap: var(--space-2);
+      flex-wrap: wrap;
+    }
 
     @media (max-width: 1023px) {
       body.rtl .main-content .teacher-navbar { right: var(--sidebar-collapsed-width); }
@@ -310,6 +315,8 @@
       .assessment-main { padding-inline: var(--space-4); }
       .header-card h1 { font-size: var(--font-size-2xl); }
       .action-area .btn { width: 100%; }
+      .approval-footer__actions { width: 100%; }
+      .approval-footer__actions .btn { width: 100%; }
     }
   </style>
 </head>
@@ -363,6 +370,8 @@
         <div class="header-meta">
           <span class="chip"><i class="fas fa-file-pen"></i><span id="assessment-kind-label" data-i18n="examLabel">الاختبار</span>: <strong id="assessment-title">الإنجليزية - اختبار منتصف الفصل</strong></span>
           <span class="chip"><i class="fas fa-users"></i><span data-i18n="groupLabel">المجموعة</span>: <strong id="assessment-group">تاسع 1</strong></span>
+          <span class="chip"><i class="fas fa-user"></i><span>الطالب</span>: <strong id="assessment-student-chip">يوسف علي</strong></span>
+          <span class="chip"><i class="fas fa-circle-check"></i><span>الحالة</span>: <strong id="assessment-status-chip">قيد المراجعة</strong></span>
         </div>
       </header>
 
@@ -450,7 +459,10 @@
 
       <footer class="approval-footer">
         <span class="approval-footer__hint" data-i18n="finalHint">بعد الاعتماد النهائي سيتم إرسال النتيجة والملاحظات إلى الطالب.</span>
-        <a href="exam-report.html" class="btn btn--teacher btn--lg"><i class="fas fa-paper-plane"></i><span data-i18n="finalize">اعتماد نهائي وإرسال للطالب</span></a>
+        <div class="approval-footer__actions">
+          <a id="assessment-preview-link" href="exam-preview.html" class="btn btn--outline btn--lg"><i class="fas fa-arrow-right"></i><span>العودة للمعاينة</span></a>
+          <a id="assessment-report-link" href="exam-report.html" class="btn btn--teacher btn--lg"><i class="fas fa-paper-plane"></i><span data-i18n="finalize">اعتماد نهائي وإرسال للطالب</span></a>
+        </div>
       </footer>
     </main>
   </div>
@@ -588,19 +600,31 @@
 
       function applyAssessmentContext(lang) {
         var params = new URLSearchParams(window.location.search);
+        var examId = params.get('examId') || params.get('id') || '';
         var kind = params.get('kind') || 'exam';
         var title = params.get('title');
         var student = params.get('student');
         var group = params.get('group');
+        var status = params.get('status') || 'under_review';
+        var subject = params.get('subject') || '';
+        var scheduledAt = params.get('scheduledAt') || '';
 
         var studentEl = document.getElementById('assessment-student-name');
         var titleEl = document.getElementById('assessment-title');
         var groupEl = document.getElementById('assessment-group');
         var kindLabelEl = document.getElementById('assessment-kind-label');
+        var studentChipEl = document.getElementById('assessment-student-chip');
+        var statusChipEl = document.getElementById('assessment-status-chip');
 
         if (studentEl && student) studentEl.textContent = student;
         if (titleEl && title) titleEl.textContent = title;
         if (groupEl && group) groupEl.textContent = group;
+        if (studentChipEl && student) studentChipEl.textContent = student;
+        if (statusChipEl) {
+          statusChipEl.textContent = status === 'published'
+            ? (lang === 'en' ? 'Published' : (lang === 'he' ? 'פורסם' : 'منشور'))
+            : (lang === 'en' ? 'Under Review' : (lang === 'he' ? 'בבדיקה' : 'قيد المراجعة'));
+        }
 
         if (kindLabelEl) {
           if (kind === 'assignment') {
@@ -609,6 +633,31 @@
             var currentLang = I18N[lang] || I18N.ar;
             kindLabelEl.textContent = currentLang.examLabel;
           }
+        }
+
+        var reportLink = document.getElementById('assessment-report-link');
+        if (reportLink) {
+          var reportParams = new URLSearchParams();
+          if (examId) reportParams.set('id', examId);
+          reportParams.set('kind', kind === 'assignment' ? 'assignment' : 'exam');
+          if (title) reportParams.set('title', title);
+          if (group) reportParams.set('group', group);
+          if (subject) reportParams.set('subject', subject);
+          if (scheduledAt) reportParams.set('scheduledAt', scheduledAt);
+          if (status) reportParams.set('status', status);
+          if (student) reportParams.set('student', student);
+          reportParams.set('from', 'exam-assessment');
+          reportLink.href = 'exam-report.html' + (reportParams.toString() ? ('?' + reportParams.toString()) : '');
+        }
+
+        var previewLink = document.getElementById('assessment-preview-link');
+        if (previewLink) {
+          var previewParams = new URLSearchParams();
+          if (examId) previewParams.set('id', examId);
+          if (kind) previewParams.set('kind', kind);
+          if (group) previewParams.set('group', group);
+          if (status) previewParams.set('status', status);
+          previewLink.href = 'exam-preview.html' + (previewParams.toString() ? ('?' + previewParams.toString()) : '');
         }
       }
 
@@ -676,5 +725,3 @@
   </script>
 </body>
 </html>
-
-

@@ -92,6 +92,12 @@
       align-items: center;
     }
 
+    .report-actions {
+      display: flex;
+      gap: var(--space-2);
+      flex-wrap: wrap;
+    }
+
     @media (max-width: 1023px) {
       body.rtl .main-content .student-navbar { right: var(--sidebar-collapsed-width); }
       body.ltr .main-content .student-navbar { left: var(--sidebar-collapsed-width); }
@@ -167,19 +173,34 @@
                 <td>الإنجليزية - الوحدة 4</td>
                 <td>2026-02-02</td>
                 <td><span class="grade-pill">88</span></td>
-                <td><a class="btn btn--student btn--sm" href="student-feedback.html?exam=eng-u4">عرض الملاحظات</a></td>
+                <td>
+                  <div class="report-actions">
+                    <a class="btn btn--student btn--sm" href="student-feedback.html?exam=eng-u4">عرض الملاحظات</a>
+                    <a class="btn btn--outline btn--sm" href="student-report-notes.html?exam=eng-u4">تفاصيل التقرير</a>
+                  </div>
+                </td>
               </tr>
               <tr>
                 <td>الرياضيات - الكسور</td>
                 <td>2026-01-22</td>
                 <td><span class="grade-pill">92</span></td>
-                <td><a class="btn btn--student btn--sm" href="student-feedback.html?exam=math-frac">عرض الملاحظات</a></td>
+                <td>
+                  <div class="report-actions">
+                    <a class="btn btn--student btn--sm" href="student-feedback.html?exam=math-frac">عرض الملاحظات</a>
+                    <a class="btn btn--outline btn--sm" href="student-report-notes.html?exam=math-frac">تفاصيل التقرير</a>
+                  </div>
+                </td>
               </tr>
               <tr>
                 <td>العلوم - علم البيئة</td>
                 <td>2026-01-10</td>
                 <td><span class="grade-pill">84</span></td>
-                <td><a class="btn btn--student btn--sm" href="student-feedback.html?exam=sci-eco">عرض الملاحظات</a></td>
+                <td>
+                  <div class="report-actions">
+                    <a class="btn btn--student btn--sm" href="student-feedback.html?exam=sci-eco">عرض الملاحظات</a>
+                    <a class="btn btn--outline btn--sm" href="student-report-notes.html?exam=sci-eco">تفاصيل التقرير</a>
+                  </div>
+                </td>
               </tr>
             </tbody>
           </table>
