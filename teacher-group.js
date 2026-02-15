@@ -55,6 +55,8 @@
     { id: 3, code: 'grade10-sci', name: 'الصف عاشر 2', grade: 'الصف العاشر', section: '2 (ب)', subject: 'العلوم', studentsCount: 0, examsMonth: 3, avgScore: 87, inviteCode: 'SCI10-1003' },
     { id: 4, code: 'grade7-eng', name: 'الصف سابع 1', grade: 'الصف السابع', section: '1 (أ)', subject: 'اللغة الإنجليزية', studentsCount: 0, examsMonth: 6, avgScore: 83, inviteCode: 'ENG7-1004' }
   ];
+  var demoGroupCode = 'grade8-math';
+  var demoGroupName = 'الصف ثامن 3';
 
   var firstNames = ['يوسف', 'سارة', 'ريم', 'خالد', 'سلمى', 'عبدالله', 'ليان', 'نور', 'مالك', 'جود'];
   var lastNames = ['لؤي', 'بدر', 'العمري', 'السيد', 'المطيري', 'حسن', 'الزهراني', 'القحطاني'];
@@ -187,6 +189,102 @@
       code = base + '-' + String(Math.floor(1000 + Math.random() * 9000));
     } while (inviteExists(code));
     return code;
+  }
+
+  function buildDemoGroupResources(groupCode) {
+    return [
+      {
+        id: 'seed-grade8-math-resource-1',
+        demoSeedId: 'grade8-math-resource-1',
+        groupCode: groupCode,
+        title: 'شرح الدرس: المعادلات الخطية (فيديو)',
+        websiteLink: 'https://www.youtube.com/watch?v=H14bBuluwB8',
+        youtubeId: 'H14bBuluwB8',
+        note: 'شاهد الفيديو بالكامل ثم دوّن 3 أفكار رئيسية.',
+        type: 'video',
+        createdAt: '2026-02-10T08:15:00.000Z'
+      },
+      {
+        id: 'seed-grade8-math-resource-2',
+        demoSeedId: 'grade8-math-resource-2',
+        groupCode: groupCode,
+        title: 'ملخص الوحدة: الجبر والحدود الجبرية',
+        attachmentName: 'ملخص-الرياضيات-الوحدة-2.pdf',
+        attachmentMime: 'application/pdf',
+        attachmentSizeBytes: 430080,
+        attachmentSizeText: '420 KB',
+        note: 'مهم قبل اختبار نهاية الأسبوع.',
+        type: 'pdf',
+        createdAt: '2026-02-10T08:10:00.000Z'
+      },
+      {
+        id: 'seed-grade8-math-resource-3',
+        demoSeedId: 'grade8-math-resource-3',
+        groupCode: groupCode,
+        title: 'ورقة تدريب تفاعلية (رابط + ملف)',
+        websiteLink: 'https://www.geogebra.org/m/w2v2q4y8',
+        attachmentName: 'تدريبات-الصف-الثامن-رياضيات.docx',
+        attachmentMime: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        attachmentSizeBytes: 98304,
+        attachmentSizeText: '96 KB',
+        note: 'حل التمارين 1-8 وإرسال الصورة في الحصة القادمة.',
+        type: 'docx',
+        createdAt: '2026-02-10T08:05:00.000Z'
+      }
+    ];
+  }
+
+  function ensureDemoGroupAndResources() {
+    var group = null;
+    for (var i = 0; i < groups.length; i++) {
+      var item = groups[i] || {};
+      var sameCode = String(item.code || '') === demoGroupCode;
+      var sameNameSubject = String(item.name || '').trim() === demoGroupName && String(item.subject || '').trim() === 'الرياضيات';
+      if (sameCode || sameNameSubject) {
+        group = item;
+        break;
+      }
+    }
+
+    if (!group) {
+      group = {
+        id: Date.now(),
+        code: demoGroupCode,
+        name: demoGroupName,
+        grade: 'الصف الثامن',
+        section: '3 (ج)',
+        subject: 'الرياضيات',
+        studentsCount: 28,
+        examsMonth: 4,
+        avgScore: 81,
+        inviteCode: 'MATH8-1002'
+      };
+      groups.unshift(group);
+    } else {
+      if (!group.code) group.code = demoGroupCode;
+      if (!group.name) group.name = demoGroupName;
+      if (!group.grade) group.grade = 'الصف الثامن';
+      if (!group.section) group.section = '3 (ج)';
+      if (!group.subject) group.subject = 'الرياضيات';
+      if (!Number(group.studentsCount)) group.studentsCount = 28;
+      if (!Number(group.examsMonth)) group.examsMonth = 4;
+      if (!Number(group.avgScore)) group.avgScore = 81;
+      if (!group.inviteCode) group.inviteCode = 'MATH8-1002';
+    }
+
+    var seeded = buildDemoGroupResources(group.code);
+    for (var j = seeded.length - 1; j >= 0; j--) {
+      var resource = seeded[j];
+      var exists = resources.some(function (existing) {
+        if (!existing) return false;
+        if (String(existing.groupCode || '') !== String(group.code || '')) return false;
+        if (String(existing.demoSeedId || '') === String(resource.demoSeedId || '')) return true;
+        var sameTitle = String(existing.title || '').trim() === String(resource.title || '').trim();
+        var sameLink = String(existing.websiteLink || '').trim() === String(resource.websiteLink || '').trim();
+        return sameTitle && sameLink;
+      });
+      if (!exists) resources.unshift(resource);
+    }
   }
 
   function normalizeData() {
@@ -969,6 +1067,7 @@
     renderDetails();
   });
 
+  ensureDemoGroupAndResources();
   normalizeData();
   syncSchoolStudents();
   cleanOrphans();
@@ -978,7 +1077,6 @@
   saveAll();
   renderGroups();
   renderDetails();
-})();
   function showToast(message, actionLabel, actionFn, timeoutMs) {
     if (!toastNode) return;
     if (toastTimer) clearTimeout(toastTimer);
@@ -1060,3 +1158,4 @@
     if (fallbackScore !== undefined && fallbackScore !== null) params.set('score', String(fallbackScore));
     return 'exam-report.html?' + params.toString();
   }
+})();

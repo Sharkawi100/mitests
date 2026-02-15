@@ -46,7 +46,8 @@
     .contact-block small { color: var(--color-gray-500); font-size: var(--font-size-xs); }
     .token-add { display: inline-flex; align-items: center; gap: var(--space-2); }
     .token-add input { width: 110px; border: 1px solid var(--color-gray-300); border-radius: var(--border-radius-sm); padding: var(--space-2); font-family: inherit; }
-    .actions-cell { display: grid; gap: var(--space-2); min-width: 160px; }
+    .actions-cell { display: grid; gap: var(--space-2); min-width: 220px; }
+    .impersonate-actions { display: grid; gap: var(--space-2); }
     .pagination { display: flex; justify-content: space-between; align-items: center; gap: var(--space-3); flex-wrap: wrap; }
     .pagination-info { color: var(--color-gray-600); font-size: var(--font-size-sm); }
     .pagination-controls { display: inline-flex; align-items: center; gap: var(--space-2); }
@@ -202,6 +203,26 @@
     </div>
   </div>
 
+  <div class="modal-overlay" id="impersonate-teacher-modal" aria-hidden="true">
+    <div class="modal" role="dialog" aria-labelledby="impersonate-teacher-title" aria-modal="true">
+      <div class="modal__header">
+        <h2 id="impersonate-teacher-title">الدخول كمعلم</h2>
+        <button class="modal__close" id="impersonate-teacher-close" type="button" aria-label="Close"><i class="fas fa-xmark"></i></button>
+      </div>
+      <div class="modal-body">
+        <p class="helper">اختر معلمًا من المدرسة: <strong id="impersonate-school-name">-</strong></p>
+        <div class="field">
+          <label for="impersonate-teacher-select">المعلم</label>
+          <select id="impersonate-teacher-select"></select>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn--outline" id="impersonate-teacher-cancel" type="button">إلغاء</button>
+        <button class="btn btn--admin" id="impersonate-teacher-confirm" type="button">دخول</button>
+      </div>
+    </div>
+  </div>
+
   <script src="shared-layout.js"></script>
   <script>
     (function () {
@@ -237,6 +258,12 @@
       var addSchoolModalEl = document.getElementById('add-school-modal');
       var profileModalEl = document.getElementById('school-profile-modal');
       var profileContentEl = document.getElementById('school-profile-content');
+      var impersonateTeacherModalEl = document.getElementById('impersonate-teacher-modal');
+      var impersonateTeacherSchoolNameEl = document.getElementById('impersonate-school-name');
+      var impersonateTeacherSelectEl = document.getElementById('impersonate-teacher-select');
+      var impersonateTeacherConfirmEl = document.getElementById('impersonate-teacher-confirm');
+      var impersonateTeacherCancelEl = document.getElementById('impersonate-teacher-cancel');
+      var impersonateTeacherCloseEl = document.getElementById('impersonate-teacher-close');
 
       var selectedLogoData = '';
       var currentPage = 1;
@@ -247,6 +274,19 @@
         {id:'school-1',code:'SRJ-RYD-01',name:'مدرسة سراج الدولية',email:'admin@seraj.edu',grades:['الصف السابع','الصف الثامن','الصف التاسع'],tokens:180000,logo:'',profile:{country:'السعودية',address:'الرياض - حي النخيل - شارع الملك فهد',phone:'+966 11 555 7788',socialLinks:'https://x.com/serajschool\nhttps://instagram.com/serajschool',defaultLanguage:'ar'}},
         {id:'school-2',code:'NR-ACD-02',name:'أكاديمية النور',email:'info@alnoor.edu',grades:['الصف الأول','الصف الثاني','الصف الثالث','الصف الرابع','الصف الخامس','الصف السادس'],tokens:92000,logo:'',profile:{country:'الأردن',address:'عمّان - الدوار الخامس - شارع زهران',phone:'+962 6 555 1020',socialLinks:'https://facebook.com/alnooracademy',defaultLanguage:'ar'}}
       ];
+      var defaultTeachersByCode = {
+        'SRJ-RYD-01': [
+          { id: 'TCH-001', name: 'نورة العلي', email: 'nora.ali@school.edu' },
+          { id: 'TCH-002', name: 'أحمد ياسين', email: 'ahmed.yasin@school.edu' },
+          { id: 'TCH-003', name: 'ليلى خضر', email: 'layla.khidr@school.edu' },
+          { id: 'TCH-004', name: 'محمد صبري', email: 'mohammad.sabri@school.edu' }
+        ],
+        'NR-ACD-02': [
+          { id: 'TCH-101', name: 'سلمى هاشم', email: 'salma.hashem@alnoor.edu' },
+          { id: 'TCH-102', name: 'يوسف صالح', email: 'yousef.saleh@alnoor.edu' },
+          { id: 'TCH-103', name: 'ريم درويش', email: 'reem.darwish@alnoor.edu' }
+        ]
+      };
 
       function escapeHtml(value) { return String(value || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
       function languageLabel(code) { if (code === 'he') return 'עברית'; if (code === 'en') return 'English'; return 'العربية'; }
@@ -351,6 +391,174 @@
         return -1;
       }
 
+      function readStoredArray(key) {
+        try {
+          var raw = localStorage.getItem(key);
+          if (!raw) return [];
+          var parsed = JSON.parse(raw);
+          if (Array.isArray(parsed)) return parsed;
+        } catch (e) {}
+        return [];
+      }
+
+      function writeStoredArray(key, list) {
+        try {
+          localStorage.setItem(key, JSON.stringify(list));
+        } catch (e) {}
+      }
+
+      function getSchoolStorageId(school) {
+        var id = String((school && school.id) || '').trim();
+        if (/^SCH-\d+$/i.test(id)) return id.toUpperCase();
+
+        var schoolIdMatch = id.match(/^school-(\d+)$/i);
+        if (schoolIdMatch && schoolIdMatch[1]) {
+          return 'SCH-' + String(schoolIdMatch[1]).padStart(3, '0');
+        }
+
+        var code = String((school && school.code) || '').toUpperCase();
+        if (code === 'SRJ-RYD-01') return 'SCH-001';
+        if (code === 'NR-ACD-02') return 'SCH-002';
+
+        return id || 'SCH-001';
+      }
+
+      function normalizeTeacher(raw, fallbackIndex) {
+        var base = raw || {};
+        return {
+          id: String(base.id || ('TCH-' + String((fallbackIndex || 0) + 1).padStart(3, '0'))),
+          name: String(base.name || ('معلم ' + String((fallbackIndex || 0) + 1))).trim(),
+          email: String(base.email || '').trim()
+        };
+      }
+
+      function getTeacherDirectoryForSchool(school) {
+        if (!school) return { key: '', storageSchoolId: '', teachers: [] };
+
+        var storageSchoolId = getSchoolStorageId(school);
+        var key = 'mitests-school-teachers-directory:school:' + storageSchoolId;
+        var teachers = readStoredArray(key);
+
+        if (!teachers.length) {
+          var defaults = defaultTeachersByCode[String(school.code || '').toUpperCase()] || [];
+          if (defaults.length) {
+            teachers = defaults.map(function (item, idx) { return normalizeTeacher(item, idx); });
+          } else {
+            teachers = [
+              normalizeTeacher({ id: 'TCH-001', name: 'المعلم الأول', email: 'teacher1@school.edu' }, 0),
+              normalizeTeacher({ id: 'TCH-002', name: 'المعلم الثاني', email: 'teacher2@school.edu' }, 1)
+            ];
+          }
+          writeStoredArray(key, teachers);
+        } else {
+          teachers = teachers.map(function (item, idx) { return normalizeTeacher(item, idx); });
+          writeStoredArray(key, teachers);
+        }
+
+        return { key: key, storageSchoolId: storageSchoolId, teachers: teachers };
+      }
+
+      function openImpersonateTeacherModal(school, teachers) {
+        if (!impersonateTeacherModalEl || !school || !impersonateTeacherSelectEl) return;
+
+        impersonateTeacherModalEl.setAttribute('data-school-id', String(school.id || ''));
+        impersonateTeacherSchoolNameEl.textContent = school.name || '-';
+        impersonateTeacherSelectEl.innerHTML = '';
+
+        for (var i = 0; i < teachers.length; i++) {
+          var teacher = teachers[i];
+          var option = document.createElement('option');
+          option.value = teacher.id;
+          option.textContent = teacher.name + (teacher.email ? (' - ' + teacher.email) : '');
+          impersonateTeacherSelectEl.appendChild(option);
+        }
+
+        if (!teachers.length) {
+          var empty = document.createElement('option');
+          empty.value = '';
+          empty.textContent = 'لا يوجد معلمون متاحون';
+          impersonateTeacherSelectEl.appendChild(empty);
+        }
+
+        impersonateTeacherConfirmEl.disabled = !teachers.length;
+        impersonateTeacherModalEl.classList.add('modal-overlay--active');
+        impersonateTeacherModalEl.setAttribute('aria-hidden', 'false');
+        document.body.style.overflow = 'hidden';
+      }
+
+      function closeImpersonateTeacherModal() {
+        if (!impersonateTeacherModalEl) return;
+        impersonateTeacherModalEl.classList.remove('modal-overlay--active');
+        impersonateTeacherModalEl.setAttribute('aria-hidden', 'true');
+        document.body.style.overflow = '';
+      }
+
+      function setImpersonationContextSchool(school, storageSchoolId) {
+        if (!school) return;
+        try {
+          localStorage.setItem('mitests-school-id', String(storageSchoolId || getSchoolStorageId(school)));
+          localStorage.setItem('mitests-active-school-code', String(school.code || ''));
+        } catch (e) {}
+      }
+
+      function impersonateSchool(schoolId) {
+        var schools = loadSchools();
+        var idx = findSchoolIndexById(schools, schoolId);
+        if (idx === -1) return;
+
+        var school = schools[idx];
+        var storageSchoolId = getSchoolStorageId(school);
+        setImpersonationContextSchool(school, storageSchoolId);
+        try { localStorage.setItem('mitests-admin-impersonation', 'school'); } catch (e) {}
+        window.location.href = 'school.html';
+      }
+
+      function startTeacherImpersonation(schoolId) {
+        var schools = loadSchools();
+        var idx = findSchoolIndexById(schools, schoolId);
+        if (idx === -1) return;
+        var school = schools[idx];
+        var directory = getTeacherDirectoryForSchool(school);
+        openImpersonateTeacherModal(school, directory.teachers);
+      }
+
+      function confirmTeacherImpersonation() {
+        var schoolId = impersonateTeacherModalEl ? impersonateTeacherModalEl.getAttribute('data-school-id') : '';
+        var teacherId = impersonateTeacherSelectEl ? impersonateTeacherSelectEl.value : '';
+        if (!schoolId || !teacherId) return;
+
+        var schools = loadSchools();
+        var idx = findSchoolIndexById(schools, schoolId);
+        if (idx === -1) return;
+        var school = schools[idx];
+
+        var directory = getTeacherDirectoryForSchool(school);
+        var selectedTeacher = null;
+        for (var i = 0; i < directory.teachers.length; i++) {
+          if (String(directory.teachers[i].id) === String(teacherId)) {
+            selectedTeacher = directory.teachers[i];
+            break;
+          }
+        }
+        if (!selectedTeacher) return;
+
+        setImpersonationContextSchool(school, directory.storageSchoolId);
+        writeStoredArray(directory.key, directory.teachers);
+
+        try {
+          localStorage.setItem('mitests-admin-impersonation', 'teacher');
+          localStorage.setItem('mitests-tenant-type', 'school_teacher');
+          localStorage.setItem('mitests-current-school-teacher', JSON.stringify({
+            id: selectedTeacher.id,
+            name: selectedTeacher.name,
+            email: selectedTeacher.email || ''
+          }));
+        } catch (e) {}
+
+        closeImpersonateTeacherModal();
+        window.location.href = 'teacher-dashboard.html';
+      }
+
       function getFilteredSchools(list) {
         var q = String(searchEl.value || '').trim().toLowerCase();
         if (!q) return list.slice();
@@ -395,7 +603,14 @@
             '<td>' + contactHtml + '</td>' +
             '<td>' + escapeHtml(languageLabel(school.profile.defaultLanguage)) + '</td>' +
             '<td><strong>' + (Number(school.tokens) || 0).toLocaleString() + '</strong></td>' +
-            '<td><div class="actions-cell"><button class="btn btn--outline btn--sm" data-view-profile="' + escapeHtml(school.id) + '">عرض الملف</button><div class="token-add"><input type="number" min="1000" step="1000" value="10000" data-token-input="' + escapeHtml(school.id) + '"><button class="btn btn--admin btn--sm" data-add-token="' + escapeHtml(school.id) + '">إضافة</button></div></div></td>';
+            '<td><div class="actions-cell">'
+              + '<button class="btn btn--outline btn--sm" data-view-profile="' + escapeHtml(school.id) + '">عرض الملف</button>'
+              + '<div class="impersonate-actions">'
+                + '<button class="btn btn--outline btn--sm" data-impersonate-school="' + escapeHtml(school.id) + '"><i class="fas fa-building-columns"></i> دخول كمدرسة</button>'
+                + '<button class="btn btn--admin btn--sm" data-impersonate-teacher="' + escapeHtml(school.id) + '"><i class="fas fa-chalkboard-user"></i> دخول كمعلم</button>'
+              + '</div>'
+              + '<div class="token-add"><input type="number" min="1000" step="1000" value="10000" data-token-input="' + escapeHtml(school.id) + '"><button class="btn btn--admin btn--sm" data-add-token="' + escapeHtml(school.id) + '">إضافة</button></div>'
+            + '</div></td>';
           schoolsBodyEl.appendChild(tr);
         }
 
@@ -517,8 +732,15 @@
       pageNextEl.addEventListener('click', function () { currentPage += 1; renderSchools(); });
 
       schoolsBodyEl.addEventListener('click', function (e) {
+        var impersonateSchoolBtn = e.target.closest('[data-impersonate-school]');
+        if (impersonateSchoolBtn) return impersonateSchool(impersonateSchoolBtn.getAttribute('data-impersonate-school'));
+
+        var impersonateTeacherBtn = e.target.closest('[data-impersonate-teacher]');
+        if (impersonateTeacherBtn) return startTeacherImpersonation(impersonateTeacherBtn.getAttribute('data-impersonate-teacher'));
+
         var profileBtn = e.target.closest('[data-view-profile]');
         if (profileBtn) return openSchoolProfile(profileBtn.getAttribute('data-view-profile'));
+
         var tokenBtn = e.target.closest('[data-add-token]');
         if (!tokenBtn) return;
         var schoolId = tokenBtn.getAttribute('data-add-token');
@@ -526,6 +748,15 @@
         if (!input) return;
         addTokens(schoolId, input.value);
       });
+
+      if (impersonateTeacherConfirmEl) impersonateTeacherConfirmEl.addEventListener('click', confirmTeacherImpersonation);
+      if (impersonateTeacherCancelEl) impersonateTeacherCancelEl.addEventListener('click', closeImpersonateTeacherModal);
+      if (impersonateTeacherCloseEl) impersonateTeacherCloseEl.addEventListener('click', closeImpersonateTeacherModal);
+      if (impersonateTeacherModalEl) {
+        impersonateTeacherModalEl.addEventListener('click', function (e) {
+          if (e.target === impersonateTeacherModalEl) closeImpersonateTeacherModal();
+        });
+      }
 
       document.addEventListener('click', function (e) {
         var openBtn = e.target.closest('[data-modal-open="add-school-modal"]');
